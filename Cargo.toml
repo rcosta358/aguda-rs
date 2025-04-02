@@ -1,0 +1,12 @@
+[package]
+name = "aguda-rs"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+logos = "0.15.0"
+lalrpop-util = "0.22.1"
+
+[build-dependencies]
+lalrpop = "0.20"
