@@ -1,4 +1,5 @@
 mod lexer;
+mod ast;
 
 use std::fs;
 use crate::lexer::Lexer;
