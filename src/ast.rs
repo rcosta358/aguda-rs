@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub enum Declaration {
     LetVar(String, Type, Expression),
-    LetFun(String, Vec<(String, Type)>, Type, Expression),
+    LetFun(String, Vec<String>, Vec<Type>, Type, Expression),
 }
 
 #[derive(Debug)]
@@ -11,15 +11,16 @@ pub enum Expression {
     Bool(bool),
     Null,
     Unit,
-    Var(String), // id
+    Id(String),
     Chain(Box<Expression>, Box<Expression>), // expr; expr
     Let(String, Type, Box<Expression>), // let id : type = expr
     Set(Lhs, Box<Expression>), // set lhs = expr
-    BinOp(Box<Expression>, Op, Box<Expression>), // x op y
+    BinOp(Box<Expression>, Op, Box<Expression>), // expr op expr
+    Not(Box<Expression>), // !expr
     While(Box<Expression>, Box<Expression>), // while expr do expr
-    IfElse(Box<Expression>, Vec<Expression>, Vec<Expression>), // if expr then expr else expr
-    FunCall(String, Box<Expression>), // func(expr)
-    ArrayNew(Type, Box<Expression>, Box<Expression>), // new type [size | init]
+    IfElse(Box<Expression>, Box<Expression>, Box<Expression>), // if expr then expr else expr
+    FunCall(String, Vec<Expression>), // func(expr, ...)
+    NewArray(Type, Box<Expression>, Box<Expression>), // new type [size | init]
 }
 
 #[derive(Debug)]
@@ -43,8 +44,6 @@ pub enum Op {
     Greater,
     LessEqual,
     GreaterEqual,
-    LessOrEqual,
-    GreaterOrEqual,
     Equal,
     NotEqual,
 }
@@ -55,6 +54,6 @@ pub enum Type {
     Bool,
     String,
     Unit,
-    Array(Box<Type>),
-    Fun(Vec<Type>, Box<Type>),
+    Array(Box<Type>), // type[]
+    Fun(Vec<Type>, Box<Type>), // (type, ...) -> type
 }

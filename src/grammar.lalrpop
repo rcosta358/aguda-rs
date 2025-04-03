@@ -1,0 +1,189 @@
+use std::str::FromStr;
+use crate::ast::*;
+use crate::lexer::Token;
+
+grammar;
+
+// map string representations from the lexer to tokens
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "id"     => Token::Id(<String>),
+        "num"    => Token::Int(<i64>),
+        "string" => Token::String(<String>),
+        "true"   => Token::True,
+        "false"  => Token::False,
+        "null"   => Token::Null,
+        "unit"   => Token::Unit,
+        ";"      => Token::Semicolon,
+        "+"      => Token::Plus,
+        "-"      => Token::Minus,
+        "*"      => Token::Multiply,
+        "/"      => Token::Divide,
+        "%"      => Token::Modulo,
+        "^"      => Token::Power,
+        "=="     => Token::Equal,
+        "!="     => Token::NotEqual,
+        "<"      => Token::Less,
+        "<="     => Token::LessOrEqual,
+        ">"      => Token::Greater,
+        ">="     => Token::GreaterOrEqual,
+        "!"      => Token::Not,
+        "||"     => Token::Or,
+        "&&"     => Token::And,
+        "("      => Token::LeftParen,
+        ")"      => Token::RightParen,
+        "["      => Token::LeftBracket,
+        "]"      => Token::RightBracket,
+        ","      => Token::Comma,
+        "set"    => Token::Set,
+        "let"    => Token::Let,
+        ":"      => Token::Colon,
+        "="      => Token::Assign,
+        "->"     => Token::Arrow,
+        "if"     => Token::If,
+        "then"   => Token::Then,
+        "else"   => Token::Else,
+        "while"  => Token::While,
+        "do"     => Token::Do,
+        "new"    => Token::New,
+        "|"      => Token::Pipe,
+        "Int"    => Token::IntType,
+        "Bool"   => Token::BoolType,
+        "String" => Token::StringType,
+        "Unit"   => Token::UnitType,
+    }
+}
+
+// top-level rule that parses an entire aguda program as a sequence of declarations
+pub Program: Vec<Declaration> = {
+    <decls:Decl*> => decls,
+}
+
+Decl: Declaration = {
+    <d:DeclVar> => d, // let ID ":" Type "=" Expr
+    <d:DeclFunc> => d, // let ID (ID, ...) : (Type, ...) -> Type = Expr
+}
+
+DeclVar: Declaration = {
+    "let" <id:"id"> ":" <t:Type> "=" <e:Expr> => Declaration::LetVar(id.to_string(), t, e),
+}
+
+DeclFunc: Declaration = {
+    "let" <id:"id">
+        "(" <params:FunParamIds> ")"
+        ":" <sig:FunctionSignature>
+        "=" <body:Expr>
+    => Declaration::LetFun(id.to_string(), params, sig.0, sig.1, body),
+};
+
+FunctionSignature: (Vec<Type>, Type) = {
+    "(" <params:FunParamTypes> ")" "->" <ret:Type> => (params, ret), // multi param
+    <single:Type> "->" <ret:Type> => (Vec::new[single], ret), // single param
+};
+
+FunParamIds: Vec<String> = {
+    <ids:("id" ++ ",")> => ids.into_iter().map(|id| id.to_string()).collect() // comma separated
+};
+
+FunParamTypes: Vec<Type> = {
+    <types:(Type ++ ",")> => types.into_iter().collect() // comma separated
+};
+
+FunArgs: Vec<Expression> = {
+    <exprs:(Expr ++ ",")> => exprs.into_iter().collect() // comma separated
+};
+
+Type: Type = {
+    <base:BaseType> "[" "]" => Type::Array(Box::new(base)), // type[]
+    <base:BaseType> => base, // base type
+}
+
+BaseType: Type = {
+    "Int"    => Type::Int,
+    "Bool"   => Type::Bool,
+    "String" => Type::String,
+    "Unit"   => Type::Unit,
+}
+
+Expr: Expression = {
+    <e:ChainExpr> => e,
+}
+
+ChainExpr: Expression = {
+    <lhs:ChainExpr> ";" <rhs:OrExpr> => Expression::Chain(Box::new(lhs), Box::new(rhs)),
+    <e:OrExpr> => e,
+}
+
+OrExpr: Expression = {
+    <lhs:OrExpr> "||" <rhs:AndExpr> => Expression::BinOp(Box::new(lhs), Op::Or, Box::new(rhs)),
+    <e:AndExpr> => e,
+}
+
+AndExpr: Expression = {
+    <lhs:AndExpr> "&&" <rhs:EqExpr> => Expression::BinOp(Box::new(lhs), Op::And, Box::new(rhs)),
+    <e:EqExpr> => e,
+}
+
+EqExpr: Expression = {
+    <lhs:EqExpr> "==" <rhs:RelExpr> => Expression::BinOp(Box::new(lhs), Op::Equal, Box::new(rhs)),
+    <lhs:EqExpr> "!=" <rhs:RelExpr> => Expression::BinOp(Box::new(lhs), Op::NotEqual, Box::new(rhs)),
+    <e:RelExpr> => e,
+}
+
+RelExpr: Expression = {
+    <lhs:RelExpr> "<"  <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::Less, Box::new(rhs)),
+    <lhs:RelExpr> "<=" <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::LessEqual, Box::new(rhs)),
+    <lhs:RelExpr> ">"  <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::Greater, Box::new(rhs)),
+    <lhs:RelExpr> ">=" <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::GreaterEqual, Box::new(rhs)),
+    <e:AddSubExpr> => e,
+}
+
+AddSubExpr: Expression = {
+    <lhs:AddSubExpr> "+" <rhs:MulDivExpr> => Expression::BinOp(Box::new(lhs), Op::Add, Box::new(rhs)),
+    <lhs:AddSubExpr> "-" <rhs:MulDivExpr> => Expression::BinOp(Box::new(lhs), Op::Sub, Box::new(rhs)),
+    <e:MulDivExpr> => e,
+}
+
+MulDivExpr: Expression = {
+    <lhs:MulDivExpr> "*" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Mul, Box::new(rhs)),
+    <lhs:MulDivExpr> "/" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Div, Box::new(rhs)),
+    <lhs:MulDivExpr> "%" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Mod, Box::new(rhs)),
+    <e:PowExpr> => e,
+}
+
+PowExpr: Expression = {
+    <lhs:PowExpr> "^" <rhs:UnaryExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
+    <e:UnaryExpr> => e,
+}
+
+UnaryExpr: Expression = {
+    "-" <e:UnaryExpr> => Expression::BinOp(Box::new(Expression::Num(0)), Op::Sub, Box::new(e)),
+    "!" <e:UnaryExpr> => Expression::Not(Box::new(e)),
+    <e:PrimaryExpr> => e,
+}
+
+PrimaryExpr: Expression = {
+    "(" <e:Expr> ")" => e,
+    <n:"num">        => Expression::Num(n as i64),
+    <id:"id">        => Expression::Id(id.to_string()),
+    <s:"string">     => Expression::Str(s.to_string()),
+    "true"           => Expression::Bool(true),
+    "false"          => Expression::Bool(false),
+    "null"           => Expression::Null,
+    "unit"           => Expression::Unit,
+    "let" <id:"id"> ":" <t:Type> "=" <e:Expr>  => Expression::Let(id.to_string(), t, Box::new(e)),
+    "set" <lhs:Lhs> "=" <rhs:Expr> => Expression::Set(lhs, Box::new(rhs)),
+    "while" <cond:Expr> "do" <body:Expr> => Expression::While(Box::new(cond), Box::new(body)),
+    "if" <cond:Expr> "then" <then:Expr> "else" <els:Expr> => Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
+    "if" <cond:Expr> "then" <then:Expr> => Expression::IfElse(Box::new(cond), Box::new(then), Box::new(Expression::Unit)),
+    <id:"id"> "(" <args:FunArgs> ")" => Expression::FunCall(id.to_string(), args),
+    "new" <ty:Type> "[" <size:Expr> "|" <init:Expr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
+}
+
+Lhs: Lhs = {
+    <v:"id"> => Lhs::Var(v.to_string()), // variable
+    <lhs:Lhs> "[" <idx:Expr> "]" => Lhs::Index(Box::new(lhs), Box::new(idx)), // array indexing
+};
