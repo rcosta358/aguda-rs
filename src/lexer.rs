@@ -1,6 +1,9 @@
+use std::num::ParseIntError;
 use logos::Logos;
+use crate::utils::format_error_with_line;
 
 #[derive(Logos, Debug, PartialEq, Clone)]
+#[logos(error=LexicalError)]
 #[logos(skip r"[ \t\r\n\f]+")] // ignore whitespace
 #[logos(skip r"--(.*)")] // ignore comments
 pub enum Token {
@@ -8,7 +11,7 @@ pub enum Token {
     #[regex("[a-zA-Z_][a-zA-Z0-9'_]*", |lex| lex.slice().to_string(), priority = 0)]
     Id(String),
 
-    #[regex(r"-?(0|[1-9][0-9]*)", |lex| lex.slice().parse().unwrap_or(0))]
+    #[regex("[0-9]+", |lex| lex.slice().parse().map_err(|e| LexicalError::from(e)))]
     Int(i64),
 
     #[regex("\"[^\"\n]*\"", |lex| lex.slice().to_string())]
@@ -98,6 +101,9 @@ pub enum Token {
     #[token("=")]
     Assign,
 
+    #[token("->")]
+    Arrow,
+
     #[token("if")]
     If,
 
@@ -151,9 +157,34 @@ impl<'a> Lexer<'a> {
             let span = self.lexer.span();
             match tok {
                 Ok(token) => tokens.push((span.start, token, span.end)),
-                Err(e) => return Err(format!("Error at {}: {:?}", span.start, e)),
+                Err(e) => {
+                    return match e {
+                        LexicalError::InvalidInteger(e) =>
+                            Err(format_error_with_line(&self.src, span.start, &e, None)),
+                        LexicalError::UnrecognizedToken =>
+                            Err(format_error_with_line(&self.src, span.start, "unrecognized token", None)),
+                    }
+                }
             }
         }
         Ok(tokens)
+    }
+}
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub enum LexicalError {
+    InvalidInteger(String),
+
+    #[default]
+    UnrecognizedToken,
+}
+
+impl From<ParseIntError> for LexicalError {
+    fn from(err: ParseIntError) -> Self {
+        use std::num::IntErrorKind::*;
+        match err.kind() {
+            PosOverflow | NegOverflow => LexicalError::InvalidInteger("integer overflow".to_owned()),
+            _ => LexicalError::InvalidInteger("invalid integer".to_owned()),
+        }
     }
 }
