@@ -1,0 +1,27 @@
+-- Author: 64371, Ricardo Costa
+
+-- binary search algorithm for a sorted array
+-- returns the index of the element if found and -1 otherwise
+let binarySearch(arr, left, right, val): (Int[], Int, Int, Int) -> Int =
+    if left > right then
+        -1
+    else
+        let mid: Int = (left + right) / 2;
+        if arr[mid] == val then
+            mid 
+        else if arr[mid] < val then
+            binarySearch(arr, mid + 1, right, val)
+        else
+            binarySearch(arr, left, mid - 1, val)
+
+let main: Unit =
+    let n: Int = 10;
+    let arr: Int[] = new Int[n | 0];
+    let i: Int = 0;
+    while i < n do ( -- fill array with 1..n
+        set arr[i] = i + 1;
+        set i = i + 1
+    );
+    let val: Int = 7;
+    let res: Int = binarySearch(arr, 0, length(arr) - 1, val);
+    print(res) -- 6

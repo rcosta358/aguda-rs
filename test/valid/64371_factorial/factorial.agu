@@ -1,0 +1,8 @@
+-- Author: 64371, Ricardo Costa
+
+-- returns the factorial of a number
+let factorial(n): Int -> Int =
+    if n == 0 then 1
+    else n * factorial(n - 1)
+
+let main: Unit = print(factorial(10)) -- 3628800

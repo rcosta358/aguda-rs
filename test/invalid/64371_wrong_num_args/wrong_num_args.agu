@@ -1,0 +1,7 @@
+-- Author: 64371, Ricardo Costa
+
+let add(x, y): (Int, Int) -> Int = x + y
+
+let main: Unit =
+    let res: Int = add(1, 2, 3); -- semantic error: wrong number of arguments
+    print(res)
