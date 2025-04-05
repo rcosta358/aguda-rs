@@ -16,9 +16,6 @@ pub fn format_error_with_line(
     );
     if let Some(expected) = expected {
         msg.push_str(&format!("\nExpected: {}", expected.join(", ")));
-        if expected.iter().any(|s| s == r#"";""#) {
-            msg.push_str("\nDid you forget a semicolon?");
-        }
     }
     msg
 }

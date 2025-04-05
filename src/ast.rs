@@ -21,6 +21,7 @@ pub enum Expression {
     IfElse(Box<Expression>, Box<Expression>, Box<Expression>), // if expr then expr else expr
     FunCall(String, Vec<Expression>), // func(expr, ...)
     NewArray(Type, Box<Expression>, Box<Expression>), // new type [size | init]
+    ArrayIndex(Lhs, Box<Expression>),
 }
 
 #[derive(Debug)]

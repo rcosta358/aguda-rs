@@ -124,74 +124,98 @@ Expr: Expression = {
 }
 
 ChainExpr: Expression = {
-    <lhs:ChainExpr> ";" <rhs:CtrlExpr> => Expression::Chain(Box::new(lhs), Box::new(rhs)),
-    <e:CtrlExpr> => e,
+    // right associative
+    <lhs:IfExpr> ";" <rhs:ChainExpr> => Expression::Chain(Box::new(lhs), Box::new(rhs)),
+    <e:IfExpr> => e,
 }
 
-CtrlExpr: Expression = {
-    "let" <id:Id> ":" <t:Type> "=" <e:CtrlExpr>  => Expression::Let(id, t, Box::new(e)),
-    "set" <lhs:Lhs> "=" <rhs:CtrlExpr> => Expression::Set(lhs, Box::new(rhs)),
-    "while" <cond:Expr> "do" <body:CtrlExpr> => Expression::While(Box::new(cond), Box::new(body)),
-    "new" <ty:Type> "[" <size:CtrlExpr> "|" <init:CtrlExpr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
-    <e:IfExpr> => e,
+// distinguishes matched and unmatched ifs
+IfExpr: Expression = {
+    <m:MatchedIf> => m,
+    <u:UnmatchedIf> => u,
+}
+
+// both then and else parts with nesting
+MatchedIf: Expression = {
+    "if" <cond:OrExpr> "then" <then:MatchedIf> "else" <els:MatchedIf> =>
+         Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
+    <e:StmtExpr> => e,
+}
+
+// the if without else or with unmatched else
+UnmatchedIf: Expression = {
+    "if" <cond:OrExpr> "then" <e:StmtExpr> =>
+         Expression::IfElse(Box::new(cond), Box::new(e), Box::new(Expression::Unit)),
+    "if" <cond:OrExpr> "then" <then:MatchedIf> "else" <els:UnmatchedIf> =>
+         Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
+}
+
+// the main statement expression
+StmtExpr: Expression = {
+    "let" <id:Id> ":" <t:Type> "=" <e:StmtExpr>  => Expression::Let(id, t, Box::new(e)),
+    "set" <lhs:Lhs> "=" <rhs:StmtExpr> => Expression::Set(lhs, Box::new(rhs)),
+    "while" <cond:Expr> "do" <body:StmtExpr> => Expression::While(Box::new(cond), Box::new(body)),
+    "new" <ty:Type> "[" <size:StmtExpr> "|" <init:StmtExpr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
     <e:OrExpr> => e,
 }
 
-IfExpr: Expression = {
-    "if" <cond:OrExpr> "then" <then:OrExpr> "else" <els:OrExpr> =>
-        Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
-    "if" <cond:OrExpr> "then" <then:OrExpr> =>
-        Expression::IfElse(Box::new(cond), Box::new(then), Box::new(Expression::Unit)),
-}
-
 OrExpr: Expression = {
+    // left associative
     <lhs:OrExpr> "||" <rhs:AndExpr> => Expression::BinOp(Box::new(lhs), Op::Or, Box::new(rhs)),
     <e:AndExpr> => e,
 }
 
 AndExpr: Expression = {
+    // left associative
     <lhs:AndExpr> "&&" <rhs:EqExpr> => Expression::BinOp(Box::new(lhs), Op::And, Box::new(rhs)),
     <e:EqExpr> => e,
 }
 
 EqExpr: Expression = {
+    // left associative
     <lhs:EqExpr> "==" <rhs:RelExpr> => Expression::BinOp(Box::new(lhs), Op::Equal, Box::new(rhs)),
     <lhs:EqExpr> "!=" <rhs:RelExpr> => Expression::BinOp(Box::new(lhs), Op::NotEqual, Box::new(rhs)),
     <e:RelExpr> => e,
 }
 
 RelExpr: Expression = {
-    <lhs:RelExpr> "<"  <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::Less, Box::new(rhs)),
-    <lhs:RelExpr> "<=" <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::LessEqual, Box::new(rhs)),
-    <lhs:RelExpr> ">"  <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::Greater, Box::new(rhs)),
-    <lhs:RelExpr> ">=" <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::GreaterEqual, Box::new(rhs)),
+    // non associative
+    <lhs:AddSubExpr> "<"  <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::Less, Box::new(rhs)),
+    <lhs:AddSubExpr> "<=" <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::LessEqual, Box::new(rhs)),
+    <lhs:AddSubExpr> ">"  <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::Greater, Box::new(rhs)),
+    <lhs:AddSubExpr> ">=" <rhs:AddSubExpr> => Expression::BinOp(Box::new(lhs), Op::GreaterEqual, Box::new(rhs)),
     <e:AddSubExpr> => e,
 }
 
 AddSubExpr: Expression = {
+    // left associative
     <lhs:AddSubExpr> "+" <rhs:MulDivExpr> => Expression::BinOp(Box::new(lhs), Op::Add, Box::new(rhs)),
     <lhs:AddSubExpr> "-" <rhs:MulDivExpr> => Expression::BinOp(Box::new(lhs), Op::Sub, Box::new(rhs)),
     <e:MulDivExpr> => e,
 }
 
 MulDivExpr: Expression = {
+    // left associative
     <lhs:MulDivExpr> "*" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Mul, Box::new(rhs)),
     <lhs:MulDivExpr> "/" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Div, Box::new(rhs)),
     <lhs:MulDivExpr> "%" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Mod, Box::new(rhs)),
-    <e:UnaryExpr> => e,
-}
-
-UnaryExpr: Expression = {
-    "-" <e:UnaryExpr> => Expression::BinOp(Box::new(Expression::Num(0)), Op::Sub, Box::new(e)),
-    "!" <e:UnaryExpr> => Expression::Not(Box::new(e)),
     <e:PowExpr> => e,
 }
 
 PowExpr: Expression = {
-    <lhs:PowExpr> "^" <rhs:LiteralExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
-    <e:LiteralExpr> => e,
-}
+    // right associative
+    <lhs:UnaryExpr> "^" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
+    <e:UnaryExpr> => e,
+};
 
+UnaryExpr: Expression = {
+    // highest precedence operators
+    "-" <e:UnaryExpr> => Expression::BinOp(Box::new(Expression::Num(0)), Op::Sub, Box::new(e)),
+    "!" <e:UnaryExpr> => Expression::Not(Box::new(e)),
+    <e:LiteralExpr> => e,
+};
+
+// literals and parenthesis
 LiteralExpr: Expression = {
     <n:"num">        => Expression::Num(n as i64),
     <s:"string">     => Expression::Str(s.to_string()),
@@ -200,15 +224,18 @@ LiteralExpr: Expression = {
     "null"           => Expression::Null,
     "unit"           => Expression::Unit,
     "(" <e:Expr> ")" => e,
-    <e: IdExpr>      => e,
-}
+    <e:IdExpr>       => e,
+};
 
+// id, function call and array indexing
 IdExpr: Expression = {
     <id:Id>                        => Expression::Id(id),
     <id:Id> "(" <args:FunArgs> ")" => Expression::FunCall(id, args),
+    <lhs:Lhs> "[" <idx:Expr> "]" => Expression::ArrayIndex(lhs, Box::new(idx)),
 }
 
+// left-hand side of an assignment
 Lhs: Lhs = {
     <id:Id> => Lhs::Var(id), // variable
-    <lhs:Lhs> "[" <idx:Expr> "]" => Lhs::Index(Box::new(lhs), Box::new(idx)), // array indexing
+    <lhs:Lhs> "[" <idx:Expr> "]" => Lhs::Index(Box::new(lhs), Box::new(idx)), // array index
 };
