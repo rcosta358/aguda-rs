@@ -85,6 +85,7 @@ FunSignature: (Vec<Type>, Type) = {
 };
 
 // comma separated list with at least one element
+#[inline]
 List<T>: Vec<T> = {
     <head:T> <tail:(("," T))*> => {
         let mut v = vec![head];
@@ -95,14 +96,18 @@ List<T>: Vec<T> = {
     }
 };
 
+#[inline]
 Id: String = {
     <id:"id"> => id.to_string(),
 }
 
+#[inline]
 FunParamIds: Vec<String> = List<Id>;
 
+#[inline]
 FunParamTypes: Vec<Type> = List<Type>;
 
+#[inline]
 FunArgs: Vec<Expression> = List<Expr>;
 
 #[inline]
@@ -112,6 +117,7 @@ Type: Type = {
     }
 }
 
+#[inline]
 BaseType: Type = {
     "Int"    => Type::Int,
     "Bool"   => Type::Bool,
@@ -150,12 +156,11 @@ UnmatchedIf: Expression = {
          Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
 }
 
-// the main statement expression
 StmtExpr: Expression = {
-    "let" <id:Id> ":" <t:Type> "=" <e:StmtExpr>  => Expression::Let(id, t, Box::new(e)),
-    "set" <lhs:Lhs> "=" <rhs:StmtExpr> => Expression::Set(lhs, Box::new(rhs)),
-    "while" <cond:Expr> "do" <body:StmtExpr> => Expression::While(Box::new(cond), Box::new(body)),
-    "new" <ty:Type> "[" <size:StmtExpr> "|" <init:StmtExpr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
+    "let" <id:Id> ":" <t:Type> "=" <e:MatchedIf>  => Expression::Let(id, t, Box::new(e)),
+    "set" <lhs:Lhs> "=" <rhs:MatchedIf> => Expression::Set(lhs, Box::new(rhs)),
+    "while" <cond:Expr> "do" <body:MatchedIf> => Expression::While(Box::new(cond), Box::new(body)),
+    "new" <ty:Type> "[" <size:MatchedIf> "|" <init:MatchedIf> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
     <e:OrExpr> => e,
 }
 
