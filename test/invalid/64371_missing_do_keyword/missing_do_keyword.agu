@@ -1,5 +1,0 @@
--- Author: 64371, Ricardo Costa
-
-let x: Unit =
-    let i: Int = 0; 
-    while true set i = i + 1 -- syntax error: missing 'do' keyword

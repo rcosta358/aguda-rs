@@ -1,0 +1,4 @@
+-- Author: 64371, Ricardo Costa
+
+let between(x: Int, min: Int, max: Int): Bool =
+    min < x < max -- syntax error: non associative operator '<'

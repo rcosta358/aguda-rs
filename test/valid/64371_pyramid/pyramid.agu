@@ -1,0 +1,25 @@
+-- Author: 64371, Ricardo Costa
+
+-- repeats the same string n times
+let repeatStr(str, n): (String, Int) -> String =
+    let res: String = "";
+    let i: Int = 0;
+    while i < n do (
+        set res = res + str;
+        set i = i + 1
+    );
+    res
+
+-- prints a pyramid of * with variable height
+let printPyramid(height): Int -> Unit =
+    let i: Int = 0;
+    while i < height do (
+        let spaces: Int = height - i - 1; 
+        let stars: Int = 2 * i + 1;
+        let line: String = repeatStr(" ", spaces) + repeatStr("*", stars);
+        print(line);
+        print("\n");
+        set i = i + 1
+    )
+
+let main: Unit = printPyramid(5) -- prints a pyramid of height 5

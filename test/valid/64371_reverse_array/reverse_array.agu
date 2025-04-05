@@ -11,16 +11,12 @@ let reverseArray(arr, left, right): (Int[], Int, Int) -> Unit =
 
 let main: Unit =
     let n: Int = 10;
-    let arr: Int[] = new Int[n | 0];
     let i: Int = 0;
-    while i < n do ( -- fill array with 1..n
-        set arr[i] = i + 1;
-        set i = i + 1
-    );
+    let arr: Int[] = new Int[n | while i < n do i = i + 1; i]; -- fill array with 1..n
     reverseArray(arr, 0, n - 1);
     set i = 0;
-    while i < 10 do ( -- print array: 10,9,8,7,6,5,4,3,2,1
-        print(arr[i]);
-        if i < 9 print(",");
+    while i < n do (
+        print(arr[i]); -- 10,9,8,7,6,5,4,3,2,1
+        if i < n - 1 then print(",");
         set i = i + 1
-    );
+    )

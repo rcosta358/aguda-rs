@@ -1,5 +1,0 @@
--- Author: 64371, Ricardo Costa
-
-let say_hello(): Unit = "hello" -- syntax error: functions require at least one parameter
-
-let main: Unit = say_hello()

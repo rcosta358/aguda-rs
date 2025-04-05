@@ -1,0 +1,3 @@
+-- Author: 64371, Ricardo Costa
+
+let str = "hello" -- syntax error: missing type annotation
