@@ -4,7 +4,7 @@ use crate::lexer::Token;
 
 grammar;
 
-// map string representations from the lexer to tokens
+// map string representations to lexer tokens
 extern {
     type Location = usize;
     type Error = String;
@@ -63,42 +63,53 @@ pub Program: Vec<Declaration> = {
 }
 
 Decl: Declaration = {
-    <d:DeclVar> => d, // let ID ":" Type "=" Expr
-    <d:DeclFunc> => d, // let ID (ID, ...) : (Type, ...) -> Type = Expr
+    <d:DeclVar> => d, // let id ":" type "=" expr
+    <d:DeclFunc> => d, // let id (id, ...) : (type, ...) -> type = expr
 }
 
 DeclVar: Declaration = {
-    "let" <id:"id"> ":" <t:Type> "=" <e:Expr> => Declaration::LetVar(id.to_string(), t, e),
+    "let" <id:Id> ":" <t:Type> "=" <e:Expr> => Declaration::LetVar(id, t, e), // let id : type = expr
 }
 
 DeclFunc: Declaration = {
-    "let" <id:"id">
+    "let" <id:Id>
         "(" <params:FunParamIds> ")"
-        ":" <sig:FunctionSignature>
+        ":" <sig:FunSignature>
         "=" <body:Expr>
-    => Declaration::LetFun(id.to_string(), params, sig.0, sig.1, body),
+    => Declaration::LetFun(id, params, sig.0, sig.1, body), // let id(args+) : (type+) -> type = expr
 };
 
-FunctionSignature: (Vec<Type>, Type) = {
+FunSignature: (Vec<Type>, Type) = {
     "(" <params:FunParamTypes> ")" "->" <ret:Type> => (params, ret), // multi param
-    <single:Type> "->" <ret:Type> => (Vec::new[single], ret), // single param
+    <single:Type> "->" <ret:Type> => (vec![single], ret), // single param
 };
 
-FunParamIds: Vec<String> = {
-    <ids:("id" ++ ",")> => ids.into_iter().map(|id| id.to_string()).collect() // comma separated
+// comma separated list with at least one element
+List<T>: Vec<T> = {
+    <head:T> <tail:(("," T))*> => {
+        let mut v = vec![head];
+        for (_, t) in tail {
+            v.push(t);
+        }
+        v
+    }
 };
 
-FunParamTypes: Vec<Type> = {
-    <types:(Type ++ ",")> => types.into_iter().collect() // comma separated
-};
+Id: String = {
+    <id:"id"> => id.to_string(),
+}
 
-FunArgs: Vec<Expression> = {
-    <exprs:(Expr ++ ",")> => exprs.into_iter().collect() // comma separated
-};
+FunParamIds: Vec<String> = List<Id>;
 
+FunParamTypes: Vec<Type> = List<Type>;
+
+FunArgs: Vec<Expression> = List<Expr>;
+
+#[inline]
 Type: Type = {
-    <base:BaseType> "[" "]" => Type::Array(Box::new(base)), // type[]
-    <base:BaseType> => base, // base type
+    <base:BaseType> <dims:("[" "]")*> => {
+        dims.into_iter().fold(base, |acc, _| Type::Array(Box::new(acc)))
+    }
 }
 
 BaseType: Type = {
@@ -113,8 +124,24 @@ Expr: Expression = {
 }
 
 ChainExpr: Expression = {
-    <lhs:ChainExpr> ";" <rhs:OrExpr> => Expression::Chain(Box::new(lhs), Box::new(rhs)),
+    <lhs:ChainExpr> ";" <rhs:CtrlExpr> => Expression::Chain(Box::new(lhs), Box::new(rhs)),
+    <e:CtrlExpr> => e,
+}
+
+CtrlExpr: Expression = {
+    "let" <id:Id> ":" <t:Type> "=" <e:CtrlExpr>  => Expression::Let(id, t, Box::new(e)),
+    "set" <lhs:Lhs> "=" <rhs:CtrlExpr> => Expression::Set(lhs, Box::new(rhs)),
+    "while" <cond:Expr> "do" <body:CtrlExpr> => Expression::While(Box::new(cond), Box::new(body)),
+    "new" <ty:Type> "[" <size:CtrlExpr> "|" <init:CtrlExpr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
+    <e:IfExpr> => e,
     <e:OrExpr> => e,
+}
+
+IfExpr: Expression = {
+    "if" <cond:OrExpr> "then" <then:OrExpr> "else" <els:OrExpr> =>
+        Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
+    "if" <cond:OrExpr> "then" <then:OrExpr> =>
+        Expression::IfElse(Box::new(cond), Box::new(then), Box::new(Expression::Unit)),
 }
 
 OrExpr: Expression = {
@@ -151,39 +178,37 @@ MulDivExpr: Expression = {
     <lhs:MulDivExpr> "*" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Mul, Box::new(rhs)),
     <lhs:MulDivExpr> "/" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Div, Box::new(rhs)),
     <lhs:MulDivExpr> "%" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Mod, Box::new(rhs)),
-    <e:PowExpr> => e,
-}
-
-PowExpr: Expression = {
-    <lhs:PowExpr> "^" <rhs:UnaryExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
     <e:UnaryExpr> => e,
 }
 
 UnaryExpr: Expression = {
     "-" <e:UnaryExpr> => Expression::BinOp(Box::new(Expression::Num(0)), Op::Sub, Box::new(e)),
     "!" <e:UnaryExpr> => Expression::Not(Box::new(e)),
-    <e:PrimaryExpr> => e,
+    <e:PowExpr> => e,
 }
 
-PrimaryExpr: Expression = {
-    "(" <e:Expr> ")" => e,
+PowExpr: Expression = {
+    <lhs:PowExpr> "^" <rhs:LiteralExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
+    <e:LiteralExpr> => e,
+}
+
+LiteralExpr: Expression = {
     <n:"num">        => Expression::Num(n as i64),
-    <id:"id">        => Expression::Id(id.to_string()),
     <s:"string">     => Expression::Str(s.to_string()),
     "true"           => Expression::Bool(true),
     "false"          => Expression::Bool(false),
     "null"           => Expression::Null,
     "unit"           => Expression::Unit,
-    "let" <id:"id"> ":" <t:Type> "=" <e:Expr>  => Expression::Let(id.to_string(), t, Box::new(e)),
-    "set" <lhs:Lhs> "=" <rhs:Expr> => Expression::Set(lhs, Box::new(rhs)),
-    "while" <cond:Expr> "do" <body:Expr> => Expression::While(Box::new(cond), Box::new(body)),
-    "if" <cond:Expr> "then" <then:Expr> "else" <els:Expr> => Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
-    "if" <cond:Expr> "then" <then:Expr> => Expression::IfElse(Box::new(cond), Box::new(then), Box::new(Expression::Unit)),
-    <id:"id"> "(" <args:FunArgs> ")" => Expression::FunCall(id.to_string(), args),
-    "new" <ty:Type> "[" <size:Expr> "|" <init:Expr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
+    "(" <e:Expr> ")" => e,
+    <e: IdExpr>      => e,
+}
+
+IdExpr: Expression = {
+    <id:Id>                        => Expression::Id(id),
+    <id:Id> "(" <args:FunArgs> ")" => Expression::FunCall(id, args),
 }
 
 Lhs: Lhs = {
-    <v:"id"> => Lhs::Var(v.to_string()), // variable
+    <id:Id> => Lhs::Var(id), // variable
     <lhs:Lhs> "[" <idx:Expr> "]" => Lhs::Index(Box::new(lhs), Box::new(idx)), // array indexing
 };

@@ -26,6 +26,9 @@ pub enum Token {
     #[token("null")]
     Null,
 
+    #[token("unit")]
+    Unit,
+
     #[token(";")]
     Semicolon,
 
