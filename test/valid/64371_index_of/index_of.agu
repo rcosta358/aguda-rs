@@ -18,6 +18,10 @@ let indexOf(arr, x): (Int[], Int) -> Int =
 let main: Unit =
     let n: Int = 5;
     let i: Int = 0;
-    let arr: Int[] = new Int[n | while i < n do i = i + 1; i]; -- fill array with 1..n
+    let arr: Int[] = new Int[n | 0];
+    while i < n do ( -- fill array with 1..n
+        set arr[i] = i + 1; 
+        set i = i + 1
+    );
     let res: Int = indexOf(arr, 3);
     print(res) -- 2

@@ -1,0 +1,39 @@
+-- Author: 64371, Ricardo Costa
+
+-- returns the pascals triangle with given height
+let pascalsTriangle(height): Int -> Int[][] =
+    let triangle: Int[][] = new Int[] [height | new Int [0 | 0]];
+    let row: Int = 0;
+    while row < height do (
+        let newRow: Int[] =
+            if row == 0 then new Int [1 | 1]
+            else (
+                let temp: Int[] = new Int [row+1 | 1];
+                let col: Int = 1;
+                while col < row do (
+                    set temp[col] = triangle[row-1][col-1] + triangle[row-1][col];
+                    set col = col + 1
+                );
+                temp
+            );
+        set triangle[row] = newRow;
+        set row = row + 1
+    );
+    triangle
+
+let main: Unit =
+    let height: Int = 10;
+    let triangle: Int[][] = pascalsTriangle(height);
+
+    -- print triangle
+    let i : Int = 0;
+    while i < height do (
+        let j: Int = 0;
+        while j < length(triangle[i]) do (
+            print(triangle[i][j]);
+            print("   ");
+            set j = j + 1
+        );
+        print("\n");
+        set i = i + 1
+    )
