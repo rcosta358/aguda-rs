@@ -1,0 +1,9 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let even (x) : Int -> Bool =
+  x == 0 || odd(x - 1)
+
+let odd (x) : Int -> Bool =
+  x != 0 || even(x - 1)
+
+let _ : Bool = odd(17)

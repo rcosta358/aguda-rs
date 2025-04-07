@@ -1,0 +1,11 @@
+-- Author: 56307, Denis Ungureanu
+let sumArray (arr) : Int[] -> Int =
+  let sum : Int = 0 ;
+  let i : Int = 0 ;
+  while i < length(arr) do (
+    set sum = sum + arr[i] ;
+    set i = i + 1
+  );
+  sum
+
+let _ : Int = sumArray(new Int[] [5 | 10])

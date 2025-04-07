@@ -1,0 +1,8 @@
+-- Author: 64854, Diogo Almeida
+
+let produceLetter (letter) : String -> String = 
+    let l : String = l ;
+    l
+
+let _ : Unit =
+    print(produceLetter("a"))

@@ -1,0 +1,24 @@
+-- Author: 58182, Gabriel Henriques
+
+let testOverloadedFunctions : Unit =
+
+    let intValue : Int = 1 ;
+    let boolValue : Bool = true ;
+    let stringValue : String = "AGUDA" ;
+    let intArray : Int[] = new Int[3 | -1] ;
+    let boolArray : Bool[] = new Bool[2 | false] ;
+
+    print("Integer: ") ; 
+    print(intValue) ;
+
+    print("\nBoolean: ") ; 
+    print(boolValue) ;
+
+    print("\nString: ") ; 
+    print(stringValue) ;
+
+    print("\nLength of intArray: ") ; 
+    print(length(intArray)) ;
+
+    print("\nLength of boolArray: ") ; 
+    print(length(boolArray))

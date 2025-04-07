@@ -1,0 +1,8 @@
+-- Author: 56269, Frederico Prazeres
+
+let _ : Unit =
+  let x : Int = 1;
+  set x = x + 1;
+  set x = x * 3;
+  set x = x - 2;
+  print(x)

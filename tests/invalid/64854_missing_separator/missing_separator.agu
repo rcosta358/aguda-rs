@@ -1,0 +1,5 @@
+-- Author: 64854, Diogo Almeida
+
+-- missing the ;
+let a : Int = 1
+let b : Int = 2

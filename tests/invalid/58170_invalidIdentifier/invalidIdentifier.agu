@@ -1,0 +1,5 @@
+-- Author: 58170, Guilherme Sousa
+
+let 1variable : Int = 10;
+let main : Unit =
+  print(1variable)

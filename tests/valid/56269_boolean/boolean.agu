@@ -1,0 +1,6 @@
+-- Author: 56269, Frederico Prazeres
+
+let _ : Bool = 
+    if true 
+        then true 
+            else false

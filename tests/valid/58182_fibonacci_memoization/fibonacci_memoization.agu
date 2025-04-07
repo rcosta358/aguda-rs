@@ -1,0 +1,21 @@
+-- Author: 58182, Gabriel Henriques
+
+let fibonacci (n, memo) : (Int, Int[]) -> Int =
+    -- Base cases
+    if n == 0 then 0
+    else if n == 1 then 1
+    else 
+        -- If not already computed
+        if memo[n] == -1 then (
+            -- Compute and store the result
+            set memo[n] = fibonacci(n - 1, memo) + fibonacci(n - 2, memo)
+        ) ;
+        -- Return the memoized result
+        memo[n]
+
+let _ : Unit =
+    let n : Int = 100 ;
+    let memo : Int[] = new Int[n + 1 | -1] ;
+    set memo[0] = 0 ;
+    set memo[1] = 1 ;
+    print(fibonacci(n,memo))

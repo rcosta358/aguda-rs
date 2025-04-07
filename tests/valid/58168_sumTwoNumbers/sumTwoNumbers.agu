@@ -1,0 +1,8 @@
+-- Author: 58168, Henrique Costa Vale
+
+let sum(a,b) : (Int , Int) -> Int =
+  let c : Int = a + b ;
+  c
+
+let _ : Unit = 
+  print(sum(5,5))

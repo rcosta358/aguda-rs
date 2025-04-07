@@ -1,0 +1,11 @@
+-- Author: fc64361, Gustavo Henriques
+
+let testNullAssignment(x) : Int -> Unit =
+    if x == null then
+        print("x is null")
+    else
+        print("x is not null")
+
+let _ : Unit =
+    testNullAssignment(null); -- Should print "x is null"
+    testNullAssignment(1)     -- Should print "x is not null"

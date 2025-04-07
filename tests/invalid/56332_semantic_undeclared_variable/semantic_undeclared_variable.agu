@@ -1,0 +1,2 @@
+-- Author: 56332, Student Ricardo Sobral
+let sum (n) : Int -> Int = n + y  -- Erro semântico: variável 'y' não declarada

@@ -1,0 +1,9 @@
+-- Author: 56307, Denis Ungureanu
+let countdown (n) : Int -> Unit =
+  while n > 0 do (
+    print(n) ;
+    set n = n - 1
+  );
+  print("Go back to work!\n")
+
+let _ : Unit = countdown(5)

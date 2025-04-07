@@ -1,0 +1,4 @@
+-- 46494, Leonor Figueirinhas
+
+let multiplication (x,y : (Int,Int) -> Int =
+   x * y 

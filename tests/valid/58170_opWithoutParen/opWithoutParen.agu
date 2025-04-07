@@ -1,0 +1,10 @@
+-- Author: 58170, Guilherme Sousa
+
+let _ : Unit =
+  let a : Int = 2 + 3 * 4 ^ 2 / 2 - 1;  -- Should be 2 + ((3 * (4^2)) / 2) - 1 = 2 + 24 - 1 = 25
+  let b : Int = 3 * -2 ^ 2;             -- Should be 3 * ((-2)^2) = 3 * 4 = 12
+  let c : Bool = !true || false && true; -- Should be (!true) || (false && true) = false || false = false
+  
+  print("a = "); print(a); print("\n");
+  print("b = "); print(b); print("\n");
+  print("c = "); print(c); print("\n")

@@ -1,0 +1,5 @@
+-- Author: 56269, Frederico Prazeres
+
+-- Lexical Error
+
+let %&dfa : Int = 5

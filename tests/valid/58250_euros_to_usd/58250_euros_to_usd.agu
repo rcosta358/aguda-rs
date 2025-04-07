@@ -1,0 +1,10 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to convert euros to dollars
+let euros_to_usd (euros : Float) : Float = euros * 1.18
+
+let amount_euros : Float = 100  -- Amount in euros
+let amount_usd : Float = euros_to_usd(amount_euros)
+
+let _ : Unit = 
+    print(amount_usd)    -- Expected result: 118.0 

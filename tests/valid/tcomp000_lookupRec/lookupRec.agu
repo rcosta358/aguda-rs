@@ -1,0 +1,10 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let look (x, a, n) : (Int, Int[], Int) -> Bool =
+  n >= 0 && (x[n] == a || look (x, a, n - 1))
+
+let lookup (x, a) : (Int, Int[]) -> Bool =
+  look(x, a, length(a) - 1)
+
+let _ : Unit =
+  print(look(9, new Int [12 | 9]))  

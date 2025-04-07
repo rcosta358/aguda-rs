@@ -1,0 +1,7 @@
+-- Author: 56307, Denis Ungureanu
+let applyTwice (f, x) : (Int -> Int, Int) -> Int =
+  f(f(x))
+
+let increment (n) : Int -> Int = n + 1
+
+let _ : Int = applyTwice(increment, 3)

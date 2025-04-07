@@ -1,0 +1,3 @@
+-- Author: 56332, Student Ricardo Sobral
+let check (x) : Int -> Bool =
+    if x > 0 x - 1   -- Erro sintático: falta o 'then'

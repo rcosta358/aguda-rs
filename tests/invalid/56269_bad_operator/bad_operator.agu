@@ -1,0 +1,8 @@
+-- Author: 56269, Frederico Prazeres
+
+-- Syntax Error: + can't be followed by another +
+
+let badOperator (n) : Int -> Int =
+  let a : Int[][] = new Int[] [n | new Int [n | 0]] ;
+  let j : Int = length(a) + + 1 ;
+  j

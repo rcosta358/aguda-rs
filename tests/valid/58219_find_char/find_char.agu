@@ -1,0 +1,20 @@
+-- Author: 58219, Mariana Costa
+
+let findChar (str, char) : (String, String) -> Int =
+    let len : Int = length(str);
+    let i : Int = 0;
+    let result : Int = -1;
+    while i < len do (
+        if str[i] == char then (
+            set result = i;
+            set i = len;
+        ) else ();
+        set i = i + 1;
+    );
+    result
+
+let main : Unit =
+    let text : String = "teste";
+    let char : String = "s";
+
+    print(findChar(text, char))

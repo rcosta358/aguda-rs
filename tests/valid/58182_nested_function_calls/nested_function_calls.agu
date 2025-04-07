@@ -1,0 +1,9 @@
+-- Author: 58182, Gabriel Henriques
+
+let addOne (x) : Int -> Int = x + 1
+
+let addTwo (x) : Int -> Int = addOne(addOne(x))
+
+let _ : Unit =
+    let result : Int = addTwo(5) ;
+    print(result)

@@ -1,0 +1,6 @@
+-- Author: Eduardo Santos, 58185
+-- Semantic error: type mismatch in assignment, trying to assign Bool to Int
+    
+let main : Unit = 
+    let x : Int = 5 ;
+    set x = true  

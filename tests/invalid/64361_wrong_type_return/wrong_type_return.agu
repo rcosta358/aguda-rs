@@ -1,0 +1,4 @@
+-- Author: fc64361 , Gustavo Henriques
+
+let isGreaterThanTwo(x) : Int -> String = -- semantic error: this function should return a boolean, not a string
+    if x > 2 then true else  false

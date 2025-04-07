@@ -1,0 +1,5 @@
+-- Author: 58170, Guilherme Sousa
+
+let main : Unit =
+  let x : Int = "Hello";
+  print(x)

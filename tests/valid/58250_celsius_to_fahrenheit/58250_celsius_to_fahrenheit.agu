@@ -1,0 +1,10 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to convert Celsius to Fahrenheit (degrees)
+let celsius_to_fahrenheit (celsius : Int) : Int = (celsius * 9 / 5) + 32
+
+let celsius : Int = 25  -- Temperature in Celsius
+let fahrenheit : Int = celsius_to_fahrenheit(celsius)
+
+let _ : Unit = 
+    print(fahrenheit)  -- Expected result: 77 

@@ -1,0 +1,25 @@
+-- Author: 56269, Frederico Prazeres
+
+let bottomRow (n) : Int -> Int[][] =
+  let a : Int[][] = new Int[] [n | new Int [n | 0]] ;
+  let i : Int = 0 ;
+  while i < n do (
+    set a[n - 1][i] = 1 ;
+    set i = i + 1
+  ) ;
+  a
+
+
+let printMatrix (a) : Int[][] -> Unit =
+  let i : Int = 0 ;
+  while i < length(a) do (
+    while j < length(a[0]) do (
+      print(a[i][j]); print(" ") ;
+      set j = j + 1
+    );
+    print("\n") ;
+    set i = i + 1
+  )
+
+let _ : Unit =
+  printMatrix(bottomRow(3))

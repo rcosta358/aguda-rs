@@ -1,0 +1,18 @@
+-- Author: fc64361, Gustavo Henriques
+
+let is_prime (n) : Int -> Bool =
+    if n < 2 then false
+    else (
+        let i : Int = 2;
+        while i * i <= n do (
+            if n % i == 0 then false;
+            set i = i + 1
+        );
+        true
+    )
+
+let _ : Unit =
+    print(is_prime(1));  -- Should print false
+    print(is_prime(2));  -- Should print true
+    print(is_prime(9));  -- Should print false
+    print(is_prime(13))  -- Should print true

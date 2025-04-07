@@ -1,0 +1,9 @@
+-- Author: 58166, Manuel Campos
+
+-- Semantic Error (Accessing an index that doesnt exist)
+let _ : Unit =
+    let arr : Int[] = new Int[5 | 15];
+    let x : Int = arr[9];
+    print(x)
+
+

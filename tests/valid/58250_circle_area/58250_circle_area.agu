@@ -1,0 +1,10 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to calculate the area of a circle
+let area_of_circle (radius : Float) : Float = 3.14159 * (radius ^ 2)
+
+let radius : Float = 7  -- Radius of the circle
+let area : Float = area_of_circle(radius)
+
+let _ : Unit = 
+    print(area)  -- Expected result: 153.93804

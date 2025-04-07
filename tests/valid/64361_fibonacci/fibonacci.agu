@@ -1,0 +1,14 @@
+-- Author: fc64361, Gustavo Henriques
+
+let fib (n) : Int -> Int =
+    if n == 0 then 0
+    else (
+        if n == 1 then 1
+        else fib(n - 1) + fib(n - 2)
+    )
+
+let _ : Unit =
+    print(fib(0));  -- Should print 0
+    print(fib(1));  -- Should print 1
+    print(fib(5));  -- Should print 5
+    print(fib(10)) -- Should print 55

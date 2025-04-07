@@ -1,0 +1,3 @@
+-- Author: 58182, Gabriel Henriques
+
+let useUndeclared : Int = x + 1

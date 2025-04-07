@@ -1,0 +1,14 @@
+-- Author: Eduardo Santos, 58185
+-- Testing the Unit type and semantics
+
+let storeWhile (n): Int -> Unit =
+    let x : Unit = while i > 0 do (
+        print(i);
+        print(" ");
+        set i = i - 1
+    );
+    print("\nWhile loop stored in variable x")
+
+let main : Unit =
+    storeWhile(3);
+    print("\nAll done!")

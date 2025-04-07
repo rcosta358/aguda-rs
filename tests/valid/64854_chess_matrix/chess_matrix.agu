@@ -1,0 +1,30 @@
+-- Author: 64854, Diogo Almeida
+
+let chessmatrix (n) : Int -> Int[][] =
+    let board : Int[][] = new Int[] [n | new Int [n | 0]] ;
+    let i : Int = 0 ;
+    while i < n do (
+        let j : Int = 0 ;
+        while j < n do (
+            if (i + j) % 2 == 0 then set board[i][j] = 1 ;
+            set j = j + 1
+        );
+        set i = i + 1
+    )
+    board
+
+let printBoard (board) : Int[][] -> Unit =
+    let size : Int = length(board) ;
+    let i : Int = 0 ;
+    while i < size do (
+        let j : Int = 0 ;
+        while j < size do (
+            print(board[i][j])
+            set j = j + 1
+        )
+        print("\n")
+        set i = i + 1
+    )
+
+let _ : Unit =
+    printBoard(chessmatrix(8))

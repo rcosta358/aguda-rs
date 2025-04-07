@@ -1,0 +1,16 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to find the minimum element in a list
+let min_element (lst : Int[]) : Int =
+    let mutable min_val : Int = lst[0]  -- Assume the first element as the minimum
+    let mutable i : Int = 1
+    while i < length(lst) do
+        if lst[i] < min_val then
+            set min_val = lst[i]  -- Update the minimum value if a smaller element is found
+        set i = i + 1
+    min_val  -- Return the minimum value
+
+let numbers : Int[] = [9, 3, 7, 1, 5]
+
+let _ : Unit = 
+    print(min_element(numbers))  -- Expected result: 1

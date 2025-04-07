@@ -1,0 +1,20 @@
+-- Author: 58182, Gabriel Henriques
+
+let _ : Unit =
+    let sum : Int = 5 + -3 ;
+    print(sum) ; print(" ") ;
+
+    let difference : Int = -10 - 2 ;
+    print(difference) ; print(" ") ;
+    
+    let product : Int = 4 * 5^0 ;
+    print(product) ; print(" ") ;
+
+    let quotient : Int = 20 / 3 ;
+    print(quotient) ; print(" ") ;
+
+    let remainder : Int = 20 % 4 ;
+    print(remainder) ; print(" ") ;
+
+    let complex : Int = (8 * 2 ^ - 2) / 2 + 3 * 4 ^ (3 + 1) ;
+    print(complex) ;

@@ -1,0 +1,7 @@
+-- Author: 56307, Denis Ungureanu
+let shadowTest (x) : Int -> Int =
+  let y : Int = x + 10 ;
+  let x : Int = y * 2 ;
+  x
+  
+let _ : Int = shadowTest(5)

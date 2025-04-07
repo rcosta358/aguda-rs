@@ -1,0 +1,8 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to calculate the cube of a number
+let cube (x : Int) : Int = x * x * x
+
+let a : Int = 3
+let _ : Unit = 
+    print(cube(a))  -- Expected result:27

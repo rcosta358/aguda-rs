@@ -1,0 +1,27 @@
+-- Author: Eduardo Santos, 58185
+-- Testing basic arithmetic operations
+
+let main : Unit =
+    -- Addition
+    print("10 + 5 = ");
+    print(10 + 5);
+    print("\n");
+    
+    -- Subtraction
+    print("10 - 5 = ");
+    print(10 - 5);
+    print("\n");
+    
+    -- Multiplication
+    print("10 * 5 = ");
+    print(10 * 5);
+    print("\n");
+    
+    -- Division
+    print("10 / 5 = ");
+    print(10 / 5);
+    print("\n");
+    
+    -- Modulo
+    print("10 % 3 = ");
+    print(10 % 3)

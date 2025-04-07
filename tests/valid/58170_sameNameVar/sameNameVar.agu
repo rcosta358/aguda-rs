@@ -1,0 +1,12 @@
+-- Author: 58170, Guilherme Sousa
+
+let x : Int = 10;
+
+let otherX (_) : Unit -> Int =
+  let x : Int = 20;  
+  x  
+
+let _ : Unit =
+    print(x); print("\n");
+    print(otherX(unit)); print("\n");
+    print(x); print("\n")

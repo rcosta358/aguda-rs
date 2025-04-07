@@ -1,0 +1,6 @@
+-- Author: Eduardo Santos, 58185
+-- Syntax error: incorrect array creation syntax, should be "[n | 0]" instead of "[n, 0]"
+    
+let main : Unit = 
+    let arr : Int[] = new Int[n, 0] ;
+    print(arr[0])

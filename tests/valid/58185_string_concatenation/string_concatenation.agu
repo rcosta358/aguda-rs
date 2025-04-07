@@ -1,0 +1,14 @@
+-- Author: Eduardo Santos, 58185
+-- Testing string concatenation via print
+
+let printName (firstName, lastName) : (String, String) -> Unit =
+    print("Hello, ");
+    print(firstName);
+    print(" ");
+    print(lastName);
+    print("!")
+
+let main : Unit =
+    printName("Cristiano", "Ronaldo");
+    print("\n");
+    printName("Lionel", "Messi")

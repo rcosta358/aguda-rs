@@ -1,0 +1,8 @@
+-- Author: 58219, Mariana Costa
+-- Lexical error: invalid char $
+
+let salary$ : Int = 1000
+let bonus : Int = 200
+let total : Int = salary$ + bonus
+
+let main : Unit = print(total)

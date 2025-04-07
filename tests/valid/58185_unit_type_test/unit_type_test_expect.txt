@@ -1,0 +1,3 @@
+3 2 1 
+While loop stored in variable x
+All done!

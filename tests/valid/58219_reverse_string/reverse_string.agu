@@ -1,0 +1,12 @@
+-- Author: 58219, Mariana Costa
+
+let reverse(s) : String -> Unit =
+    let i : Int = 0;
+    if i < length(s) then (
+    reverse(s, i + 1);
+    print(s[i])
+)
+
+let _ : Unit =
+    let msg : String = "etset";
+    reverse(msg)

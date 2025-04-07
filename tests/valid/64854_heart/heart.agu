@@ -1,0 +1,24 @@
+-- Author: 64854, Diogo Almeida
+
+let giantHeart (_) : Unit ->
+    let heart_matrix : String [] = new String[13 | ""] -- 17 chars
+    while i < length(heart_matrix) do (
+        if i == 0 then print("   ___     ___   \n") ;
+        if i == 1 then print("  /   \   /   \  \n") ;
+        if i == 2 then print(" /     \ /     \ \n") ;
+        if i == 3 then print("|       -       |\n") ;
+        if i == 4 then print("|               |\n") ;
+        if i == 5 then print(" \             / \n") ;
+        if i == 6 then print("  \           /  \n") ;
+        if i == 7 then print("   \         /   \n") ;
+        if i == 8 then print("    \       /    \n") ;
+        if i == 9 then print("     \     /     \n") ;
+        if i == 10 then print("      \   /     \n") ;
+        if i == 11 then print("       \ /      \n") ;
+        if i == 12 then print("        -       \n") ;
+        set i = i + 1
+    )
+
+let _ : Unit =
+    print("Love Aguda!\n");
+    giantHeart()

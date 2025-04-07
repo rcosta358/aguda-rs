@@ -1,0 +1,12 @@
+-- Author: 58170, Guilherme Sousa
+
+let f (x) : Int -> Int = x + 1
+let g (x) : Int -> Int = x * 2
+let h (x) : Int -> Int = x - 3
+
+let _ : Unit =
+  let result : Int = f(g(h(f(g(h(5))))));
+  
+  print("Result of nested calls: ");
+  print(result);
+  print("\n")

@@ -1,0 +1,8 @@
+-- Author: 58170, Guilherme Sousa
+
+let manyParams (a, b, c, d, e) : (Int, Int, Int, Int, Int) -> Int =
+  a + b + c + d + e
+
+let _ : Unit =
+  let result : Int = manyParams(1, 2, 3, 4, 5);
+  print("Sum of parameters: "); print(result); print("\n")

@@ -1,0 +1,8 @@
+-- Author: 58168, Henrique Costa Vale
+
+let f(n) : Int-> Unit =
+  if n % 2 == 0 then n*n*n
+
+let _ : Unit =
+  f(4) ;
+  print("Terminates on input 64");

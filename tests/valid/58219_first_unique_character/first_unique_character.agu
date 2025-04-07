@@ -1,0 +1,29 @@
+-- Author: 58219, Mariana Costa
+
+let firstUniqChar (str) : String -> Int = (
+  let len : Int = length(str);
+  let count : Int[] = new Int [256 | 0];  -- ASCII size
+  let i : Int = 0;
+  let result : Int = -1;
+
+  while i < len do (
+    set count[str[i]] = count[str[i]] + 1;
+    set i = i + 1
+  );
+
+  let j : Int = 0;
+  while j < len do (
+    if count[str[j]] == 1 then (
+      set result = j;
+      set j = len;
+    ) else ();
+    set j = j + 1
+  );
+  result
+);
+
+let _ : Unit = (
+  let test : String = "aabc";
+  let result : Int = firstUniqChar(test);
+  print(result)
+)

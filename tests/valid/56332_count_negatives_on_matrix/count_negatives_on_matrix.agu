@@ -1,0 +1,30 @@
+-- Author: 56332, Ricardo Sobral
+
+-- Conta quantos elementos negativos existem numa matriz
+let countNegatives (m) : Int[][] -> Int =
+    let i : Int = 0;
+    let count : Int = 0;
+    while i < length(m) do (
+        let j : Int = 0;
+        while j < length(m[0]) do (
+            if m[i][j] < 0 then set count = count + 1;
+            set j = j + 1
+        );
+        set i = i + 1
+    );
+    count
+
+-- Inicialização da matriz 5x5 com 0's
+let matrix : Int[][] = new Int[] [5 | new Int [5 | 0]];
+
+-- Inserção de valores negativos em posições arbitrárias
+set matrix[0][1] = -1;
+set matrix[1][3] = -4;
+set matrix[2][0] = -9;
+set matrix[3][4] = -2;
+set matrix[4][4] = -7;
+set matrix[2][4] = -8;
+
+
+-- Espera-se encontrar 6 valores negativos
+let _ : Unit = print(countNegatives(matrix))

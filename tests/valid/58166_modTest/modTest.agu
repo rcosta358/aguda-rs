@@ -1,0 +1,19 @@
+-- Author: 58166, Manuel Campos
+
+let modTest (n,d) : (Int,Int) -> Bool =
+    (n % d) == 0
+
+let _ : Unit =
+    let a : Int = 253540;
+    let b : Int = 27;
+    let c : Int = 2025;
+    let d : Int = 2077;
+    let k : Int = 5;
+
+    print(modTest(a,k));
+    print("\n");
+    print(modTest(b,k));
+    print("\n");
+    print(modTest(c,k));
+    print("\n");
+    print(modTest(d,k));

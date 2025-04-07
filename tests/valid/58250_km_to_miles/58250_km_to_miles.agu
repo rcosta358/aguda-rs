@@ -1,0 +1,11 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to convert kilometers to miles
+let km_to_miles (km : Float) : Float = km * 0.621371
+
+let distance_km : Float = 100  -- Distance in kilometers
+let distance_miles : Float = km_to_miles(distance_km)
+
+let _ : Unit = 
+    print(distance_miles)  -- Expected result: 62.1371
+
