@@ -141,23 +141,23 @@ IfExpr: Expression = {
 }
 
 MatchedIf: Expression = {
-    "if" <cond:OrExpr> "then" <then:MatchedIf> "else" <els:MatchedIf> =>
+    "if" <cond:Expr> "then" <then:MatchedIf> "else" <els:MatchedIf> =>
          Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
     StmtExpr,
 }
 
 UnmatchedIf: Expression = {
-    "if" <cond:OrExpr> "then" <e:StmtExpr> =>
+    "if" <cond:Expr> "then" <e:StmtExpr> =>
          Expression::IfElse(Box::new(cond), Box::new(e), Box::new(Expression::Unit)),
-    "if" <cond:OrExpr> "then" <then:MatchedIf> "else" <els:UnmatchedIf> =>
+    "if" <cond:Expr> "then" <then:MatchedIf> "else" <els:UnmatchedIf> =>
          Expression::IfElse(Box::new(cond), Box::new(then), Box::new(els)),
 }
 
 StmtExpr: Expression = {
     "let" <id:Id> ":" <t:Type> "=" <e:MatchedIf>  => Expression::Let(id, t, Box::new(e)),
     "set" <lhs:Lhs> "=" <rhs:MatchedIf> => Expression::Set(lhs, Box::new(rhs)),
-    "while" <cond:Expr> "do" <body:MatchedIf> => Expression::While(Box::new(cond), Box::new(body)),
-    "new" <ty:Type> "[" <size:MatchedIf> "|" <init:MatchedIf> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
+    "while" <cond:OrExpr> "do" <body:MatchedIf> => Expression::While(Box::new(cond), Box::new(body)),
+    "new" <ty:Type> "[" <size:Expr> "|" <init:Expr> "]" => Expression::NewArray(ty, Box::new(size), Box::new(init)),
     OrExpr,
 }
 
@@ -206,14 +206,14 @@ MulDivExpr: Expression = {
 
 PowExpr: Expression = {
     // right associative
-    <lhs:UnaryMinExpr> "^" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
-    UnaryMinExpr,
+    <lhs:UnaryExpr> "^" <rhs:PowExpr> => Expression::BinOp(Box::new(lhs), Op::Pow, Box::new(rhs)),
+    UnaryExpr,
 }
 
-UnaryMinExpr: Expression = {
-    // highest precedence operators
-    "-" <e:UnaryMinExpr> => Expression::BinOp(Box::new(Expression::Num(0)), Op::Sub, Box::new(e)),
-    "!" <e:UnaryMinExpr> => Expression::Not(Box::new(e)),
+UnaryExpr: Expression = {
+    // highest precedence
+    "-" <e:UnaryExpr> => Expression::BinOp(Box::new(Expression::Num(0)), Op::Sub, Box::new(e)),
+    "!" <e:UnaryExpr> => Expression::Not(Box::new(e)),
     BaseExpr,
 }
 
