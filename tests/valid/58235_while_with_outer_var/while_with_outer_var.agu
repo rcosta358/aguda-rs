@@ -1,0 +1,16 @@
+-- Author: 58235, António Almeida
+-- using while as a function value 
+
+let i : Int = 0
+
+let decay (n) : Int -> Unit = 
+    while n >= 0 do (
+        print(n * i); print(" ");
+        set n = n - 1
+    )
+
+let _ : Unit = 
+    set i = 5;
+    decay(5)
+
+

@@ -1,0 +1,7 @@
+-- Author: 58215, Manuel Lourenço
+
+let main : Unit =
+    let a : Int[][][] = new Int[][] [4 | new Int[] [4 | new Int [4 | 0]]];
+    set a[2][2][2] = 5;
+    set a[3][3][3] = -2;
+    print(a[1][1][1]+a[2][2][2]+a[3][3][3])

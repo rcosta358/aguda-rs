@@ -1,0 +1,29 @@
+-- Author: fc56334, Goncalo Lopes
+
+let buildArray(_) : Unit =
+    let array : Int[] = new Int [10 | 0];
+    set array[0] = 3;
+    set array[1] = 2;
+    set array[2] = 4;
+    set array[3] = 7;
+    set array[4] = 1;
+    set array[5] = 6;
+    set array[6] = 8;
+    set array[7] = 9;
+    set array[8] = 2;
+    set array[9] = 5;
+    array
+
+let max(n) : Int[] -> Int =
+    let i : Int = 0;
+    let max : Int = 0;
+    while i < length(n) do (
+        if max < n[i] then (
+            set max = n[i]        
+        );
+        set i = i + 1
+    );
+    max
+
+let _ : Int =
+    max(buildArray(unit))

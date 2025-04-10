@@ -1,0 +1,14 @@
+Expected output: Num: 1 Odd
+                 Num: 2 Even
+                 Num: 3 Odd
+                 Num: 4 Even
+                 Num: 5 Odd
+                 Num: 6 Even
+                 Num: 7 Odd
+                 Num: 8 Even
+                 Num: 9 Odd
+                 Num: 10 Even
+                 Even avg: 6
+                 Odd avg: 5
+                 Even sum: 30 
+                 Odd sum: 25

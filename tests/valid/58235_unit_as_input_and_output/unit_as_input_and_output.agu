@@ -1,0 +1,5 @@
+-- Author: 58235, António Almeida
+
+let id (u) : Unit -> Unit = u
+
+let _ : Unit = print(id(unit))

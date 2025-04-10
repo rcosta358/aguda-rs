@@ -4,7 +4,7 @@ let testWhileLoopBreak : Unit =
     let i : Int = 0 ;
     let limit : Int = 10 ;
     let breakCondition : Int = 5 ;
-    let flag = true ;
+    let flag : Bool = true ;
 
     while i < limit && flag do (
         if i == breakCondition then

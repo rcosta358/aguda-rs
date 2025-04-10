@@ -1,0 +1,4 @@
+-- Author: 61015, Filipe Lopes
+
+let arr : Int[] = new Int [0 | 0];
+print(length(arr));

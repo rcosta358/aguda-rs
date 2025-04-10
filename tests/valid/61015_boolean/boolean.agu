@@ -1,0 +1,10 @@
+-- Author: 61015, Filipe Lopes
+
+let printAndReturn (msg, b) : (String, Bool) -> Bool =
+  print(msg);
+  b;
+  
+if false && printAndReturn("This should not print", true) then
+  print("Result is true")
+else
+  print("Result is false");

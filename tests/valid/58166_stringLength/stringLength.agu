@@ -1,12 +1,13 @@
 -- Author: 58166, Manuel Campos
 
 let stringLength (s) : String -> String =
-    let text : String = "";
-    if length(s) == 0 then set text = "Empty String" else
-    if length(s) > 0 && length(s) < 5 then set text = "Tiny String" else
-    if length(s) >= 5 && length(s) < 10 then set text = "Big String" else
-    if length(s) >= 10 then set text = "WHOAH... Calm Down";
+    let text : String =
+        if length(s) == 0 then "Empty String" else
+        if length(s) > 0 && length(s) < 5 then "Tiny String" else
+        if length(s) >= 5 && length(s) < 10 then "Big String" else
+        "WHOAH... Calm Down";
     text
+
 
 let _ : Unit =
     let s1 : String = "Ornitorrinco";

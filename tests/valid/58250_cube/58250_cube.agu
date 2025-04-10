@@ -1,0 +1,15 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to calculate the cube of a number
+let cube (n) : Int -> Int =
+  n * n * n
+
+let result : Int = cube(6)
+
+let _ : Unit = 
+    print(result)  -- Expected result: 216
+
+let final_result : Int = cube(5)
+
+let _ : Unit = 
+    print(final_result)  -- Expected result: 125

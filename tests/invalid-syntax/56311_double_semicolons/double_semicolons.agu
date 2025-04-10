@@ -1,0 +1,7 @@
+-- Author: tcomp56311, João Vedor
+
+-- Syntax Problem
+
+let x : Int = 5 + 3; 4 + 3; ;
+
+-- Error: Use of multiple semicolons

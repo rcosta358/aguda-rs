@@ -7,5 +7,5 @@ let assoc (_) : Unit -> Int =
   i
 
 let _ : Unit =
-  print(assoc()) 
+  print(assoc(unit)) 
   

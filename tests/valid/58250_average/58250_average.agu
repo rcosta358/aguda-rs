@@ -1,0 +1,10 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to calculate the average of five numbers
+let average (a, b, c, d, e) : (Int, Int, Int, Int, Int) -> Int =
+  (a + b + c + d + e) / 5
+
+let result : Int = average(10, 20, 30, 40, 50)
+
+let _ : Unit = 
+    print(result)  -- Expected result: 30

@@ -6,7 +6,7 @@ let sum(a) : Int [] -> Int =
   while i < length(a) do (
 	set b = b + a[i];
 	set i = i + 1
-  )
+  );
   b
 
 let _ : Unit =

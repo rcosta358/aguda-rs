@@ -1,0 +1,4 @@
+-- Author: 58235, António Almeida
+-- ! is not a valid character for Identifiers
+
+let inval!dId : Int = 56

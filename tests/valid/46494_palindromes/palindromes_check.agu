@@ -1,7 +1,7 @@
 --46494, Leonor Figueirinhas
 -- we will check the word kayak and the word house
 
-let palindrome (n) : String[] -> Bool =
+let palindrome (n: String[]) -> Bool =
     let i : Int = 0;
     let j : Int = length(n) - 1;
     let result : Bool = true;

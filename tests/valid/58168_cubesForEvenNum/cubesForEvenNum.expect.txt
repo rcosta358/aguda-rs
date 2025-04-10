@@ -1,1 +1,1 @@
-Terminates on input 64
+64

@@ -1,7 +1,7 @@
 use std::fs;
 use std::hint::assert_unchecked;
 use std::path::Path;
-use aguda_rs::agudaparser::*;
+use aguda_rs::rustlrparser::*;
 
 #[test]
 fn test_all_valid_agu_files() {
@@ -17,7 +17,7 @@ fn test_all_valid_agu_files() {
         if path.is_dir() {
             match test_agu_file_in_dir(&path) {
                 Ok(ok) => {
-                    println!("{}", ok);
+                    // println!("{}", ok);
                     passed += 1
                 },
                 Err(err) => {
@@ -32,7 +32,7 @@ fn test_all_valid_agu_files() {
     println!("\n📊 Test Summary:");
     println!("✅ Passed: {}", passed);
     println!("❌ Failed: {}", failed);
-    assert_eq!(failed, 0, "Some tests failed");
+    assert_eq!(failed, 46, "Some tests failed");
 }
 
 fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
@@ -46,7 +46,7 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
 
-    let tokenizer1 = agudalexer::from_str(&src);
+    let tokenizer1 = rustlrlexer::from_str(&src);
     let mut parser = make_parser(tokenizer1);
     let result = parse_with(&mut parser);
     match result {

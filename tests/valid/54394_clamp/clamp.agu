@@ -1,0 +1,16 @@
+-- Author: 54394, Afonso Esteves
+
+let min (n, v) : (Int, Int) -> Int =
+    if n > v then v else n
+
+
+let max (n, v) : (Int, Int) -> Int =
+    if n < v then v else n
+
+
+let clamp(m, n, v) : (Int, Int, Int) -> Int =
+    max(m, min(n, v))
+
+
+let _ : Int = clamp(0, 7, 16)
+

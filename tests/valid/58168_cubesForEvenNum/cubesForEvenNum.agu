@@ -1,8 +1,8 @@
 -- Author: 58168, Henrique Costa Vale
 
-let f(n) : Int-> Unit =
-  if n % 2 == 0 then n*n*n
+let f(n) : Int-> Int =
+  if n % 2 == 0 then set n = n*n*n;
+  n
 
 let _ : Unit =
-  f(4) ;
-  print("Terminates on input 64");
+  print(f(4))

@@ -1,0 +1,5 @@
+-- Author: 61015, Filipe Lopes
+
+let factorial (n : Int) : Int =
+  if n <= 1 then 1 else n * factorial(n - 1);
+  print(factorial(5));

@@ -1,0 +1,9 @@
+-- Author: tcomp56311, João Vedor
+
+let empty_array : Int[] = new Int[0|0]
+
+let a : Int[][] = new Int[] [0 | new Int [0 | 0]]
+
+let _ : Unit = 
+    print(empty_array);
+    print(empty_matrix)

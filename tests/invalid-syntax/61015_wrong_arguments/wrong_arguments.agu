@@ -1,0 +1,4 @@
+-- Author: 61015, Filipe Lopes
+
+let add (x, y) : (Int, Int) -> Int = x + y;
+print(add(5));  
