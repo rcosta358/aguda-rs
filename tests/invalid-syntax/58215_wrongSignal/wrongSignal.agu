@@ -5,6 +5,6 @@ let nrNegativoEPar (x) : Int -> Bool =
 
 let main : Unit =
     if nrNegativoEPar(-7) then 
-        print("epah yha, não devia")
+        print("epah yha, nao devia")
     else 
         print("nao e' par")
