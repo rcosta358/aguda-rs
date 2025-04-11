@@ -6,12 +6,7 @@ fn main() {
     let tokenizer1 = rustlrlexer::from_str(&src);
     let mut parser = make_parser(tokenizer1);
     let result = parse_with(&mut parser);
-    match result {
-        Ok(ast) => {
-            println!("Parsed successfully: {:?}", ast);
-        }
-        Err(err) => {
-            println!("Error parsing: {:?}", err);
-        }
+    if let Ok(ast) = result {
+        println!("{}", ast.to_text());
     }
 }

@@ -12,8 +12,8 @@ lexterminal PIPE |
 lexterminal ASSIGN =
 lexterminal OR ||
 
-# because we want custom identifier regex and rule priority and regex lookaheads are not supported,
-# we need to use custom regex matching for each alphanumeric token (rustlr limitation)
+# because we want to use a custom regex as identifier and rule priority and regex lookaheads are not supported,
+# we need to use custom regex matching for each alphanumeric token (this is a rustlr limitation)
 
 lexattribute add_custom("WHILE",   r"\bwhile\b")
 lexattribute add_custom("LET",     r"\blet\b")
@@ -58,10 +58,8 @@ valterminal Str string literal
 # comments
 lexattribute set_line_comment("--")
 
-
 # nonterminals
-nonterminals Program Decl Type Expr ParamList TypeList ExprList Else
-nonterminal FunType
+nonterminals Program Decl Type Expr ParamList TypeList ExprList FunType Else Lhs
 nonterminal SingleParam : FunType
 nonterminal MultiParam : FunType
 nonterminal ArrayType : Type
@@ -77,7 +75,6 @@ nonterminal Pow : Expr
 nonterminal Primary : Expr
 nonterminal Literal : Expr
 nonterminal Unary : Expr
-nonterminal Lhs
 
 # precedence and associativity of operators
 right ; 1
@@ -117,10 +114,9 @@ BaseType:Unit --> TUNIT
 BaseType:String --> TSTRING
 ArrayType:Array --> Type [ ]
 
-Type:FunType --> FunType
 FunType --> SingleParam | MultiParam
-SingleParam:FunSingle --> Type:ty -> Type:ret
-MultiParam:FunMulti --> ( TypeList:ty ) -> Type:ret
+SingleParam:SingleParam --> Type:ty -> Type:ret
+MultiParam:MultiParam --> ( TypeList:ty ) -> Type:ret
 TypeList:TypeList --> Type (, Type)*
 
 Expr --> Chain
@@ -129,8 +125,8 @@ Stmt:Let --> LET Id:id COLON Type:ty ASSIGN Expr:expr
 Stmt:Set --> SET Lhs:lhs ASSIGN Expr:expr
 Stmt:While --> WHILE Expr:cond DO Expr:expr
 Stmt:New --> NEW Type:ty [ Expr:size PIPE Expr:init ]
-Stmt:If --> IF Expr:cond THEN Expr:THEN Else
-Else:Else --> ELSE Expr:els
+Stmt:If --> IF Expr:cond THEN Expr:then Else:els
+Else:Else --> ELSE Expr
 Else:Unit --> # ε
 Stmt --> Or
 Or:Or --> Or OR And
