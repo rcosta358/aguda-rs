@@ -121,12 +121,12 @@ TypeList:TypeList --> Type (, Type)*
 
 Expr --> Chain
 Chain:Chain --> Stmt (; Chain)*
-Stmt:Let --> LET Id:id COLON Type:ty ASSIGN Expr:expr
-Stmt:Set --> SET Lhs:lhs ASSIGN Expr:expr
-Stmt:While --> WHILE Expr:cond DO Expr:expr
+Stmt:Let --> LET Id:id COLON Type:ty ASSIGN Stmt:expr
+Stmt:Set --> SET Lhs:lhs ASSIGN Stmt:expr
+Stmt:While --> WHILE Stmt:cond DO Stmt:expr
 Stmt:New --> NEW Type:ty [ Expr:size PIPE Expr:init ]
-Stmt:If --> IF Expr:cond THEN Expr:then Else:els
-Else:Else --> ELSE Expr
+Stmt:If --> IF Stmt:cond THEN Stmt:then Else:els
+Else:Else --> ELSE Stmt
 Else:Unit --> # ε
 Stmt --> Or
 Or:Or --> Or OR And

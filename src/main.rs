@@ -1,4 +1,5 @@
 use std::fs;
+use aguda_rs::ast::Program;
 use aguda_rs::rustlrparser::*;
 
 fn main() {
@@ -6,7 +7,8 @@ fn main() {
     let tokenizer1 = rustlrlexer::from_str(&src);
     let mut parser = make_parser(tokenizer1);
     let result = parse_with(&mut parser);
-    if let Ok(ast) = result {
+    if let Ok(raw_ast) = result {
+        let ast = Program::convert(raw_ast);
         println!("{}", ast.to_text());
     }
 }
