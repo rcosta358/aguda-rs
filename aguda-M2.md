@@ -28,7 +28,7 @@ docker run -v ./<filename>.agu aguda-rs cargo run <filename>.agu
 #### Running the Tests
 
 ```sh
-docker run aguda-rs cargo test
+docker run aguda-rs cargo test -- --nocapture
 ```
 
 ### Generating the Parser

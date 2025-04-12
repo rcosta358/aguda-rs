@@ -1,25 +1,50 @@
 use std::fs;
-use std::hint::assert_unchecked;
 use std::path::Path;
 use aguda_rs::rustlrparser::*;
 
 #[test]
-fn test_all_valid_agu_files() {
-    let base_dir = Path::new("./tests/valid");
-    assert!(base_dir.exists(), "Valid test directory not found");
+fn test_parser() {
+    let base_dir = Path::new("./tests/");
+    let valid_dir = base_dir.join("valid");
+    let invalid_syntax__dir = base_dir.join("invalid-syntax");
+    let invalid_semantic_dir = base_dir.join("invalid-semantic");
 
+    let (valid_passed, valid_failed) = test_agu_files_in_dir(&valid_dir);
+    let valid_tests = valid_passed + valid_failed;
+    let (invalid_syntax_passed, invalid_syntax_failed) = test_agu_files_in_dir(&invalid_syntax__dir);
+    let invalid_syntax_tests = invalid_syntax_passed + invalid_syntax_failed;
+    let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir);
+    let invalid_semantic_tests = invalid_semantic_passed + invalid_semantic_failed;
+
+    println!("\n📊 Test Summary:");
+    println!("========================");
+    println!("Valid tests ({})", valid_tests);
+    println!("✅ Passed: {}", valid_passed);
+    println!("❌ Failed: {}", valid_failed);
+    println!("========================");
+    println!("Invalid syntax tests ({})", invalid_syntax_tests);
+    println!("✅ Passed: {}", invalid_syntax_passed);
+    println!("❌ Failed: {}", invalid_syntax_failed);
+    println!("========================");
+    println!("Invalid semantic tests ({})", invalid_semantic_tests);
+    println!("✅ Passed: {}", invalid_semantic_passed);
+    println!("❌ Failed: {}", invalid_semantic_failed);
+
+    assert_eq!(valid_failed, 0, "Some valid tests failed");
+    assert_eq!(invalid_syntax_failed, 0, "Some invalid syntax tests passed");
+    assert_eq!(invalid_semantic_passed, 0, "Some invalid semantic tests failed");
+}
+
+fn test_agu_files_in_dir(dir: &Path) -> (i32, i32) {
+    assert!(dir.exists(), "Test directory not found");
     let mut passed = 0;
     let mut failed = 0;
     let mut failures = vec![];
-
-    for entry in fs::read_dir(base_dir).expect("Failed to read base test directory") {
+    for entry in fs::read_dir(dir).expect("Failed to read base test directory") {
         let path = entry.expect("Invalid entry").path();
         if path.is_dir() {
             match test_agu_file_in_dir(&path) {
-                Ok(ok) => {
-                    // println!("{}", ok);
-                    passed += 1
-                },
+                Ok(_) => passed += 1,
                 Err(err) => {
                     println!("{}", err);
                     failed += 1;
@@ -28,11 +53,7 @@ fn test_all_valid_agu_files() {
             }
         }
     }
-
-    println!("\n📊 Test Summary:");
-    println!("✅ Passed: {}", passed);
-    println!("❌ Failed: {}", failed);
-    assert_eq!(failed, 46, "Some tests failed");
+    (passed, failed)
 }
 
 fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
@@ -42,7 +63,6 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
         .find(|p| p.extension().map_or(false, |ext| ext == "agu"));
 
     let agu_path = agu_file.ok_or_else(|| format!("No .agu file found in {:?}", dir))?;
-
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
 

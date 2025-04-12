@@ -4,4 +4,4 @@ let printA (_) : Unit -> String =
     print("a")
 
 let _ : Unit =
-    printA()
+    printA(_)

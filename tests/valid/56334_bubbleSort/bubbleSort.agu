@@ -1,6 +1,6 @@
 -- Author: fc56334, Goncalo Lopes
 
-let buildArray(_) : Unit =
+let buildArray(_) : Unit -> Int[] =
     let array : Int[] = new Int [10 | 0];
     set array[0] = 3;
     set array[1] = 2;

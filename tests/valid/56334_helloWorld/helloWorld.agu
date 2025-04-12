@@ -1,6 +1,6 @@
 -- Author: fc56334, Goncalo Lopes
 
-let helloWorld(_) : Unit =
+let helloWorld(_) : Unit -> Unit =
     let i : Int = 0;
     while i < 2 do (
         if i == 0 then
