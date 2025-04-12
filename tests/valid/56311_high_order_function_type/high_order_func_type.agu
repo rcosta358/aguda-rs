@@ -1,0 +1,13 @@
+-- Author: tcomp56311, João Vedor
+
+let apply(f, x) : (Int -> Int, Int) -> Int = 
+    f(x)
+
+let double(x) : Int -> Int = 
+    x * 2
+
+let result : Int = 
+    apply(double, 21)
+
+let main : Unit = 
+    print(result)

@@ -1,0 +1,6 @@
+-- Author: tcomp56311, João Vedor
+
+let x : Int = -(-4)  
+
+let main : Unit = 
+    print(x)

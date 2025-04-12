@@ -10,4 +10,4 @@ let f(a): Int[] -> Int =
   value
 
 let _ : Unit = 
-  print(f(new Int(4 | 2)
+  print(f(new Int[4 | 2]))

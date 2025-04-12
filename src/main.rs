@@ -1,23 +1,19 @@
-mod lexer;
-mod ast;
-mod parser;
-mod utils;
-
-use std::fs;
-use crate::lexer::Lexer;
-use crate::parser::Parser;
+use std::{env, fs};
+use aguda_rs::ast::Program;
+use aguda_rs::rustlrparser::*;
 
 fn main() {
-    let src = fs::read_to_string("./main.agu").expect("couldn't read source file");
-    let mut lexer = Lexer::new(&src);
-    match lexer.tokenize() {
-        Ok(tokens) => {
-            let parser = Parser::new(&src, tokens);
-            match parser.parse() {
-                Ok(ast) => println!("{:#?}", ast),
-                Err(e) => eprintln!("Syntax Error: {}", e),
-            }
+    let args: Vec<String> = env::args().collect();
+    let filepath = if args.len() > 1 { &args[1] } else { "./main.agu" };
+    let src = fs::read_to_string(&filepath).expect("Couldn't read source file");
+    let lexer = rustlrlexer::from_str(&src);
+    let mut parser = make_parser(lexer);
+    let result = parse_with(&mut parser);
+    match result {
+        Ok(raw_ast) => {
+            let ast = Program::convert(raw_ast);
+            println!("{}", ast.to_text());
         }
-        Err(e) => eprintln!("Lexical Error: {}", e)
+        Err(_) => eprintln!("Error parsing file"),
     }
 }

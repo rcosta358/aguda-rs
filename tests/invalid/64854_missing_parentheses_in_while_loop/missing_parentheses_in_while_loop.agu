@@ -1,8 +1,0 @@
--- Author: 64854, Diogo Almeida
-
-let i : Int = 0;
-let count : Int = 0;
--- mising the ()
-while i < 10 do
-    set count = count + i;
-    set i = i + 1

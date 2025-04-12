@@ -1,0 +1,20 @@
+-- Author: 58215, Manuel Lourenço
+
+let minValInArr (a,size) : Int[] -> Int =
+    let i : Int = 0;
+    let min : Int = a[0];
+    while i < size do (
+        if min < a[i] then
+            set min = a[i]
+        else 
+            unit;
+        set i = i + 1
+    );
+    min
+
+let main : Unit =
+    let arr : Int[] = new Int[4 | 4];
+    set arr[1] = 3;
+    set arr[2] = 2;
+    set arr[3] = 1;
+    print(minValInArr,4)

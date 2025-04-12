@@ -1,0 +1,5 @@
+-- Author: 58235, António Almeida
+-- Char is not a valid type
+
+let f(n, c) : Int -> Char -> Int = 
+    n

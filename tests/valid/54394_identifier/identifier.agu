@@ -1,0 +1,8 @@
+-- Author: 54394, Afonso Esteves
+
+let weird_34Name''Lols'_ : Unit = 
+    let len'gth________ : Unit = 
+        while false do (
+            let this_is_a_long_name_for_some_reason: String = "'My name is Jeff'"
+        )
+

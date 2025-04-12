@@ -1,0 +1,7 @@
+-- Author: 54394, Afonso Esteves
+
+
+-- ignore float values
+let deg_to_rad (ang) : Int -> Int =
+    (ang * pi * 2) / 360
+

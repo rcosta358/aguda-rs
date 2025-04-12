@@ -1,0 +1,5 @@
+-- Author: 61015, Filipe Lopes
+
+let a : Int = 10
+
+print(a)

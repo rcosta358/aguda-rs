@@ -1,8 +1,3 @@
-// lib.rs
-pub mod lexer;
-pub mod parser;
+pub mod rustlrparser;
+pub mod rustlr_ast;
 pub mod ast;
-pub mod utils;
-
-pub use lexer::Lexer;
-pub use parser::Parser;

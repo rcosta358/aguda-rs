@@ -17,4 +17,4 @@ let _ : Unit =
     print(remainder) ; print(" ") ;
 
     let complex : Int = (8 * 2 ^ - 2) / 2 + 3 * 4 ^ (3 + 1) ;
-    print(complex) ;
+    print(complex)

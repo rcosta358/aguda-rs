@@ -1,0 +1,10 @@
+-- Author: 58215, Manuel Lourenço
+
+let fun : Unit -> Int =
+    4
+
+let fun2 : Unit -> Unit =
+    print(2)
+
+let main : Unit =
+    print(fun(fun2(unit)))

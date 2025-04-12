@@ -1,7 +1,7 @@
 -- Author: 58168, Henrique Costa Vale
 
 let inc(n) : Int -> Int =
-    set n = n + 1
+    set n = n + 1;
     n
 
 let _ : Unit =

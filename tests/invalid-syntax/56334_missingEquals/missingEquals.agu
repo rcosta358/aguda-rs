@@ -1,0 +1,4 @@
+-- Author: fc56334, Goncalo Lopes
+
+let x : Int = 10;
+let y : Int x+2

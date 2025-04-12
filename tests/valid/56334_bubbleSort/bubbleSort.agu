@@ -1,0 +1,30 @@
+-- Author: fc56334, Goncalo Lopes
+
+let buildArray(_) : Unit -> Int[] =
+    let array : Int[] = new Int [10 | 0];
+    set array[0] = 3;
+    set array[1] = 2;
+    set array[2] = 4;
+    set array[3] = 7;
+    set array[4] = 1;
+    set array[5] = 6;
+    set array[6] = 8;
+    set array[7] = 9;
+    set array[8] = 2;
+    set array[9] = 5;
+    array
+
+let bubbleSort(array) : Int[] -> Int[] =
+    let swapped : Bool = false;
+    let i : Int = 0;
+    while i < length(array)-1 do (
+        if array[i] > array[i+1] then
+            let swapValue : Int = array[i];
+            set array[i] = array[i+1];
+            set array[i+1] = swapValue;
+            set swapped = true
+    );
+    if swapped then bubbleSort(array) else array
+
+let _ : Int[] =
+    bubbleSort(buildArray(unit))

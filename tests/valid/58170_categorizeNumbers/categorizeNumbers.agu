@@ -26,6 +26,7 @@ let categorizeNumber (n) : Int -> Int =
       set result = 7;   -- odd, negative
       if n < -50 then
         set result = 8  -- odd, very negative
+  ;  
   
   result
 

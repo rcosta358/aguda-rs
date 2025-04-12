@@ -1,0 +1,7 @@
+-- Author: tcomp56311, João Vedor
+
+-- Lexical Problem
+
+let x : Int = 42$
+
+-- Error: Invalid character '$', Should Crash

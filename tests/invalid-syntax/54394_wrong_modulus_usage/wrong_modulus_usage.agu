@@ -1,0 +1,5 @@
+-- Author: 54394, Afonso Esteves
+
+let func (s, v) : (String, Int) -> Int =
+    s % v
+

@@ -1,0 +1,7 @@
+-- Author: tcomp56311, João Vedor
+
+-- Semantic Problem
+
+let x : Int = y + 1
+
+-- Error: Variable 'y' not declared

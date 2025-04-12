@@ -1,0 +1,10 @@
+-- Author: 58215, Manuel Lourenço
+
+let nrNegativoEPar (x) : Int -> Bool = 
+    x < 0 && x % 2 /= 0;
+
+let main : Unit =
+    if nrNegativoEPar(-7) then 
+        print("epah yha, nao devia")
+    else 
+        print("nao e' par")

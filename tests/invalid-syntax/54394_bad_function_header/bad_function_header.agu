@@ -1,0 +1,5 @@
+-- Author: 54394, Afonso Esteves
+
+let faulty (n) : (Int, Int) -> Int =
+    n * 2
+

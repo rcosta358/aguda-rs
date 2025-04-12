@@ -1,0 +1,4 @@
+-- Author: 58235, António Almeida
+-- Identifier has to start with a letter
+
+let 1nvalidId : Int = 56

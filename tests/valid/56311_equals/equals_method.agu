@@ -1,0 +1,9 @@
+-- Author: tcomp56311, João Vedor
+
+let equals(n, m): (Int, Int) -> Bool =
+    a == b
+
+let main : Unit = 
+    print(equals(4, 5))
+
+

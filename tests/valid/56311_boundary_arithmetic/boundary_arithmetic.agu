@@ -1,0 +1,11 @@
+-- Author: tcomp56311, João Vedor
+
+-- minimum 32-bit signed integer value
+let minInt : Int = -2147483648
+
+let edgeMath : Int = minInt + 1 - 1  
+
+-- Should return minInt
+
+let main : Unit = 
+    print(edgeMath)

@@ -1,0 +1,7 @@
+-- Author: fc56334, Goncalo Lopes
+
+let factorial(n) : Int -> Int =
+    if n <= 1 then 1 else n * factorial(n - 1)
+
+let _ : Int =
+    factorial(5)

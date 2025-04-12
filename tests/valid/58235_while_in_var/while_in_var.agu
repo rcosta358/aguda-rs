@@ -1,0 +1,9 @@
+-- Author: 58235, António Almeida
+                
+let _ : Unit = 
+    let i : Int = 5;
+    let w : Unit = 
+        while i > 0 do (
+            set i = i - 1;
+            print(i); print(" ")
+        );

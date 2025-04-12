@@ -1,0 +1,7 @@
+-- Author: tcomp56311, João Vedor
+
+-- Semantic Problem
+
+let x : Int = true
+
+-- Error: Cannot assign Bool to Int

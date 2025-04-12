@@ -1,0 +1,11 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to count the number of characters in a string
+let string_length (str) : String -> Int =
+  let len : Int = length(str); 
+  len
+
+let result : Int = string_length("Hello")  -- Count the characters in "Hello"
+
+let _ : Unit = 
+    print(result)  -- Expected result: 5

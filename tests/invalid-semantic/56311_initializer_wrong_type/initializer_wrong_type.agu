@@ -1,0 +1,7 @@
+-- Author: tcomp56311, João Vedor
+
+-- Semantic Problem
+
+let arr : Int[] = new Int[5|true]
+
+-- Error: Initializer must be Int, not Bool

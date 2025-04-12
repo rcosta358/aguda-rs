@@ -6,4 +6,4 @@ let f (_) : Unit -> Int =
     y * 2 * x * x
 
 let _ : Unit =
-    print(f())
+    print(f(unit))
