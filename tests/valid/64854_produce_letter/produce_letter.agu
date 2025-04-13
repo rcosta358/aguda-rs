@@ -1,8 +1,9 @@
 -- Author: 64854, Diogo Almeida
 
 let produceLetter (letter) : String -> String = 
-    let l : String = l ;
+    let l : String = letter ;
     l
 
 let _ : Unit =
-    print(produceLetter("a"))
+    let a : String = "a";
+    print(produceLetter(a))

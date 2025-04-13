@@ -1,7 +1,7 @@
 -- Author: 64854, Diogo Almeida
 
 let giantHeart (_) : Unit -> Unit =
-    let heart_matrix : String[] = new String[13 | ""] -- 17 chars
+    let heart_matrix : String[] = new String[13 | ""]; -- 17 chars
     while i < length(heart_matrix) do (
         if i == 0 then print("   ___     ___   \n") ;
         if i == 1 then print("  /   \   /   \  \n") ;
@@ -21,4 +21,4 @@ let giantHeart (_) : Unit -> Unit =
 
 let _ : Unit =
     print("Love Aguda!\n");
-    giantHeart(_)
+    giantHeart(null)
