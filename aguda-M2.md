@@ -40,7 +40,7 @@ cd src
 rustlr rustlr.grammar
 ```
 
-### Considerations
+### Challenges
 
 Initially, this phase of the project was implemented with Logos as the lexer and LALRPOP as the parser (LR(1)).
 However, LALRPOP does not tolerate any conflicts and lacks the support for operator precedence and associativity.
@@ -49,4 +49,4 @@ Due to this, I couldn't resolve the shift-reduce conflicts caused by the "dangli
 So, I decided to switch to RUSTLR, which is a Yacc-like LALR(1) parser generator that supports operator precedence and associativity.
 RUSTLR comes with a lexer generator, a parser generator and automatic AST generation. Because of this, I had to extend the lexer to distinguish between lexical and syntactic errors. Also, I was able to convert the generated AST to a more simplified version of it, to make it easier to implement its textual representation as well as for the future phases of the compiler.
 
-These briefly represent the limitations of RUSTLR I faced, which I was able to overcome.
+These briefly describe the challenges I faced, which I was able to overcome.

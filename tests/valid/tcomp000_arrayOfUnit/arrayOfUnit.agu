@@ -1,7 +1,7 @@
 -- Author: tcomp000, Vasco T. Vasconcelos
 
 let buildArray (n) : Int -> Unit[] =
-  new Unit[] [n | while n > 0 do set n = n - 1]
+  new Unit [n | while n > 0 do set n = n - 1]
 
 let _ : Unit =
   print(buildArray(10))
