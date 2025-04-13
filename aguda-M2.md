@@ -8,7 +8,7 @@
 
 ---
 
-Parser for the AGUDA programming language implemented in [Rust](https://www.rust-lang.org/) with [RUSTLR](https://chuckcscccl.github.io/rustlr_project/) as the parser generator.
+Parser for the AGUDA programming language implemented in [Rust](https://www.rust-lang.org/) with [RUSTLR](https://chuckcscccl.github.io/rustlr_project/) as the lexer and parser generator.
 
 ### Running the Parser with Docker
 
@@ -42,11 +42,11 @@ rustlr rustlr.grammar
 
 ### Considerations
 
-Initially, this phase of the project was implemented with a Logos as the lexer and LALRPOP as the (LR(1)) parser.
+Initially, this phase of the project was implemented with Logos as the lexer and LALRPOP as the parser (LR(1)).
 However, LALRPOP does not tolerate any conflicts and lacks the support for operator precedence and associativity.
-Due do this, I couldn't resolve the shift-conflicts caused by the "dangling else".
-So, I decided to switch to RUSTLR, which is a Yacc-like LALR(1) parser generator that supports operator precedence and associativity.
-However, it lacks control over the parser, as it includes both the lexer and the parser.
-RUSTLR does not differentiate between lexical and syntactic errors, and prints the error automatically, which prevented me to distinguish the two in the error messages.
-Furthermore, RUSTLR comes with automatic AST generation, which was not desirable. Even so, I was able to convert the AST to my simplified version.
-Additionally, since we wanted a custom identifier regex including `'` and in this tool custom token types override all others, I had to implement a custom regex for all alphanumeric tokens and place them in the right order to avoid the lexer recognizing keywords as identifiers. These represent the limitations of RUSTLR, which I was overcome, except for the differentiation of lexical from syntactic errors.
+Due to this, I couldn't resolve the shift-conflicts caused by the "dangling else".
+
+So, I decided to switch to RUSTLR, which is a Yacc-like LALR(1) parser generator that supports operator precedence and associativity. However, it lacks control over the parser, includes both the parser and lexer, does not differentiate between lexical and syntactic errors and internally prints errors automatically.
+Furthermore, RUSTLR comes with automatic AST generation, which was not what I was really looking for. Nevertheless, I was able to convert the generated AST to my simplified version of it, to make it easier to implement the textual representation of the AST as well as for the future phases of the compiler.
+
+These represent the limitations of RUSTLR, which I was able to overcome, except for the differentiation between lexical and syntactic errors.

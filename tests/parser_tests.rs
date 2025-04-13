@@ -6,12 +6,12 @@ use aguda_rs::rustlrparser::*;
 fn test_parser() {
     let base_dir = Path::new("./tests/");
     let valid_dir = base_dir.join("valid");
-    let invalid_syntax__dir = base_dir.join("invalid-syntax");
+    let invalid_syntax_dir = base_dir.join("invalid-syntax");
     let invalid_semantic_dir = base_dir.join("invalid-semantic");
 
     let (valid_passed, valid_failed) = test_agu_files_in_dir(&valid_dir);
     let valid_tests = valid_passed + valid_failed;
-    let (invalid_syntax_passed, invalid_syntax_failed) = test_agu_files_in_dir(&invalid_syntax__dir);
+    let (invalid_syntax_passed, invalid_syntax_failed) = test_agu_files_in_dir(&invalid_syntax_dir);
     let invalid_syntax_tests = invalid_syntax_passed + invalid_syntax_failed;
     let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir);
     let invalid_semantic_tests = invalid_semantic_passed + invalid_semantic_failed;
