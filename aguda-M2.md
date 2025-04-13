@@ -44,9 +44,9 @@ rustlr rustlr.grammar
 
 Initially, this phase of the project was implemented with Logos as the lexer and LALRPOP as the parser (LR(1)).
 However, LALRPOP does not tolerate any conflicts and lacks the support for operator precedence and associativity.
-Due to this, I couldn't resolve the shift-conflicts caused by the "dangling else".
+Due to this, I couldn't resolve the shift-reduce conflicts caused by the "dangling else", which forced me to only have matched if-else statements inside expressions, which was not the intended behavior of the language.
 
-So, I decided to switch to RUSTLR, which is a Yacc-like LALR(1) parser generator that supports operator precedence and associativity. However, it lacks control over the parser, includes both the parser and lexer, does not differentiate between lexical and syntactic errors and internally prints errors automatically.
-Furthermore, RUSTLR comes with automatic AST generation, which was not what I was really looking for. Nevertheless, I was able to convert the generated AST to my simplified version of it, to make it easier to implement the textual representation of the AST as well as for the future phases of the compiler.
+So, I decided to switch to RUSTLR, which is a Yacc-like LALR(1) parser generator that supports operator precedence and associativity.
+RUSTLR comes with a lexer generator, a parser generator and automatic AST generation. Because of this, I had to extend the lexer to distinguish between lexical and syntactic errors. Also, I was able to convert the generated AST to a more simplified version of it, to make it easier to implement its textual representation as well as for the future phases of the compiler.
 
-These represent the limitations of RUSTLR, which I was able to overcome, except for the differentiation between lexical and syntactic errors.
+These briefly represent the limitations of RUSTLR I faced, which I was able to overcome.

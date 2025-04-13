@@ -30,22 +30,22 @@ lexattribute add_custom("TBOOL",   r"\bBool\b")
 lexattribute add_custom("TSTRING", r"\bString\b")
 lexattribute add_custom("TUNIT",   r"\bUnit\b")
 
-valueterminal WHILE    ~ &'lt str ~ Custom("WHILE", WHILE)     ~ WHILE
-valueterminal LET      ~ &'lt str ~ Custom("LET", LET)         ~ LET
-valueterminal SET      ~ &'lt str ~ Custom("SET", SET)         ~ SET
-valueterminal IF       ~ &'lt str ~ Custom("IF", IF)           ~ IF
-valueterminal THEN     ~ &'lt str ~ Custom("THEN", THEN)       ~ THEN
-valueterminal ELSE     ~ &'lt str ~ Custom("ELSE", ELSE)       ~ ELSE
-valueterminal DO       ~ &'lt str ~ Custom("DO", DO)           ~ DO
-valueterminal NEW      ~ &'lt str ~ Custom("NEW", NEW)         ~ NEW
-valueterminal TRUE     ~ &'lt str ~ Custom("TRUE", TRUE)       ~ TRUE
-valueterminal FALSE    ~ &'lt str ~ Custom("FALSE", FALSE)     ~ FALSE
-valueterminal NULL     ~ &'lt str ~ Custom("NULL", NULL)       ~ NULL
-valueterminal UNIT     ~ &'lt str ~ Custom("UNIT", UNIT)       ~ UNIT
-valueterminal TINT     ~ &'lt str ~ Custom("TINT", TINT)       ~ TINT
-valueterminal TBOOL    ~ &'lt str ~ Custom("TBOOL", TBOOL)     ~ TBOOL
-valueterminal TSTRING  ~ &'lt str ~ Custom("TSTRING", TSTRING) ~ TSTRING
-valueterminal TUNIT    ~ &'lt str ~ Custom("TUNIT ", TUNIT)    ~ TUNIT
+valueterminal WHILE   ~ &'lt str ~ Custom("WHILE", WHILE)     ~ WHILE
+valueterminal LET     ~ &'lt str ~ Custom("LET", LET)         ~ LET
+valueterminal SET     ~ &'lt str ~ Custom("SET", SET)         ~ SET
+valueterminal IF      ~ &'lt str ~ Custom("IF", IF)           ~ IF
+valueterminal THEN    ~ &'lt str ~ Custom("THEN", THEN)       ~ THEN
+valueterminal ELSE    ~ &'lt str ~ Custom("ELSE", ELSE)       ~ ELSE
+valueterminal DO      ~ &'lt str ~ Custom("DO", DO)           ~ DO
+valueterminal NEW     ~ &'lt str ~ Custom("NEW", NEW)         ~ NEW
+valueterminal TRUE    ~ &'lt str ~ Custom("TRUE", TRUE)       ~ TRUE
+valueterminal FALSE   ~ &'lt str ~ Custom("FALSE", FALSE)     ~ FALSE
+valueterminal NULL    ~ &'lt str ~ Custom("NULL", NULL)       ~ NULL
+valueterminal UNIT    ~ &'lt str ~ Custom("UNIT", UNIT)       ~ UNIT
+valueterminal TINT    ~ &'lt str ~ Custom("TINT", TINT)       ~ TINT
+valueterminal TBOOL   ~ &'lt str ~ Custom("TBOOL", TBOOL)     ~ TBOOL
+valueterminal TSTRING ~ &'lt str ~ Custom("TSTRING", TSTRING) ~ TSTRING
+valueterminal TUNIT   ~ &'lt str ~ Custom("TUNIT", TUNIT)     ~ TUNIT
 
 lexattribute add_custom("Id", r"[a-zA-Z_][a-zA-Z0-9'_]*")
 
