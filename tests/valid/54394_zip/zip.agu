@@ -2,7 +2,7 @@
 
 
 -- Assumes both have the same len
-let zip (a1, a2) -> (Int[], Int[], Int) -> Int[][]:
+let zip (a1, a2) : (Int[], Int[]) -> Int[][]=
     let out : Int[][] = new Int[lenght(a1) | new Int[2 | 0]];
     let i : Int = 0;
     while i < lenght(a1) do (

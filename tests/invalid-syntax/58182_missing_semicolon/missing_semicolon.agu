@@ -1,4 +1,5 @@
 -- Author: 58182, Gabriel Henriques
 
-let missingSemicolon : Int = 123
-let anotherVar : Int = 456
+let missingSemicolon : Int =
+    let anotherVar : Int = 456
+    anotherVar

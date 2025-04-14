@@ -1,0 +1,5 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let _ : Unit =
+  let b : Bool = true ;
+  print (true == a == (false || true))

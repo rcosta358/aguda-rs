@@ -4,4 +4,4 @@ let _ : Unit =
   let x : Int = 2
   let y : Int = 3
   let z : Int = 4
-  let a : Int = x + y + z + b 
+  let a = x + y + z + b

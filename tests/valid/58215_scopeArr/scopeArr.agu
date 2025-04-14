@@ -14,7 +14,7 @@ let setDiag2dArray (a,size,n) : Int[] -> Int -> Int -> Int[] =
     a
 
 let main : Unit =
-    let arr : Int[][] = = new Int[] [4 | new Int [4 | 0]];
+    let arr : Int[][] = new Int[] [4 | new Int [4 | 0]];
     let j : Int = 8;
     print(j);
     print("\n");

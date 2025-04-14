@@ -7,5 +7,5 @@ let sub (x,y) : Int -> Int -> Int =
     x - y
 
 let main : Unit = 
-    let var : Int = soma((sub(sub(1, 2)), 7), 3);
+    let var : Int = soma(sub(sub(1, 2), 7), 3);
     print(var)

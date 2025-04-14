@@ -2,7 +2,7 @@
 
 let f(a) : Int [] -> Int =
    let b : Int = 3;
-   while b > a[i] do (
+   while b >< a[i] do (
       set i = i + 1
 
   )

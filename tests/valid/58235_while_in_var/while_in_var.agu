@@ -6,4 +6,4 @@ let _ : Unit =
         while i > 0 do (
             set i = i - 1;
             print(i); print(" ")
-        );
+        )

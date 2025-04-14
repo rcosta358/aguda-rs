@@ -2,7 +2,7 @@
 
 
 
-let printn (s, n) : String -> Unit =
+let printn (s, n) : (String, Int) -> Unit =
     let i : Int = 0;
     while i < n do (
         print(s);

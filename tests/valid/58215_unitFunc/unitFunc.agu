@@ -1,6 +1,6 @@
 -- Author: 58215, Manuel Lourenço
 
-let faz3 _ a : Unit -> Int -> Int =
+let faz3(a, b) : Unit -> Int -> Int =
     if true then 3 else 3
 
 let main : Unit = 

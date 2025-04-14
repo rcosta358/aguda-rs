@@ -2,7 +2,7 @@
 
 let insert_at (arr, v, i) : (Int[], Int, Int) -> Int[] =
     let len : Int = length(arr);
-    let out : Int[] = Int[len + 1 | 0];
+    let out : Int[] = new Int[len + 1 | 0];
     let j : Int = 0;
     while j < len+1 do (
         (if j == i then
@@ -16,7 +16,7 @@ let insert_at (arr, v, i) : (Int[], Int, Int) -> Int[] =
 
 let remove_at (arr, i) : (Int[], Int) -> Int[] =
     let len : Int = length(arr);
-    let out : Int[] = Int[len - 1 | 0];
+    let out : Int[] = new Int[len - 1 | 0];
     let j : Int = 0;
     while j < len-1 do (
         (if j < i then

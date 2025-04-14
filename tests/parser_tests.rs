@@ -15,8 +15,9 @@ fn test_parser() {
     let invalid_syntax_tests = invalid_syntax_passed + invalid_syntax_failed;
     let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir);
     let invalid_semantic_tests = invalid_semantic_passed + invalid_semantic_failed;
+    let total_tests = valid_tests + invalid_syntax_tests + invalid_semantic_tests;
 
-    println!("\n📊 Test Summary:");
+    println!("\n📊 Test Summary ({})", total_tests);
     println!("========================");
     println!("Valid tests ({})", valid_tests);
     println!("✅ Passed: {}", valid_passed);
@@ -29,6 +30,7 @@ fn test_parser() {
     println!("Invalid semantic tests ({})", invalid_semantic_tests);
     println!("✅ Passed: {}", invalid_semantic_passed);
     println!("❌ Failed: {}", invalid_semantic_failed);
+    println!("========================");
 
     assert_eq!(valid_failed, 0, "Some valid tests failed");
     assert_eq!(invalid_syntax_failed, 0, "Some invalid syntax tests passed");
@@ -67,6 +69,6 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
     let result = parse_aguda_program(&src);
     match result {
         Ok(_) => Ok(format!("✅ PARSED: {:?}", dir.file_name().unwrap())),
-        Err(e) => Err(format!("❌ {}: {:?}\n", e.split(':').next().unwrap(), dir.file_name().unwrap()))
+        Err(e) => Err(format!("❌ {}: {:?}\n", e, dir.file_name().unwrap()))
     }
 }

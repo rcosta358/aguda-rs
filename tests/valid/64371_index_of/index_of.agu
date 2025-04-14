@@ -4,9 +4,9 @@
 let indexOf(arr, x): (Int[], Int) -> Int =
     let index: Int = -1;
     let i: Int = 0;
-    let length: Int = length(arr);
+    let len: Int = length(arr);
     let continue: Bool = true;
-    while i < length && continue do (
+    while i < len && continue do (
         if arr[i] == x then (
             set index = i;
             set continue = false -- break

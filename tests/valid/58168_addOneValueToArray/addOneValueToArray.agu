@@ -12,4 +12,5 @@ let f(a,b) : (Int [] , Int) -> Bool =
   result
 
 let _ : Unit =
-  print(f([1,2,3,4] , 5))
+  let s : Int[] = new Int[4 | 1];
+  print(s , 5)

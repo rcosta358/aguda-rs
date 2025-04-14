@@ -13,4 +13,4 @@ let main : Unit =
     print("\n");
     
     print("Value of returnLast(10, 20, 30): ");
-    print(returnLast(10, 20, 30));
+    print(returnLast(10, 20, 30))
