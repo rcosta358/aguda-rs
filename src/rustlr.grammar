@@ -64,15 +64,9 @@ nonterminal ArrayType : Type
 nonterminal BaseType : Type
 nonterminal Chain : Expr
 nonterminal Stmt : Expr
-nonterminal Or : Expr
-nonterminal And : Expr
-nonterminal Comp : Expr
-nonterminal AddSub : Expr
-nonterminal MulDiv : Expr
-nonterminal Pow : Expr
+nonterminal Op : Expr
 nonterminal Primary : Expr
 nonterminal Literal : Expr
-nonterminal Unary : Expr
 
 # precedence and associativity of operators
 right ; 1
@@ -84,10 +78,10 @@ left OR 4
 left && 5
 left == 6
 left != 6
-nonassoc < 7
-nonassoc <= 7
-nonassoc > 7
-nonassoc >= 7
+left < 7
+left <= 7
+left > 7
+left >= 7
 left + 8
 left - 8
 left * 9
@@ -98,7 +92,6 @@ right ! 11
 right - 11
 
 startsymbol Program
-resync ; # error recovery symbol
 
 Program --> Decl*
 Decl:Var --> LET Id:id COLON Type:ty ASSIGN Expr:expr
@@ -126,30 +119,25 @@ Stmt:New --> NEW Type:ty [ Expr:size PIPE Expr:init ]
 Stmt:If --> IF Stmt:cond THEN Stmt:then Else:els
 Else:Else --> ELSE Stmt
 Else:Unit --> # ε
-Stmt --> Or
-Or:Or --> Or OR And
-Or --> And
-And:And --> And && Comp
-And --> Comp
-Comp:Eq --> Comp == AddSub
-Comp:Neq --> Comp != AddSub
-Comp:Lt --> Comp < AddSub
-Comp:Leq --> Comp <= AddSub
-Comp:Gt --> Comp > AddSub
-Comp:Geq --> Comp >= AddSub
-Comp --> AddSub
-AddSub:Add --> AddSub + MulDiv
-AddSub:Sub --> AddSub - MulDiv
-AddSub --> MulDiv
-MulDiv:Mul --> MulDiv * Pow
-MulDiv:Div --> MulDiv / Pow
-MulDiv:Mod --> MulDiv MOD Pow
-MulDiv --> Pow
-Pow:Pow --> Unary ^ Pow
-Pow --> Unary
-Unary:Not --> ! Unary
-Unary:Neg --> - Unary
-Unary --> Primary
+Stmt --> Op
+
+Op:Or --> Op OR Op
+Op:And --> Op && Op
+Op:Eq --> Op == Op
+Op:Neq --> Op != Op
+Op:Lt --> Op < Op
+Op:Leq --> Op <= Op
+Op:Gt --> Op > Op
+Op:Geq --> Op >= Op
+Op:Add --> Op + Op
+Op:Sub --> Op - Op
+Op:Mul --> Op * Op
+Op:Div --> Op / Op
+Op:Mod --> Op MOD Op
+Op:Pow --> Op ^ Op
+Op:Not --> ! Op
+Op:Neg --> - Op
+Op --> Primary
 
 Primary:FunCall --> Id ( ExprList )
 Primary:Index --> Lhs [ Expr ]

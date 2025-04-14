@@ -32,13 +32,17 @@ impl<'lt> Tokenizer<'lt, RetTypeEnum<'lt>> for CustomLexer<'lt> {
 
     fn nextsym(&mut self) -> Option<TerminalToken<'lt, RetTypeEnum<'lt>>> {
         let sym = self.inner.nextsym();
-
         if let Some(tok) = &sym {
             if !VALID_TOKENS.contains(&tok.sym) {
-                let error_location = get_error_location(self.input, tok.line, tok.column);
+                let err_location = get_error_location(self.input, tok.line, tok.column);
+                let err_cause = match tok.sym {
+                    "RawToken::BigNumber" => "integer overflow",
+                    "RawToken:LexError" => "unterminated string",
+                    _ => &format!("invalid character {}", tok.sym),
+                };
                 self.lex_error = Some(format!(
-                    "LEXICAL ERROR: invalid token '{}' on line {}, column {} ..\n{}",
-                    tok.sym, tok.line, tok.column, error_location
+                    "LEXER ERROR: {} on line {}, column {} ..\n{}",
+                    err_cause, tok.line, tok.column, err_location
                 ));
                 return None;
             }

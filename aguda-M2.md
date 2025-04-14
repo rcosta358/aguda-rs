@@ -40,6 +40,10 @@ cd src
 rustlr rustlr.grammar
 ```
 
+### Test Results
+
+Some tests fail because the test pool still has some tests with errors, namely regarding the syntax of the language.
+
 ### Challenges
 
 Initially, this phase of the project was implemented with Logos as the lexer and LALRPOP as the parser (LR(1)).
