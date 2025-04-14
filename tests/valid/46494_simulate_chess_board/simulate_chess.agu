@@ -2,50 +2,48 @@
 -- We will be playing as the black side
 
 let _ : Unit =
--- Creating the board with just - and then filling it with the white pieces
--- W(white) R(right)/L(left) Name of the Piece 
+    -- Creating the board with just - and then filling it with the white pieces
+    -- W(white) R(right)/L(left) Name of the Piece 
     let board : String[][] = new String[8 | new String[0 | ""]];
     let i : Int = 0;
     while i < 8 do (
         set board[i] = new String[8 | "---"];
         set i = i + 1
     );
-    set board [0][0] = "WRR"; 
-    set board [0][1] = "WRK"; 
-    set board [0][2] = "WRB"; 
-    set board [0][3] = "W_K"; 
-    set board [0][4] = "W_Q"; 
-    set board [0][5] = "WLB"; 
-    set board [0][6] = "WLK";
-    set board [0][7] = "WLR";
 
--- Placing White Pawns(WP) and the Black Pawns(BP)
+    set board[0][0] = "WRR"; 
+    set board[0][1] = "WRK"; 
+    set board[0][2] = "WRB"; 
+    set board[0][3] = "W_K"; 
+    set board[0][4] = "W_Q"; 
+    set board[0][5] = "WLB"; 
+    set board[0][6] = "WLK";
+    set board[0][7] = "WLR";
+
+    -- Placing White Pawns (WP) and the Black Pawns (BP)
     set i = 0;
     while i < 8 do (
         set board[1][i] = "W_P";
         set board[6][i] = "B_P";
         set i = i + 1
-    )
+    );
 
--- Placing the Black Pieces with the same designation as the Whites, 
--- But now it starts on the left rook because of the view we have of the board
+    -- Placing the Black Pieces
+    set board[7][0] = "BLR"; 
+    set board[7][1] = "BLK"; 
+    set board[7][2] = "BLB"; 
+    set board[7][3] = "B_K"; 
+    set board[7][4] = "B_Q"; 
+    set board[7][5] = "BRB"; 
+    set board[7][6] = "BRK";
+    set board[7][7] = "BRR";
 
-    set board [7][0] = "BLR"; 
-    set board [7][1] = "BLK"; 
-    set board [7][2] = "BLB"; 
-    set board [7][3] = "B_K"; 
-    set board [7][4] = "B_Q"; 
-    set board [7][5] = "BRB"; 
-    set board [7][6] = "BRK";
-    set board [7][7] = "BRR";
-
--- So that we see the board as a board, we print it like this
-
+    -- Printing the board
     let r : Int = 0;
     while r < 8 do (
         let c : Int = 0;
         while c < 8 do (
-            print (board[r][c]);
+            print(board[r][c]);
             print(" ");
             set c = c + 1
         );

@@ -1,3 +1,0 @@
--- Author: 58250, Leonardo Monteiro
-
-let result : Int = sum(10, 20)

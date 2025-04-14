@@ -1,7 +1,0 @@
--- Author: 58250, Leonardo Monteiro
-
--- Function to calculate the perimeter of a rectangle
-let perimetroRetangulo largura altura : Int = 2 * (largura + altura)
-
-let _ : Unit = 
-    print(perimetroRetangulo(5, 3)) 

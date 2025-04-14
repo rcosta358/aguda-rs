@@ -11,6 +11,22 @@ pub use rustlr::LC;
 use rustlr::LBox;
 
 #[derive(Debug)]
+pub enum Else<'lt> {
+  Else(&'lt str,LBox<Expr<'lt>>),
+  Unit,
+  Else_Nothing,
+}
+impl<'lt> Default for Else<'lt> { fn default()->Self { Else::Else_Nothing } }
+
+#[derive(Debug)]
+pub enum FunType<'lt> {
+  MultiParam{ty:TypeList<'lt>,ret:Type<'lt>},
+  SingleParam{ty:Type<'lt>,ret:Type<'lt>},
+  FunType_Nothing,
+}
+impl<'lt> Default for FunType<'lt> { fn default()->Self { FunType::FunType_Nothing } }
+
+#[derive(Debug)]
 pub enum TypeList<'lt> {
   TypeList(Type<'lt>,Vec<LC<Type<'lt>>>),
   TypeList_Nothing,
@@ -19,60 +35,49 @@ impl<'lt> Default for TypeList<'lt> { fn default()->Self { TypeList::TypeList_No
 
 #[derive(Debug)]
 pub enum Expr<'lt> {
-  False(&'lt str),
-  String(&'lt str),
-  Num(i64),
-  True(&'lt str),
-  Null(&'lt str),
-  Unit(&'lt str),
-  Index(LBox<Lhs<'lt>>,LBox<Expr<'lt>>),
-  FunCall(&'lt str,LBox<ExprList<'lt>>),
-  Paren(LBox<Expr<'lt>>),
-  Id(&'lt str),
-  Chain(LBox<Expr<'lt>>,Vec<LC<Expr<'lt>>>),
-  Lt(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Leq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Gt(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Sub(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Mod(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Neq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Pow(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Eq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Not(LBox<Expr<'lt>>),
-  Or(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Mul(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Geq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Neg(LBox<Expr<'lt>>),
-  And(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Add(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
-  Div(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  New{_item0_:&'lt str,ty:Type<'lt>,size:LBox<Expr<'lt>>,init:LBox<Expr<'lt>>},
   Set{_item0_:&'lt str,lhs:LBox<Lhs<'lt>>,expr:LBox<Expr<'lt>>},
   While{_item0_:&'lt str,cond:LBox<Expr<'lt>>,_item2_:&'lt str,expr:LBox<Expr<'lt>>},
-  New{_item0_:&'lt str,ty:Type<'lt>,size:LBox<Expr<'lt>>,init:LBox<Expr<'lt>>},
   Let{_item0_:&'lt str,id:&'lt str,ty:Type<'lt>,expr:LBox<Expr<'lt>>},
   If{_item0_:&'lt str,cond:LBox<Expr<'lt>>,_item2_:&'lt str,then:LBox<Expr<'lt>>,els:LBox<Else<'lt>>},
+  Gt(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Geq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Eq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Neq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Add(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Sub(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Neg(LBox<Expr<'lt>>),
+  Mul(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Mod(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  And(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Div(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Leq(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Pow(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Lt(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Not(LBox<Expr<'lt>>),
+  Or(LBox<Expr<'lt>>,LBox<Expr<'lt>>),
+  Paren(LBox<Expr<'lt>>),
+  Index(LBox<Lhs<'lt>>,LBox<Expr<'lt>>),
+  Id(&'lt str),
+  FunCall(&'lt str,LBox<ExprList<'lt>>),
+  Chain(LBox<Expr<'lt>>,Vec<LC<Expr<'lt>>>),
+  True(&'lt str),
+  Null(&'lt str),
+  Num(i64),
+  Unit(&'lt str),
+  String(&'lt str),
+  False(&'lt str),
   Expr_Nothing,
 }
 impl<'lt> Default for Expr<'lt> { fn default()->Self { Expr::Expr_Nothing } }
 
 #[derive(Debug)]
-pub enum Type<'lt> {
-  Array(LBox<Type<'lt>>),
-  Bool(&'lt str),
-  Int(&'lt str),
-  Unit(&'lt str),
-  String(&'lt str),
-  Type_Nothing,
+pub enum Decl<'lt> {
+  Fun{_item0_:&'lt str,id:&'lt str,params:ParamList<'lt>,ty:FunType<'lt>,expr:Expr<'lt>},
+  Var{_item0_:&'lt str,id:&'lt str,ty:Type<'lt>,expr:Expr<'lt>},
+  Decl_Nothing,
 }
-impl<'lt> Default for Type<'lt> { fn default()->Self { Type::Type_Nothing } }
-
-#[derive(Debug)]
-pub enum Else<'lt> {
-  Unit,
-  Else(&'lt str,LBox<Expr<'lt>>),
-  Else_Nothing,
-}
-impl<'lt> Default for Else<'lt> { fn default()->Self { Else::Else_Nothing } }
+impl<'lt> Default for Decl<'lt> { fn default()->Self { Decl::Decl_Nothing } }
 
 #[derive(Debug)]
 pub enum Lhs<'lt> {
@@ -83,27 +88,22 @@ pub enum Lhs<'lt> {
 impl<'lt> Default for Lhs<'lt> { fn default()->Self { Lhs::Lhs_Nothing } }
 
 #[derive(Debug)]
-pub enum FunType<'lt> {
-  SingleParam{ty:Type<'lt>,ret:Type<'lt>},
-  MultiParam{ty:TypeList<'lt>,ret:Type<'lt>},
-  FunType_Nothing,
+pub enum Type<'lt> {
+  String(&'lt str),
+  Unit(&'lt str),
+  Int(&'lt str),
+  Bool(&'lt str),
+  Array(LBox<Type<'lt>>),
+  Type_Nothing,
 }
-impl<'lt> Default for FunType<'lt> { fn default()->Self { FunType::FunType_Nothing } }
-
-#[derive(Debug)]
-pub enum Decl<'lt> {
-  Fun{_item0_:&'lt str,id:&'lt str,params:ParamList<'lt>,ty:FunType<'lt>,expr:Expr<'lt>},
-  Var{_item0_:&'lt str,id:&'lt str,ty:Type<'lt>,expr:Expr<'lt>},
-  Decl_Nothing,
-}
-impl<'lt> Default for Decl<'lt> { fn default()->Self { Decl::Decl_Nothing } }
+impl<'lt> Default for Type<'lt> { fn default()->Self { Type::Type_Nothing } }
 
 #[derive(Default,Debug)]
-pub struct ExprList<'lt>(pub LBox<Expr<'lt>>,pub Vec<LC<Expr<'lt>>>,);
+pub struct ParamList<'lt>(pub &'lt str,pub Vec<LC<&'lt str>>,);
 
 #[derive(Default,Debug)]
 pub struct Program<'lt>(pub Vec<LC<Decl<'lt>>>,);
 
 #[derive(Default,Debug)]
-pub struct ParamList<'lt>(pub &'lt str,pub Vec<LC<&'lt str>>,);
+pub struct ExprList<'lt>(pub LBox<Expr<'lt>>,pub Vec<LC<Expr<'lt>>>,);
 

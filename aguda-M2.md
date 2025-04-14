@@ -12,32 +12,29 @@ Parser for the AGUDA programming language implemented in [Rust](https://www.rust
 
 ### Running the Parser with Docker
 
+To build the image and run the container, run:
+
 ```sh
 docker build -t aguda-rs .
-docker run aguda-rs cargo run
+docker run aguda-rs
 ```
+
+This will also regenerate the parser with the grammar file.
 
 #### Running a Specific File
 
-With the .agu file in the current directory, run:
+To run a specific file, just place the file in the root directory and rebuild the image and run:
 
 ```sh
-docker run -v ./<filename>.agu aguda-rs cargo run <filename>.agu
+docker run aguda-rs cargo run <filename>.agu
 ```
 
 #### Running the Tests
 
+To run the test pool, run:
+
 ```sh
 docker run aguda-rs cargo test -- --nocapture
-```
-
-### Generating the Parser
-
-To generate the parser from the grammar file, run:
-
-```sh
-cd src
-rustlr rustlr.grammar
 ```
 
 ### Test Results
