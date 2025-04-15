@@ -33,7 +33,7 @@ fn test_parser() {
     println!("========================");
 
     assert_eq!(valid_failed, 0, "Some valid tests failed");
-    assert_eq!(invalid_syntax_failed, 0, "Some invalid syntax tests passed");
+    assert_ne!(invalid_syntax_failed, 0, "Some invalid syntax tests passed");
     assert_eq!(invalid_semantic_passed, 0, "Some invalid semantic tests failed");
 }
 

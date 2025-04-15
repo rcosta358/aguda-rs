@@ -19,11 +19,11 @@ docker build -t aguda-rs .
 docker run aguda-rs
 ```
 
-This will also regenerate the parser with the grammar file.
+This will also regenerate the parser with the [grammar file](./src/rustlr.grammar).
 
 #### Running a Specific File
 
-To run a specific file, just place the file in the root directory and rebuild the image and run:
+To run a specific file, place the file in the root directory, rebuild the image and run:
 
 ```sh
 docker run aguda-rs cargo run <filename>.agu
@@ -39,7 +39,11 @@ docker run aguda-rs cargo test -- --nocapture
 
 ### Test Results
 
-Some tests fail because the test pool still has some tests with errors, namely regarding the syntax of the language.
+Since the language won't support higher-order functions, my parser only considers types to be basic types (`Int`, `Bool`, `String`, `Unit`) and arrays of these. However, there are some tests that assume that the types can be function types, namely in the function signatures.
+
+The rest of the tests fail because the test pool still has some tests with syntax errors.
+
+Additionally, in two tests, there were symbols that were not UTF-8, namely `§` and `á`, which caused the execution of the tests to panic and exit. This happens because Rust strings are UTF-8 encoded. To fix this, I replaced these symbols with `$` and `a` respectively, to be able to run the tests normally. 
 
 ### Challenges
 
