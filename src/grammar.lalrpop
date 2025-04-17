@@ -10,16 +10,16 @@ pub Program: Program = {
 }
 
 Decl: Decl = {
-    DeclVar, // let id : type = expr
-    DeclFunc, // let id (id, ...) : (type, ...) -> type = expr
+    DeclVar,
+    DeclFunc,
 }
 
 DeclVar: Decl = {
-    "let" <id:Id> ":" <ty:Spanned<Type>> "=" <expr:Spanned<Expr>> => Decl::Var { id, ty, expr },
+    "let" <id:Spanned<Id>> ":" <ty:Spanned<Type>> "=" <expr:Spanned<Expr>> => Decl::Var { id, ty, expr },
 }
 
 DeclFunc: Decl = {
-    "let" <id:Id>
+    "let" <id:Spanned<Id>>
         "(" <param_ids:FunParamIds> ")"
         ":" <sig:FunSignature>
         "=" <expr:Spanned<Expr>>
@@ -52,7 +52,7 @@ StmtOpen: Expr = {
         Expr::IfElse { cond: Box::new(cond), then: Box::new(then), els: Box::new(Spanned { value: Expr::Unit, span: unit.span }) },
     "if" <cond:Spanned<Expr>> "then" <then:Spanned<StmtClosed>> "else" <els:Spanned<StmtOpen>> =>
         Expr::IfElse { cond: Box::new(cond), then: Box::new(then), els: Box::new(els) },
-    "let" <id:Id> ":" <ty:Spanned<Type>> "=" <expr:Spanned<StmtOpen>> => Expr::Let { id, ty, expr: Box::new(expr) },
+    "let" <id:Spanned<Id>> ":" <ty:Spanned<Type>> "=" <expr:Spanned<StmtOpen>> => Expr::Let { id, ty, expr: Box::new(expr) },
     "set" <lhs:Spanned<Lhs>> "=" <expr:Spanned<StmtOpen>> => Expr::Set { lhs, expr: Box::new(expr) },
     "while" <cond:Spanned<Expr>> "do" <expr:Spanned<StmtOpen>> => Expr::While { cond: Box::new(cond), expr: Box::new(expr) },
 }
@@ -60,7 +60,7 @@ StmtOpen: Expr = {
 StmtClosed: Expr = {
     "if" <cond:Spanned<Expr>> "then" <then:Spanned<StmtClosed>> "else" <els:Spanned<StmtClosed>> =>
         Expr::IfElse { cond: Box::new(cond), then: Box::new(then), els: Box::new(els) },
-    "let" <id:Id> ":" <ty:Spanned<Type>> "=" <expr:Spanned<StmtClosed>> => Expr::Let { id, ty, expr: Box::new(expr) },
+    "let" <id:Spanned<Id>> ":" <ty:Spanned<Type>> "=" <expr:Spanned<StmtClosed>> => Expr::Let { id, ty, expr: Box::new(expr) },
     "set" <lhs:Spanned<Lhs>> "=" <expr:Spanned<StmtClosed>> => Expr::Set { lhs, expr: Box::new(expr) },
     "while" <cond:Spanned<Expr>> "do" <expr:Spanned<StmtClosed>> => Expr::While { cond: Box::new(cond), expr: Box::new(expr) },
     NewExpr,
@@ -131,9 +131,9 @@ UnaryExpr: Expr = {
 }
 
 BaseExpr: Expr = {
-    <id:Id> "(" <args:FunArgs> ")" => Expr::FunCall { id, args },
+    <id:Spanned<Id>> "(" <args:FunArgs> ")" => Expr::FunCall { id, args },
     <lhs:Spanned<Lhs>> "[" <index:Spanned<Expr>> "]" => Expr::ArrayIndex { lhs, index: Box::new(index) },
-    <id:Id> => Expr::Id(id),
+    <id:Spanned<Id>> => Expr::Id(id),
     "(" <e:Expr> ")" => e,
     LiteralExpr,
 }
@@ -147,7 +147,7 @@ LiteralExpr: Expr = {
 }
 
 Lhs: Lhs = {
-    <id:Id> => Lhs::Var { id }, // variable
+    <id:Spanned<Id>> => Lhs::Var { id }, // variable
     <lhs:Spanned<Lhs>> "[" <index:Spanned<Expr>> "]" => Lhs::Index { lhs: Box::new(lhs), index: Box::new(index) }, // array index
 }
 
@@ -169,7 +169,7 @@ Id: String = {
 }
 
 #[inline]
-FunParamIds: Vec<String> = List<Id>;
+FunParamIds: Vec<Spanned<String>> = List<Spanned<Id>>;
 
 #[inline]
 FunParamTypes: Vec<Spanned<Type>> = List<Spanned<Type>>;

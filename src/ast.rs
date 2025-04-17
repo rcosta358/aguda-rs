@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::Range;
 use crate::utils::indent;
 
@@ -15,13 +16,13 @@ pub struct Program {
 #[derive(Debug)]
 pub enum Decl {
     Var {
-        id: String,
+        id: Spanned<String>,
         ty: Spanned<Type>,
         expr: Spanned<Expr>
     },
     Fun{
-        id: String,
-        param_ids: Vec<String>,
+        id: Spanned<String>,
+        param_ids: Vec<Spanned<String>>,
         param_types: Vec<Spanned<Type>>,
         ret_ty: Spanned<Type>,
         expr: Spanned<Expr>
@@ -35,7 +36,7 @@ pub enum Expr {
         rhs: Box<Spanned<Expr>>
     },
     Let {
-        id: String,
+        id: Spanned<String>,
         ty: Spanned<Type>,
         expr: Box<Spanned<Expr>>
     },
@@ -61,7 +62,7 @@ pub enum Expr {
         els: Box<Spanned<Expr>>
     },
     FunCall {
-        id: String,
+        id: Spanned<String>,
         args: Vec<Spanned<Expr>>
     },
     NewArray {
@@ -73,7 +74,7 @@ pub enum Expr {
         lhs: Spanned<Lhs>,
         index: Box<Spanned<Expr>>
     },
-    Id(String),
+    Id(Spanned<String>),
     Num(i64),
     Str(String),
     Bool(bool),
@@ -83,7 +84,7 @@ pub enum Expr {
 #[derive(Debug)]
 pub enum Lhs {
     Var {
-        id: String
+        id: Spanned<String>
     },
     Index {
         lhs: Box<Spanned<Lhs>>,
@@ -110,6 +111,12 @@ pub enum BinOp {
     Add, Sub, Mul, Div, Mod, Pow, Eq, Neq, Lt, Leq, Gt, Geq, And, Or,
 }
 
+impl fmt::Display for Spanned<String> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
 impl Program {
     pub fn to_text(&self) -> String {
         self.decls
@@ -127,7 +134,11 @@ impl Decl {
                 format!(
                     "let {} ({}) : ({}) -> {} =\n{}{}",
                     id,
-                    param_ids.join(", "),
+                    param_ids
+                        .iter()
+                        .map(|id| id.value.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", "),
                     param_types.iter()
                         .map(|ty| ty.value.to_text())
                         .collect::<Vec<_>>()
