@@ -1,4 +1,0 @@
-kayak
-true
-house
-false

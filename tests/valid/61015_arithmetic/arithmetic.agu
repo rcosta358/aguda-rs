@@ -1,4 +1,0 @@
--- Author: 61015, Filipe Lopes
-
-let result : Int = (10 + 5) * 2 - 3;
-print(result);

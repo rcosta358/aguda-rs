@@ -1,7 +1,0 @@
--- Author: 61015, Filipe Lopes
-
-let compute (x : Int) : Int =
-  let y : Int = x + 10;
-  let z : Int = y * 2;
-  z - 5;
-print(compute(5));

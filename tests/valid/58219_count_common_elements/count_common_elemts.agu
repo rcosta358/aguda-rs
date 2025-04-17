@@ -10,8 +10,10 @@ let countCommonElements (arr1 , arr2) :  (Int[], Int[]) -> Int = (
       if arr1[i] == arr2[j] then (
         set count = count + 1;
         set found = true
-      ) else ();
-      if !found then set j = j + 1 else ()
+      );
+      if !found then (
+        set j = j + 1
+      )
     );
     set i = i + 1
   );

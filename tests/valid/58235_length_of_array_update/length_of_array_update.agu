@@ -1,8 +1,0 @@
--- Author: 58235, António Almeida
-
-let a : Int[] = new Int[5 | 0]
-
-let _ : Unit =
-    print(length(a)); print("\n");
-    set a = new Int[8 | 1];
-    print(length(a))

@@ -1,9 +1,0 @@
--- Author: 58235, António Almeida
-
-let isEven (n) : Int -> Bool = n % 2 == 0
-
-let _ : Unit =
-    if !!!!!isEven(9) && isEven(4) || !!false then 
-        print(1)
-    else
-        print(0)

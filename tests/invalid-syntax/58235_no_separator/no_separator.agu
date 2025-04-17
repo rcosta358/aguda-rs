@@ -1,8 +1,0 @@
--- Author: 58235, António Almeida
--- Missing separator ;
-
-let _ : Unit = 
-    let b : Int = 5;
-    let c : Int = 7
-    print(c)
-    

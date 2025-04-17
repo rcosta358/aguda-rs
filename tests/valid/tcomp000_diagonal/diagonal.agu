@@ -10,6 +10,7 @@ let diagonal (n) : Int -> Int[][] =
 let printMatrix (a) : Int[][] -> Unit =
   let i : Int = 0 ;
   while i < length(a) do (
+    let j : Int = 0 ;
     while j < length(a[0]) do (
       print(a[i][j]); print(" ") ;
       set j = j + 1

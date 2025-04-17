@@ -1,5 +1,0 @@
--- Author: 54394, Afonso Esteves
-
-let vim_better_than_emacs (_) : Int -> Unit[] =
-    new Int[f | f]
-

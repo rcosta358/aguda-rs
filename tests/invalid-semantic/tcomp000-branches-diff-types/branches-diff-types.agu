@@ -1,0 +1,2 @@
+let _ : Unit =
+  if true then unit else 5

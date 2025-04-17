@@ -1,5 +1,0 @@
--- 46494, Leonor Figueirinhas
-
-let factorial (n) : Int -> Int = if n == 0 then 1 else n * factorial(n-1)
-
-let _ : Unit = print(factorial(5))

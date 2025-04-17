@@ -1,9 +1,0 @@
--- 46494, Leonor Figueirinhas
-
-let _ : Unit =
-    let arr : Int[] = new Int [ 4 | 0 ];
-    set arr [0] = 2;
-    set arr [1] = 2*arr[0];
-    set arr [2] = 3*arr[1];
-    set arr [3] = 4*arr[2];
-    print(arr[3])

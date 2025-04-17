@@ -2,4 +2,4 @@
 
 let _ : Unit =
   let b : Bool = true ;
-  print (true == a == (false || true))
+  print (true == b == (false || true))

@@ -1,6 +1,0 @@
--- Author: 58235, António Almeida
--- Int cannot be converted to Bool
-
-let _ : Unit = 
-    let x : Int = 1;
-    if x then print(true) else print(false)

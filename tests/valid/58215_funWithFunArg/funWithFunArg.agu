@@ -1,9 +1,9 @@
 -- Author: 58215, Manuel Lourenço
 
-let fun : Unit -> Int =
+let fun (a): Unit -> Int =
     4
 
-let fun2 : Unit -> Unit =
+let fun2 (a) : Unit -> Unit =
     print(2)
 
 let main : Unit =

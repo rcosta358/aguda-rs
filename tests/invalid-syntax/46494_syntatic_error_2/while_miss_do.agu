@@ -1,7 +1,0 @@
--- 46494, Leonor Figueirinhas
-
-let loop (n) : Int -> Int =
-    while n > 0 (
-        set n = n + 1
-    );
-    n

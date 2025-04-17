@@ -1,96 +1,190 @@
-use rustlr::{TerminalToken, Tokenizer};
-use crate::rustlrparser::{rustlrlexer, RetTypeEnum};
+use std::num::ParseIntError;
+use logos::Logos;
+use crate::utils::format_error_with_line;
 
-const VALID_TOKENS: [&str; 44] = [
-    ";", ",", "->", "+", "-", "*", "/", "^", "==", "!=", "<", "<=", ">", ">=", "&&", "!",
-    "[", "]", "(", ")", "COLON", "MOD", "PIPE", "ASSIGN", "OR", "WHILE", "LET", "SET",
-    "IF", "THEN", "ELSE", "DO", "NEW", "TRUE", "FALSE", "NULL", "UNIT", "TINT", "TBOOL",
-    "TSTRING", "TUNIT", "Id", "Num", "Str"
-];
+#[derive(Logos, Debug, PartialEq, Clone)]
+#[logos(error=LexicalError)]
+#[logos(skip r"[ \t\r\n\f]+")] // ignore whitespace
+#[logos(skip r"--(.*)")] // ignore comments
+pub enum Token {
 
-/*
- * RUSTLR already comes with a lexer, but we need to extend it in order to
- * distinguish between lexical and syntactic errors
- */
-pub struct CustomLexer<'lt> {
-    pub inner: rustlrlexer<'lt>,
-    pub lex_error: Option<String>,
-    input: &'lt str,
+    #[regex("[a-zA-Z_][a-zA-Z0-9'_]*", |lex| lex.slice().to_string(), priority = 0)]
+    Id(String),
+
+    #[regex("[0-9]+", |lex| lex.slice().parse().map_err(|e| LexicalError::from(e)))]
+    Int(i64),
+
+    #[regex("\"[^\"\n]*\"", |lex| lex.slice().to_string())]
+    String(String),
+
+    #[token("true")]
+    True,
+
+    #[token("false")]
+    False,
+
+    #[token("unit")]
+    Unit,
+
+    #[token(";")]
+    Semicolon,
+
+    #[token("+")]
+    Plus,
+
+    #[token("-")]
+    Minus,
+
+    #[token("*")]
+    Multiply,
+
+    #[token("/")]
+    Divide,
+
+    #[token("%")]
+    Modulo,
+
+    #[token("^")]
+    Power,
+
+    #[token("==")]
+    Equal,
+
+    #[token("!=")]
+    NotEqual,
+
+    #[token("<")]   
+    Less,
+
+    #[token("<=")]
+    LessOrEqual,
+
+    #[token(">")]
+    Greater,
+
+    #[token(">=")]
+    GreaterOrEqual,
+
+    #[token("!")]
+    Not,
+
+    #[token("||")]
+    Or,
+
+    #[token("&&")]
+    And,
+
+    #[token("(")]
+    LeftParen,
+
+    #[token(")")]
+    RightParen,
+
+    #[token("[")]
+    LeftBracket,
+
+    #[token("]")]
+    RightBracket,
+
+    #[token(",")]
+    Comma,
+
+    #[token("set")]
+    Set,
+
+    #[token("let")]
+    Let,
+
+    #[token(":")]
+    Colon,
+
+    #[token("=")]
+    Assign,
+
+    #[token("->")]
+    Arrow,
+
+    #[token("if")]
+    If,
+
+    #[token("then")]
+    Then,
+
+    #[token("else")]
+    Else,
+
+    #[token("while")]
+    While,
+
+    #[token("do")]
+    Do,
+
+    #[token("new")]
+    New,
+
+    #[token("|")]
+    Pipe,
+
+    #[token("Int")]
+    IntType,
+
+    #[token("Bool")]
+    BoolType,
+
+    #[token("String")]
+    StringType,
+
+    #[token("Unit")]
+    UnitType,
 }
 
-impl<'lt> CustomLexer<'lt> {
-    pub fn new(input: &'lt str) -> Self {
-        CustomLexer {
-            inner: rustlrlexer::from_str(input),
-            lex_error: None,
-            input,
+pub struct Lexer<'a> {
+    lexer: logos::Lexer<'a, Token>,
+    src: &'a str,
+}
+
+impl<'a> Lexer<'a> {
+    pub fn new(src: &'a str) -> Self {
+        Self {
+            lexer: Token::lexer(src),
+            src
         }
     }
-}
 
-impl<'lt> Tokenizer<'lt, RetTypeEnum<'lt>> for CustomLexer<'lt> {
-
-    fn nextsym(&mut self) -> Option<TerminalToken<'lt, RetTypeEnum<'lt>>> {
-        let sym = self.inner.nextsym();
-        if let Some(tok) = &sym {
-            if !VALID_TOKENS.contains(&tok.sym) {
-                let err_location = get_error_location(self.input, tok.line, tok.column);
-                let err_cause = match tok.sym {
-                    "RawToken::BigNumber" => "integer overflow",
-                    "RawToken:LexError" => "unterminated string",
-                    _ => &format!("invalid character {}", tok.sym),
-                };
-                self.lex_error = Some(format!(
-                    "LEXER ERROR: {} on line {}, column {} ..\n{}",
-                    err_cause, tok.line, tok.column, err_location
-                ));
-                return None;
+    pub fn tokenize(&mut self) -> Result<Vec<(usize, Token, usize)>, String> {
+        let mut tokens = Vec::new();
+        while let Some(tok) = self.lexer.next() {
+            let span = self.lexer.span();
+            match tok {
+                Ok(token) => tokens.push((span.start, token, span.end)),
+                Err(e) => {
+                    return match e {
+                        LexicalError::InvalidInteger(e) =>
+                            Err(format_error_with_line(&self.src, span.start, &e, None)),
+                        LexicalError::UnrecognizedToken =>
+                            Err(format_error_with_line(&self.src, span.start, "unrecognized token", None)),
+                    }
+                }
             }
         }
-        sym
-    }
-
-    // rest of the methods are just from the inner lexer
-    fn linenum(&self) -> usize {
-        self.inner.linenum()
-    }
-    fn column(&self) -> usize {
-        self.inner.column()
-    }
-    fn position(&self) -> usize {
-        self.inner.position()
-    }
-    fn add_priority_symbol(&mut self, s: &'static str) {
-        self.inner.add_priority_symbol(s)
-    }
-    fn current_line(&self) -> &str {
-        self.inner.current_line()
-    }
-    fn get_line(&self, i: usize) -> Option<&str> {
-        self.inner.get_line(i)
-    }
-    fn get_slice(&self, s: usize, l: usize) -> &str {
-        self.inner.get_slice(s, l)
-    }
-    fn transform_wildcard(
-        &self,
-        t: TerminalToken<'lt, RetTypeEnum<'lt>>,
-    ) -> TerminalToken<'lt, RetTypeEnum<'lt>> {
-        self.inner.transform_wildcard(t)
+        Ok(tokens)
     }
 }
 
-fn get_error_location(
-    input: &str,
-    line: usize,
-    column: usize,
-) -> String {
-    let lines: Vec<&str> = input.lines().collect();
-    if line > 0 && line <= lines.len() {
-        let line_text = lines[line - 1];
-        let marker = " ".repeat(column.saturating_sub(1)) + "^";
-        format!(" >> {}\n    {}", line_text, marker)
-    } else {
-        "".to_string()
+#[derive(Default, Debug, Clone, PartialEq)]
+pub enum LexicalError {
+    InvalidInteger(String),
+
+    #[default]
+    UnrecognizedToken,
+}
+
+impl From<ParseIntError> for LexicalError {
+    fn from(err: ParseIntError) -> Self {
+        use std::num::IntErrorKind::*;
+        match err.kind() {
+            PosOverflow | NegOverflow => LexicalError::InvalidInteger("integer overflow".to_owned()),
+            _ => LexicalError::InvalidInteger("invalid integer".to_owned()),
+        }
     }
 }

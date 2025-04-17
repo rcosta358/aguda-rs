@@ -1,35 +1,29 @@
 -- Author: 58219, Mariana Costa
 
-let isPrime (n) : Int -> Bool = (
-  let result : Bool = true;
-  if n <= 1 then (
-    set result = false;
-  ) else (
-    if n <= 3 then (
-      set result = true;
-    ) else (
-      if n % 2 == 0 || n % 3 == 0 then (
-        set result = false;
-      ) else (
-        let i : Int = 5;
-        while i * i <= n do (
-          if n % i == 0 || n % (i + 2) == 0 then (
-            set result = false;
-            set i = n + 1;
-          ) else ();
-          set i = i + 6;
-        );
-      )
-    );
-  );
-  result
-);
+let isPrime (n) : Int -> Bool =
+  if n <= 1 then
+    false
+  else if n <= 3 then
+    true
+  else if n % 2 == 0 || n % 3 == 0 then
+    false
+  else
+    let i : Int = 5;
+    let isPrimeNumber : Bool = true;
 
-let _ : Unit = (
+    while i * i <= n && isPrimeNumber do (
+      if n % i == 0 || n % (i + 2) == 0 then
+        set isPrimeNumber = false;
+      set i = i + 6
+    );
+
+    isPrimeNumber
+
+let _ : Unit =
   let n : Int = 3;
-  if isPrime(n) then (
+  if isPrime(n) then
     print("is prime")
-  ) else (
+  else
     print("is not prime")
-  )
-)
+
+

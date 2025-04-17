@@ -2,9 +2,9 @@
 
 let findMax (arr) : Int[] -> Unit =
     if length(arr) == 0 then
-        print("Array is empty!");
+        print("Array is empty!")
     else
-        let maxVal : Int = arr[0] ;
+        let maxVal : Int = arr[0];
         let i : Int = 1;
 
         while i < length(arr) do (
@@ -17,7 +17,7 @@ let findMax (arr) : Int[] -> Unit =
 
 let findMin (arr) : Int[] -> Unit =
     if length(arr) == 0 then
-        print("Array is empty!");
+        print("Array is empty!")
     else
         let minVal : Int = arr[0];
         let i : Int = 1;

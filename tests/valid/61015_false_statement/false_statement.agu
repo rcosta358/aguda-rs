@@ -1,7 +1,0 @@
--- Author: 61015, Filipe Lopes
-
-let a : Int = 5;
-if a > 10 then
-  print("This will not print");
-
-print("Test complete");

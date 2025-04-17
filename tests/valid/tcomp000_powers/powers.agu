@@ -3,9 +3,10 @@
 let powers (n) : Int -> Int[] =
   let a : Int[] = new Int [n | 0] ;
   let i : Int = 0 ;
-  while i < n do
+  while i < n do (
     set a[i] = i * i ;
+    set i = i + 1
+  ) ;
   a
-
 let _ : Unit =
   print(powers(10))

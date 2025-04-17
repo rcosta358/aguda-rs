@@ -1,7 +1,0 @@
--- Author: 61015, Filipe Lopes
-
-let sumDown (_) : Int -> Int =
-  if _ == 0 then 0 else _ + sumDown(_ - 1);
-  
-let result : Int = sumDown(5);
-print(result);
