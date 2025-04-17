@@ -1,0 +1,25 @@
+-- 46494, Leonor Figueirinhas
+
+let _ : Unit = 
+    let message : String = "H3ll0 W0rld";
+    print(message);
+
+    let str : String[] = new String[] [11 | ""];
+        set str[0] = "H";
+        set str[1] = "3";
+        set str[2] = "L";
+        set str[3] = "L";
+        set str[4] = "0";
+        set str[5] = " ";
+        set str[6] = "W";
+        set str[7] = "0";
+        set str[8] = "R";
+        set str[9] = "L";
+        set str[10] = "D";
+
+        print(length(str));
+        let i : Int = 0;
+        while i < length(str) do (
+            print (str[i]);
+            set i = i + 1
+        )

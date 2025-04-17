@@ -1,0 +1,6 @@
+-- 46494, Leonor Figueirinhas
+
+let power (x) : Int -> Int = x * x
+
+let _ Unit =
+    print(power("erro"))

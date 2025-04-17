@@ -3,18 +3,17 @@
 let isSorted (arr) : Int[] -> Bool =
     let len : Int = length(arr);
     let result : Bool = true;
-    if len <= 1 then
-        result
-    else
+    if len <= 1 then result else (
         let i : Int = 1;
         while i < len do (
             if arr[i] < arr[i - 1] then (
                 set result = false;
-                set i = len
-            );
-            set i = i + 1
+                set i = len;
+            ) else ();
+            set i = i + 1;
         );
         result
+    );
 
 let main : Unit =
     let sortedArray : Int[] = new Int[4 | 0];

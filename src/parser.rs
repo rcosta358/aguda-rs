@@ -1,43 +1,23 @@
-lalrpop_util::lalrpop_mod!(pub grammar);
-
-use crate::lexer::Token;
-use crate::parser::grammar::ProgramParser;
+use rustlr::Tokenizer;
 use crate::ast::Program;
-use lalrpop_util::ParseError;
-use crate::utils::format_error_with_line;
+use crate::lexer::CustomLexer;
+use crate::rustlrparser::{make_parser, parse_with, rustlrlexer};
 
-pub struct Parser <'a> {
-    parser: ProgramParser,
-    src: &'a str,
-    tokens: Vec<(usize, Token, usize)>
-}
-
-impl <'a> Parser<'a> {
-    pub fn new(src: &str, tokens: Vec<(usize, Token, usize)>) -> Parser {
-        Parser {
-            parser: ProgramParser::new(),
-            src,
-            tokens
-        }
+pub fn parse_aguda_program(src: &str) -> Result<Program, String> {
+    // custom lexer to detect lexical errors first
+    let mut lexer = CustomLexer::new(&src);
+    while let Some(_) = lexer.nextsym() { /* consume tokens */ }
+    if let Some(lex_err) = &lexer.lex_error {
+        return Err(lex_err.to_owned());
     }
 
-    pub fn parse(&self) -> Result<Program, String> {
-        self.parser
-            .parse(self.tokens.clone())
-            .map_err(|e| match e {
-                ParseError::UnrecognizedToken { token: (start, _, _), expected } => {
-                    format_error_with_line(&self.src, start, "unrecognized token", Some(&expected))
-                }
-                ParseError::UnrecognizedEof { location, expected } => {
-                    format_error_with_line(&self.src, location, "unrecognized end of input", Some(&expected))
-                }
-                ParseError::InvalidToken { location } => {
-                    format_error_with_line(&self.src, location, "invalid token", None)
-                }
-                ParseError::ExtraToken { token: (start, _, _) } => {
-                    format_error_with_line(&self.src, start, "unexpected extra token", None)
-                }
-                other => format!("unexpected error: {:?}", other),
-            }) as Result<Program, String>
+    // move on with parsing with auto lexer
+    let inner_lexer = rustlrlexer::from_str(&src);
+    let mut parser = make_parser(inner_lexer);
+    parser.set_err_report(true);
+    let result = parse_with(&mut parser);
+    match result {
+        Ok(raw_ast) => Ok(Program::convert(raw_ast)),
+        Err(_) => Err(format!("{}", parser.get_err_report())),
     }
 }

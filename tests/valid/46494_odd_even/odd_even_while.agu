@@ -1,0 +1,21 @@
+-- 46494, Leonor Figueirinhas
+
+let even (x) : Int -> Bool =
+    x % 2 == 0
+
+let odd (x) : Int -> Bool =
+    !even(x)
+
+let _ : Unit = 
+    let i : Int = 0;
+    while i < 11 do (
+        if i == 0 then print("Zero!")
+        else (
+            if i == 3 then print("Almost Pi!")
+            else (
+                if even(i) then print("Even!") 
+                else print("Odd!")
+            )
+        );
+        set i = i + 1
+    )

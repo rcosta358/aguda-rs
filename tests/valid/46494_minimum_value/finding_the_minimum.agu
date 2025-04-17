@@ -1,0 +1,28 @@
+-- 46494, Leonor Figueirinhas
+
+-- Given an series of numbers I'll input here 
+-- (I created this in a random number generator, random.org)
+-- 78 81 90 15 7 63 37 41 82 80
+
+let _ : Unit =
+    let arr : Int[] = new Int [10 | 0 ];
+    set arr[0] = 78;
+    set arr[1] = 81;
+    set arr[2] = 90;
+    set arr[3] = 15;
+    set arr[4] = 7;
+    set arr[5] = 63;
+    set arr[6] = 37;
+    set arr[7] = 41;
+    set arr[8] = 82;
+    set arr[9] = 80;
+
+    let min : Int = arr[0];
+    let i : Int = 1;
+    while i < length(arr) do (
+        if arr[i] < min then (
+            set min = arr[i]
+        );
+        set i = i + 1
+    );
+    print(min)

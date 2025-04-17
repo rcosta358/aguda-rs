@@ -1,0 +1,4 @@
+-- Author: 61015, Filipe Lopes
+
+let f (x : Int) : Int = (x + 1;
+print(f(5));

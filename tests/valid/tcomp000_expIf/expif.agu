@@ -1,8 +1,3 @@
 -- Author: tcomp000, Vasco T. Vasconcelos
 
-let ola : Bool = false
-
-let _ : Bool =
-  if (if ola then ola else ola)
-  then (if ola then ola else ola)
-  else (if ola then ola else ola)
+let _ : Unit = if if ola then ola else ola then if ola then ola else ola else if ola then ola else ola

@@ -1,0 +1,3 @@
+-- Author: 61015, Filipe Lopes
+
+let @ : Int = 10;

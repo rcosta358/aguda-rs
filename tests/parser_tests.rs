@@ -1,7 +1,6 @@
 use std::fs;
 use std::path::Path;
-use aguda_rs::lexer::Lexer;
-use aguda_rs::parser::Parser;
+use aguda_rs::parser::parse_aguda_program;
 
 #[test]
 fn test_parser() {
@@ -10,11 +9,11 @@ fn test_parser() {
     let invalid_syntax_dir = base_dir.join("invalid-syntax");
     let invalid_semantic_dir = base_dir.join("invalid-semantic");
 
-    let (valid_passed, valid_failed) = test_agu_files_in_dir(&valid_dir, true);
+    let (valid_passed, valid_failed) = test_agu_files_in_dir(&valid_dir);
     let valid_tests = valid_passed + valid_failed;
-    let (invalid_syntax_passed, invalid_syntax_failed) = test_agu_files_in_dir(&invalid_syntax_dir, false);
+    let (invalid_syntax_passed, invalid_syntax_failed) = test_agu_files_in_dir(&invalid_syntax_dir);
     let invalid_syntax_tests = invalid_syntax_passed + invalid_syntax_failed;
-    let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir, true);
+    let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir);
     let invalid_semantic_tests = invalid_semantic_passed + invalid_semantic_failed;
     let total_tests = valid_tests + invalid_syntax_tests + invalid_semantic_tests;
 
@@ -38,7 +37,7 @@ fn test_parser() {
     assert_eq!(invalid_semantic_passed, 0, "Some invalid semantic tests failed");
 }
 
-fn test_agu_files_in_dir(dir: &Path, show_err: bool) -> (i32, i32) {
+fn test_agu_files_in_dir(dir: &Path) -> (i32, i32) {
     assert!(dir.exists(), "Test directory not found");
     let mut passed = 0;
     let mut failed = 0;
@@ -48,9 +47,7 @@ fn test_agu_files_in_dir(dir: &Path, show_err: bool) -> (i32, i32) {
             match test_agu_file_in_dir(&path) {
                 Ok(_) => passed += 1,
                 Err(err) => {
-                    if show_err {
-                        println!("{}", err);
-                    }
+                    println!("{}", err);
                     failed += 1;
                 }
             }
@@ -69,17 +66,7 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
 
-    let mut lexer = Lexer::new(&src);
-    let result = match lexer.tokenize() {
-        Ok(tokens) => {
-            let parser = Parser::new(&src, tokens);
-            match parser.parse() {
-                Ok(_) => Ok(()),
-                Err(e) => Err(format!("Syntax Error: {}", e)),
-            }
-        }
-        Err(e) => Err(format!("Lexical Error: {}", e))
-    };
+    let result = parse_aguda_program(&src);
     match result {
         Ok(_) => Ok(format!("✅ PARSED: {:?}", dir.file_name().unwrap())),
         Err(e) => Err(format!("❌ {}: {:?}\n", e, dir.file_name().unwrap()))

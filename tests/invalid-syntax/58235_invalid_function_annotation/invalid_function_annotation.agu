@@ -1,0 +1,4 @@
+-- Author: 58235, António Almeida
+-- Function badly annotated
+
+let f(n) : Int : Unit = print(2 * n)

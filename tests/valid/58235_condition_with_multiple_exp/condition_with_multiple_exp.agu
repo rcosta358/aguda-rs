@@ -1,0 +1,10 @@
+-- Author: 58235, António Almeida
+
+let n : Int = 7
+let k : Int = -3
+
+let _ : Unit = 
+    if (set n = 9; set k = 2; n * k == 18) then 
+        print("worked")
+    else
+        print("got confused")
