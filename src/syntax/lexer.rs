@@ -1,6 +1,6 @@
 use std::num::ParseIntError;
 use logos::Logos;
-use crate::utils::format_error_with_line;
+use crate::utils::format_error;
 
 #[derive(Logos, Debug, PartialEq, Clone)]
 #[logos(error=LexicalError)]
@@ -160,9 +160,9 @@ impl<'a> Lexer<'a> {
                 Err(e) => {
                     return match e {
                         LexicalError::InvalidInteger(e) =>
-                            Err(format_error_with_line(&self.src, span.start, &e, None)),
+                            Err(format_error(&self.src, span, &e, None)),
                         LexicalError::UnrecognizedToken =>
-                            Err(format_error_with_line(&self.src, span.start, "unrecognized token", None)),
+                            Err(format_error(&self.src, span, "unrecognized token", None)),
                     }
                 }
             }

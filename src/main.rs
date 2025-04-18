@@ -1,7 +1,8 @@
 use std::{env, fs};
 use std::path::Path;
-use aguda_rs::lexer::Lexer;
-use aguda_rs::parser::Parser;
+use aguda_rs::semantic::variable_checker::VariableChecker;
+use aguda_rs::syntax::lexer::Lexer;
+use aguda_rs::syntax::parser::Parser;
 
 fn main() {
     match read_source_file() {
@@ -11,7 +12,17 @@ fn main() {
                 Ok(tokens) => {
                     let parser = Parser::new(&src, tokens);
                     match parser.parse() {
-                        Ok(ast) => println!("{}", ast.to_text()),
+                        Ok(ast) => {
+                            let mut var_checker = VariableChecker::new(&ast);
+                            match var_checker.check() {
+                                Ok(_) => println!("{}", ast.to_text()),
+                                Err(errors) => {
+                                    for error in &errors {
+                                        eprintln!("Semantic Error: {}", error.get_error(&src));
+                                    }
+                                },
+                            }
+                        },
                         Err(e) => eprintln!("Syntax Error: {}", e),
                     }
                 }

@@ -1,12 +1,14 @@
+use crate::syntax::ast::Span;
 
-pub fn format_error_with_line(
+pub fn format_error(
     source: &str,
-    byte_index: usize,
+    span: Span,
     label: &str,
     expected: Option<&[String]>
 ) -> String {
-    let pos = get_position(source, byte_index);
-    let error_line_str = get_error_line(source, pos);
+    let pos = get_position(source, span.start);
+    let length = span.end - span.start;
+    let error_line_str = get_error_line(source, pos, length);
     let mut msg = format!(
         "{} at line {}, column {}\n\t{}",
         label,
@@ -20,13 +22,14 @@ pub fn format_error_with_line(
     msg
 }
 
-fn get_error_line(source: &str, pos: (usize, usize)) -> String {
+fn get_error_line(source: &str, pos: (usize, usize), length: usize) -> String {
     let (line, col) = pos;
     if let Some(line_str) = source.lines().nth(line - 1) {
         format!(
-            "{}\n\t{}^",
+            "{}\n\t{}{}",
             line_str,
-            " ".repeat(col.saturating_sub(1))
+            " ".repeat(col.saturating_sub(1)),
+            "^".repeat(length),
         )
     } else {
         "".to_string()

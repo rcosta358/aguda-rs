@@ -1,10 +1,10 @@
 lalrpop_util::lalrpop_mod!(pub grammar);
 
-use crate::lexer::Token;
-use crate::parser::grammar::ProgramParser;
-use crate::ast::Program;
+use crate::syntax::lexer::Token;
+use crate::syntax::parser::grammar::ProgramParser;
+use crate::syntax::ast::Program;
 use lalrpop_util::ParseError;
-use crate::utils::format_error_with_line;
+use crate::utils::format_error;
 
 pub struct Parser <'a> {
     parser: ProgramParser,
@@ -25,17 +25,17 @@ impl <'a> Parser<'a> {
         self.parser
             .parse(self.tokens.clone())
             .map_err(|e| match e {
-                ParseError::UnrecognizedToken { token: (start, _, _), expected } => {
-                    format_error_with_line(&self.src, start, "unrecognized token", Some(&expected))
+                ParseError::UnrecognizedToken { token: (start, _, end), expected } => {
+                    format_error(&self.src, start..end, "unrecognized token", Some(&expected))
                 }
                 ParseError::UnrecognizedEof { location, expected } => {
-                    format_error_with_line(&self.src, location, "unrecognized end of input", Some(&expected))
+                    format_error(&self.src, location..location, "unrecognized end of input", Some(&expected))
                 }
                 ParseError::InvalidToken { location } => {
-                    format_error_with_line(&self.src, location, "invalid token", None)
+                    format_error(&self.src, location..location, "invalid token", None)
                 }
-                ParseError::ExtraToken { token: (start, _, _) } => {
-                    format_error_with_line(&self.src, start, "unexpected extra token", None)
+                ParseError::ExtraToken { token: (start, _, end) } => {
+                    format_error(&self.src, start..end, "unexpected extra token", None)
                 }
                 other => format!("unexpected error: {:?}", other),
             }) as Result<Program, String>

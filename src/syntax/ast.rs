@@ -2,18 +2,20 @@ use std::fmt;
 use std::ops::Range;
 use crate::utils::indent;
 
-#[derive(Debug)]
+pub type Span = Range<usize>;
+
+#[derive(Debug, Clone)]
 pub struct Spanned<T> {
     pub value: T,
-    pub span: Range<usize>,
+    pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Program {
     pub decls: Vec<Spanned<Decl>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Decl {
     Var {
         id: Spanned<String>,
@@ -24,12 +26,12 @@ pub enum Decl {
         id: Spanned<String>,
         param_ids: Vec<Spanned<String>>,
         param_types: Vec<Spanned<Type>>,
-        ret_ty: Spanned<Type>,
+        ret_type: Spanned<Type>,
         expr: Spanned<Expr>
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Chain {
         lhs: Box<Spanned<Expr>>,
@@ -81,7 +83,7 @@ pub enum Expr {
     Unit,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Lhs {
     Var {
         id: Spanned<String>
@@ -92,23 +94,19 @@ pub enum Lhs {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Op {
     Add, Sub, Mul, Div, Mod, Pow, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Type {
     Int,
     Bool,
     String,
     Unit,
     Array(Box<Type>),
-}
-
-#[derive(Debug)]
-pub enum BinOp {
-    Add, Sub, Mul, Div, Mod, Pow, Eq, Neq, Lt, Leq, Gt, Geq, And, Or,
+    Any,
 }
 
 impl fmt::Display for Spanned<String> {
@@ -130,7 +128,7 @@ impl Program {
 impl Decl {
     pub fn to_text(&self, level: usize) -> String {
         match self {
-            Decl::Fun { id, param_ids, param_types, ret_ty, expr } => {
+            Decl::Fun { id, param_ids, param_types, ret_type, expr } => {
                 format!(
                     "let {} ({}) : ({}) -> {} =\n{}{}",
                     id,
@@ -143,7 +141,7 @@ impl Decl {
                         .map(|ty| ty.value.to_text())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    ret_ty.value.to_text(),
+                    ret_type.value.to_text(),
                     indent(level + 1),
                     expr.value.to_text(level + 1)
                 )
@@ -259,6 +257,7 @@ impl Type {
             Type::Bool => "Bool".to_string(),
             Type::String => "String".to_string(),
             Type::Array(inner) => format!("{}[]", inner.to_text()),
+            Type::Any => panic!()
         }
     }
 }

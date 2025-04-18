@@ -1,6 +1,6 @@
 use std::str::FromStr;
-use crate::ast::*;
-use crate::lexer::Token;
+use crate::syntax::ast::*;
+use crate::syntax::lexer::Token;
 
 grammar;
 
@@ -23,7 +23,7 @@ DeclFunc: Decl = {
         "(" <param_ids:FunParamIds> ")"
         ":" <sig:FunSignature>
         "=" <expr:Spanned<Expr>>
-    => Decl::Fun { id, param_ids, param_types: sig.0, ret_ty: sig.1, expr },
+    => Decl::Fun { id, param_ids, param_types: sig.0, ret_type: sig.1, expr },
 }
 
 FunSignature: (Vec<Spanned<Type>>, Spanned<Type>) = {
