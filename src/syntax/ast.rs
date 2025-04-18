@@ -106,6 +106,8 @@ pub enum Type {
     String,
     Unit,
     Array(Box<Type>),
+    // these types are not used in the parser
+    Fun(Vec<Type>, Box<Type>),
     Any,
 }
 
@@ -257,7 +259,7 @@ impl Type {
             Type::Bool => "Bool".to_string(),
             Type::String => "String".to_string(),
             Type::Array(inner) => format!("{}[]", inner.to_text()),
-            Type::Any => panic!()
+            _ => panic!()
         }
     }
 }

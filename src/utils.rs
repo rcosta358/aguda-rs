@@ -39,7 +39,6 @@ fn get_error_line(source: &str, pos: (usize, usize), length: usize) -> String {
 fn get_position(source: &str, index: usize) -> (usize, usize) {
     let mut line = 1;
     let mut col = 1;
-    let mut last_newline = 0;
 
     for (i, ch) in source.char_indices() {
         if i == index {
@@ -47,7 +46,6 @@ fn get_position(source: &str, index: usize) -> (usize, usize) {
         }
         if ch == '\n' {
             line += 1;
-            last_newline = i;
             col = 1;
         } else {
             col += 1;

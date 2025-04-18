@@ -1,3 +1,10 @@
+let y: Unit =
+    let x: Int =
+        let x: Int =
+            let x: Int = 1;
+        let z: Int = 2;
+    let y: Int = 3
+
 let x: Unit =
-    let y: Int =
-        let z: Int = x + y
+    let x: Int = let y: Int = 1
+

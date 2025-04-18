@@ -3,7 +3,6 @@ use crate::utils::format_error;
 
 pub mod symbol_table;
 pub mod variable_checker;
-pub mod type_checker;
 
 #[derive(Debug, Clone)]
 pub enum SemanticError {
@@ -17,7 +16,7 @@ impl SemanticError {
             SemanticError::UndeclaredVariable(var) =>
                 format_error(src, var.span.clone(), "undeclared variable", None),
             SemanticError::DuplicateDeclaration(var) =>
-                format_error(src, var.span.clone(), "duplicate declaration in the same scope", None),
+                format_error(src, var.span.clone(), "duplicate declaration in same scope", None),
         }
     }
 }
