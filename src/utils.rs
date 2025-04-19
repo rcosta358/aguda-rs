@@ -1,4 +1,4 @@
-use std::cmp::min;
+use colored::Colorize;
 use crate::syntax::ast::Span;
 
 pub fn format_error(
@@ -31,7 +31,7 @@ fn get_error_line(source: &str, pos: (usize, usize), length: usize) -> String {
         "{}\n\t{}{}",
         line_str,
         " ".repeat(col.saturating_sub(1)),
-        "^".repeat(length.min(remaining)),
+        "^".repeat(length.min(remaining)).red(),
     )
 }
 

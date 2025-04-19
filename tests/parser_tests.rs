@@ -13,7 +13,7 @@ fn test_parser() {
     let valid_tests = valid_passed + valid_failed;
     let (invalid_syntax_passed, invalid_syntax_failed) = test_agu_files_in_dir(&invalid_syntax_dir, false);
     let invalid_syntax_tests = invalid_syntax_passed + invalid_syntax_failed;
-    let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir, true);
+    let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir, false);
     let invalid_semantic_tests = invalid_semantic_passed + invalid_semantic_failed;
     let successful_tests = valid_passed + invalid_syntax_failed + invalid_semantic_failed;
     let total_tests = valid_tests + invalid_syntax_tests + invalid_semantic_tests;

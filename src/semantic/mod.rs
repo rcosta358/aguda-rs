@@ -62,7 +62,7 @@ impl TypeError {
                 format_error(
                     src,
                     span.clone(),
-                    &format!("type mismatch, found {}, expected {}", found.to_text(), expected.to_text()),
+                    &format!("mismatched types, found {}, expected {}", found.to_text(), expected.to_text()),
                     None
                 )
             }
