@@ -23,7 +23,7 @@ pub enum Decl {
         ty: Spanned<Type>,
         expr: Spanned<Expr>
     },
-    Fun{
+    Fun {
         id: Spanned<Id>,
         param_ids: Vec<Spanned<Id>>,
         param_types: Vec<Spanned<Type>>,
@@ -127,19 +127,6 @@ pub enum Type {
     // these types are not used in the parser
     Fun(Vec<Type>, Box<Type>),
     Any,
-}
-
-impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Type::String => write!(f, "String"),
-            Type::Unit => write!(f, "Unit"),
-            Type::Int => write!(f, "Int"),
-            Type::Bool => write!(f, "Bool"),
-            Type::Array(ty) => write!(f, "{}[]", ty),
-            _ => panic!()
-        }
-    }
 }
 
 impl<T: fmt::Display> fmt::Display for Spanned<T> {

@@ -78,7 +78,7 @@ impl TypeError {
                 format_error(
                     src,
                     span.clone(),
-                    &format!("expression not callable, found {}, expected function", found),
+                    &format!("expression not callable, found {}, expected function", found.to_text()),
                     None
                 )
             }
@@ -86,7 +86,7 @@ impl TypeError {
                 format_error(
                     src,
                     span.clone(),
-                    &format!("expression not indexable, found {}, expected array", found),
+                    &format!("expression not indexable, found {}, expected array", found.to_text()),
                     None
                 )
             }
