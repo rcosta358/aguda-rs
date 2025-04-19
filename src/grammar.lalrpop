@@ -104,6 +104,7 @@ AddSubExpr: Expr = {
     // left associative
     <lhs:Spanned<AddSubExpr>> "+" <rhs:Spanned<MulDivExpr>> => Expr::BinOp { lhs: Box::new(lhs), op: Op::Add, rhs: Box::new(rhs) },
     <lhs:Spanned<AddSubExpr>> "-" <rhs:Spanned<MulDivExpr>> => Expr::BinOp { lhs: Box::new(lhs), op: Op::Sub, rhs: Box::new(rhs) },
+    <lhs:Spanned<AddSubExpr>> "++" <rhs:Spanned<MulDivExpr>> => Expr::BinOp { lhs: Box::new(lhs), op: Op::Concat, rhs: Box::new(rhs) },
     MulDivExpr,
 }
 
@@ -231,6 +232,7 @@ extern {
         "!"      => Token::Not,
         "||"     => Token::Or,
         "&&"     => Token::And,
+        "++"     => Token::Concat,
         "("      => Token::LeftParen,
         ")"      => Token::RightParen,
         "["      => Token::LeftBracket,

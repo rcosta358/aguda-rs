@@ -5,7 +5,7 @@
 let binarySearch(arr, left, right, val): (Int[], Int, Int, Int) -> Int =
     if left > right then
         -1
-    else
+    else (
         let mid: Int = left + (right - left) / 2;
         if arr[mid] == val then
             mid 
@@ -14,6 +14,7 @@ let binarySearch(arr, left, right, val): (Int[], Int, Int, Int) -> Int =
                 binarySearch(arr, mid + 1, right, val)
             else
                 binarySearch(arr, left, mid - 1, val)
+    )
 
 let main: Unit =
     let n: Int = 10;

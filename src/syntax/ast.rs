@@ -97,15 +97,37 @@ pub enum Lhs {
 
 #[derive(Debug, Clone)]
 pub enum Op {
-    Add, Sub, Mul, Div, Mod, Pow, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
+    Add, Sub, Mul, Div, Mod, Pow, And, Or, Eq, Neq, Lt, Leq, Gt, Geq, Concat
 }
 
 impl Op {
+    pub fn to_text(&self) -> String {
+        let text: &str = match self {
+            Op::Add => "+",
+            Op::Sub => "-",
+            Op::Mul => "*",
+            Op::Div => "/",
+            Op::Mod => "%",
+            Op::Pow => "^",
+            Op::And => "&&",
+            Op::Or => "||",
+            Op::Eq => "==",
+            Op::Neq => "!=",
+            Op::Lt => "<",
+            Op::Leq => "<=",
+            Op::Gt => ">",
+            Op::Geq => ">=",
+            Op::Concat => "++"
+        };
+        text.to_string()
+    }
+
     pub fn get_type(&self) -> OpType {
         match self {
             Op::Add | Op::Sub | Op::Mul | Op::Div | Op::Mod | Op::Pow => OpType::Numerical,
             Op::And | Op::Or => OpType::Logical,
             Op::Eq | Op::Neq | Op::Lt | Op::Leq | Op::Gt | Op::Geq => OpType::Comparison,
+            Op::Concat => OpType::String,
         }
     }
 }
@@ -115,6 +137,7 @@ pub enum OpType {
     Numerical,
     Logical,
     Comparison,
+    String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -232,21 +255,13 @@ impl Expr {
                     expr.value.to_text(level + 1)
                 )
             }
-            Expr::BinOp { lhs, op, rhs } => match op {
-                Op::Add => format!("{} + {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Sub => format!("{} - {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Mul => format!("{} * {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Div => format!("{} / {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Mod => format!("{} % {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Pow => format!("{} ** {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::And => format!("{} && {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Or => format!("{} || {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Lt => format!("{} < {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Gt => format!("{} > {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Eq => format!("{} == {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Leq => format!("{} <= {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Geq => format!("{} >= {}", lhs.value.to_text(level), rhs.value.to_text(level)),
-                Op::Neq => format!("{} != {}", lhs.value.to_text(level), rhs.value.to_text(level)),
+            Expr::BinOp { lhs, op, rhs } => {
+                format!(
+                    "{} {} {}",
+                    lhs.value.to_text(level),
+                    op.to_text(),
+                    rhs.value.to_text(level)
+                )
             }
             Expr::Not { expr } => format!("!{}", expr.value.to_text(level)),
             Expr::Num(n) => n.to_string(),

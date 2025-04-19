@@ -68,6 +68,11 @@ impl TypeChecker {
                         self.check_against(rhs, &left_type);
                         Type::Bool
                     }
+                    OpType::String => {
+                        self.check_against(lhs, &Type::String);
+                        self.check_against(rhs, &Type::String);
+                        Type::String
+                    }
                 }
             }
             Expr::Not { expr: e } => {

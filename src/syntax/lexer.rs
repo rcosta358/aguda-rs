@@ -74,6 +74,9 @@ pub enum Token {
     #[token("&&")]
     And,
 
+    #[token("++")]
+    Concat,
+
     #[token("(")]
     LeftParen,
 
