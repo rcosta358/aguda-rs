@@ -105,11 +105,14 @@ impl DeclarationChecker {
                 if self.table.declare(id.value.clone(), ty.value.clone()).is_err() {
                     self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
-                scope!(self.table, { self.check_expr(&expr.value) });
+                self.table.enter_scope();
+                self.check_expr(&expr.value);
+                // keep scope open, which will be closed in the chain
+                // this is needed so the variable is in scope for rest of the expression
             }
             Expr::Set { lhs, expr } => {
                 self.check_lhs(&lhs.value);
-                self.check_expr(&expr.value);
+                scope!(self.table, { self.check_expr(&expr.value) });
             }
             Expr::FunCall { id, args } => {
                 if self.table.lookup(&id.value).is_none() {
@@ -121,11 +124,16 @@ impl DeclarationChecker {
             }
             Expr::ArrayIndex { lhs, index } => {
                 self.check_lhs(&lhs.value);
-                self.check_expr(&index.value);
+                scope!(self.table, { self.check_expr(&index.value) });
             }
             Expr::Chain { lhs, rhs } => {
                 self.check_expr(&lhs.value);
                 self.check_expr(&rhs.value);
+
+                // if lhs was a let, we need to exit the scope
+                if matches!(lhs.value, Expr::Let { .. }) {
+                    self.table.exit_scope();
+                }
             }
             Expr::BinOp { lhs, rhs, .. } => {
                 self.check_expr(&lhs.value);
@@ -139,8 +147,8 @@ impl DeclarationChecker {
                 scope!(self.table, { self.check_expr(&expr.value) });
             }
             Expr::NewArray { size, init, .. } => {
-                self.check_expr(&size.value);
-                self.check_expr(&init.value);
+                scope!(self.table, { self.check_expr(&size.value) });
+                scope!(self.table, { self.check_expr(&init.value) });
             }
             Expr::IfElse { cond, then, els } => {
                 scope!(self.table, { self.check_expr(&cond.value) });

@@ -76,9 +76,15 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
 
-    let result = compile_aguda_program(src);
+    let result = compile_aguda_program(src.clone());
     match result {
         Ok(_) => Ok(format!("✅ PARSED: {:?}", dir)),
-        Err(e) => Err(format!("❌ {}\nIn {:?}\n", e, dir))
+        Err(e) => {
+            let author = src.lines()
+                .next()
+                .and_then(|line| line.strip_prefix("-- Author: "))
+                .unwrap_or("unknown author");
+            Err(format!("❌ {}\nIn {:?} from {}\n", e, dir, author))
+        }
     }
 }
