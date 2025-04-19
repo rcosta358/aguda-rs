@@ -1,4 +1,3 @@
-use lazy_static::lazy_static;
 use crate::syntax::ast::{Id, Span, Spanned, Type};
 use crate::utils::format_error;
 
@@ -10,6 +9,12 @@ pub mod type_checker;
 pub enum DeclarationError {
     UndeclaredIdentifier(Spanned<Id>),
     DuplicateDeclaration(Spanned<Id>),
+    ReservedIdentifier(Spanned<Id>),
+    WrongFunctionSignature {
+        span: Span,
+        params_found: usize,
+        types_found: usize,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -51,6 +56,20 @@ impl DeclarationError {
                     &format!("duplicate identifier '{}' in the same scope", var.value),
                     None
                 ),
+            DeclarationError::ReservedIdentifier(var) =>
+                format_error(
+                    src,
+                    var.span.clone(),
+                    &format!("reserved identifier '{}'", var.value),
+                    None
+                ),
+            DeclarationError::WrongFunctionSignature { span, params_found, types_found } =>
+                format_error(
+                    src,
+                    span.clone(),
+                    &format!("wrong function signature, found {} parameter(s) and {} type(s)", params_found, types_found),
+                    None
+                ),
         }
     }
 }
@@ -62,7 +81,7 @@ impl TypeError {
                 format_error(
                     src,
                     span.clone(),
-                    &format!("mismatched types, found {}, expected {}", found.to_text(), expected.to_text()),
+                    &format!("type mismatch, found {}, expected {}", found.to_text(), expected.to_text()),
                     None
                 )
             }
@@ -92,17 +111,4 @@ impl TypeError {
             }
         }
     }
-}
-
-lazy_static! {
-    static ref INIT_SYMBOLS: [(String, Type); 2] = [
-        (
-            "print".to_string(),
-            Type::Fun(vec![Type::Any], Box::new(Type::Unit))
-        ),
-        (
-            "length".to_string(),
-            Type::Fun(vec![Type::Array(Box::new(Type::Any))], Box::new(Type::Int))
-        ),
-    ];
 }

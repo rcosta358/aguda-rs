@@ -1,18 +1,18 @@
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::semantic::INIT_SYMBOLS;
 use crate::syntax::ast::Type;
 
 type ScopeRef = Rc<RefCell<Scope>>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Scope {
     symbols: HashMap<String, Type>,
     parent: Option<ScopeRef>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SymbolTable {
     current_scope: ScopeRef,
 }
@@ -69,4 +69,29 @@ impl SymbolTable {
         }
         None
     }
+}
+
+// helper macro to execute a block within a scope
+#[macro_export]
+macro_rules! scope {
+    ($table:expr, $body:block) => {
+        $table.enter_scope();
+        (|| $body)();
+        $table.exit_scope();
+    };
+}
+
+lazy_static! {
+    pub static ref INIT_SYMBOLS: [(String, Type); 2] = [
+        (
+            "print".to_string(),
+            Type::Fun(vec![Type::Any], Box::new(Type::Unit))
+        ),
+        (
+            "length".to_string(),
+            Type::Fun(vec![Type::Array(Box::new(Type::Any))], Box::new(Type::Int))
+        ),
+    ];
+    pub static ref RESERVED_IDENTIFIERS: Vec<String> =
+        INIT_SYMBOLS.iter().map(|s| s.0.clone()).collect::<Vec<_>>();
 }

@@ -17,16 +17,20 @@ pub fn compile_aguda_program(src: String) -> Result<String, String> {
         .parse()
         .map_err(|e| format!("{} {}", "Syntax Error:".red().bold(), e))?;
 
-    if let Err(e) = DeclarationChecker::new().check(&ast) {
-        let errors = e
-            .into_iter()
-            .map(|e| format!("{} {}", "Declaration Error:".red().bold(), e.get_message(&src)))
-            .collect::<Vec<_>>()
-            .join("\n");
-        return Err(errors);
-    }
+    let result = DeclarationChecker::new().check(&ast);
+    let symbol_table = match result {
+        Ok(table) => table,
+        Err(e) => {
+            let errors = e
+                .into_iter()
+                .map(|e| format!("{} {}", "Declaration Error:".red().bold(), e.get_message(&src)))
+                .collect::<Vec<_>>()
+                .join("\n");
+            return Err(errors);
+        }
+    };
 
-    if let Err(e) = TypeChecker::new().check(&ast) {
+    if let Err(e) = TypeChecker::new(symbol_table).check(&ast) {
         let errors = e
             .into_iter()
             .map(|e| format!("{} {}", "Type Error:".red().bold(), e.get_message(&src)))

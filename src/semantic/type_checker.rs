@@ -1,60 +1,38 @@
 use std::collections::HashMap;
-use crate::semantic::{TypeError, INIT_SYMBOLS};
+use crate::semantic::TypeError;
+use crate::semantic::symbol_table::SymbolTable;
 use crate::syntax::ast::*;
 
 pub type Ctx = HashMap<String, Type>;
 
 #[derive(Debug)]
 pub struct TypeChecker {
-    pub ctx: Ctx,
-    pub errors: Vec<TypeError>,
+    table: SymbolTable,
+    errors: Vec<TypeError>,
 }
 
 impl TypeChecker {
 
-    pub fn new() -> Self {
-        let symbols = INIT_SYMBOLS.iter().cloned().collect::<HashMap<_, _>>();
+    pub fn new(table: SymbolTable) -> Self {
         TypeChecker {
-            ctx: symbols,
+            table,
             errors: Vec::new()
         }
     }
 
     pub fn check(&mut self, prog: &Program) -> Result<(), Vec<TypeError>> {
-        // collect all function signatures
-        for decl in &prog.decls {
-            if let Decl::Fun { id, param_types, ret_type, .. } = &decl.value {
-                let name = id.value.clone();
-                let params = param_types.iter()
-                    .map(|t| t.value.clone())
-                    .collect::<Vec<_>>();
-                let ret = ret_type.value.clone();
-                self.ctx.insert(name, Type::Fun(params, Box::new(ret)));
-            }
-        }
-
-        // type checking of the program
         for decl in &prog.decls {
             match &decl.value {
-                Decl::Var { id, ty, expr } => {
-                    // add variable to the context
-                    self.ctx.insert(id.value.clone(), ty.value.clone());
-                    // expression must match the declared type
+                Decl::Var { ty, expr, ..} => {
                     self.check_against(expr, &ty.value);
-
                 }
-
                 Decl::Fun { param_ids, param_types, ret_type, expr, .. } => {
-                    // bind parameters in the context
-                    for (param_id, param_type) in param_ids.iter().zip(param_types.iter()) {
-                        self.ctx.insert(param_id.value.clone(), param_type.value.clone());
+                    self.table.enter_scope();
+                    for (param_id, param_ty) in param_ids.iter().zip(param_types.iter()) {
+                        self.table.declare(param_id.value.clone(), param_ty.value.clone()).unwrap();
                     }
-                    // expression must match the declared return type
                     self.check_against(expr, &ret_type.value);
-                    // remove parameters from the context
-                    for pid in param_ids {
-                        self.ctx.remove(&pid.value);
-                    }
+                    self.table.exit_scope()
                 }
             }
         }
@@ -72,10 +50,7 @@ impl TypeChecker {
             Expr::Str(_) => Type::String,
             Expr::Bool(_) => Type::Bool,
             Expr::Unit => Type::Unit,
-            Expr::Id(id) => {
-                let name = &id.value;
-                self.ctx.get(name).cloned().expect("undefined identifier")
-            }
+            Expr::Id(id) => self.table.lookup(&id.value).unwrap(),
             Expr::BinOp { lhs, op, rhs } => {
                 match op.get_type() {
                     OpType::Numerical => {
@@ -112,7 +87,11 @@ impl TypeChecker {
             }
             Expr::Let { id, ty, expr } => {
                 self.check_against(expr, &ty.value);
-                self.ctx.insert(id.value.clone(), ty.value.clone());
+                self.table.enter_scope();
+                self.table.declare(id.value.clone(), ty.value.clone()).unwrap();
+                // keep scope open, which will be closed in the chain
+                // this is needed so the variable is in scope for rest of the expression
+
                 Type::Unit
             }
             Expr::Set { lhs, expr } => {
@@ -121,8 +100,7 @@ impl TypeChecker {
                 Type::Unit
             }
             Expr::FunCall { id, args } => {
-                let name = &id.value;
-                let fun_type = self.ctx.get(name).cloned().unwrap();
+                let fun_type = self.table.lookup(&id.value).unwrap();
                 if let Type::Fun(param_types, ret_type) = fun_type {
                     if param_types.len() != args.len() {
                         self.errors.push(
@@ -170,7 +148,13 @@ impl TypeChecker {
             }
             Expr::Chain { lhs, rhs } => {
                 self.type_of(lhs);
-                self.type_of(rhs)
+                let ty = self.type_of(rhs);
+
+                // if lhs was a let, we need to exit the scope
+                if matches!(lhs.value, Expr::Let { .. }) {
+                    self.table.exit_scope();
+                }
+                ty
             }
         }
     }
@@ -178,7 +162,7 @@ impl TypeChecker {
     fn type_of_lhs(&mut self, lhs: &Spanned<Lhs>) -> Type {
         match &lhs.value {
             Lhs::Var { id } => {
-                self.ctx.get(&id.value).cloned().expect("undefined identifier")
+                self.table.lookup(&id.value).expect("undefined identifier")
             }
             Lhs::Index { lhs, index } => {
                 let arr_type = self.type_of_lhs(lhs);
@@ -199,11 +183,11 @@ impl TypeChecker {
     }
 
     pub fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
+        let found = self.type_of(expr);
         match expected {
             Type::Any => {},
             Type::Array(inner) if **inner == Type::Any => {},
             _ => {
-                let found = self.type_of(expr);
                 if &found != expected {
                     self.errors.push(
                         TypeError::TypeMismatch {

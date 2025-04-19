@@ -40,7 +40,7 @@ fn test_parser() {
     assert_ne!(invalid_semantic_passed, 0, "Some invalid semantic tests passed");
 }
 
-fn test_agu_files_in_dir(dir: &Path, show_err: bool) -> (i32, i32) {
+fn test_agu_files_in_dir(dir: &Path, should_pass: bool) -> (i32, i32) {
     assert!(dir.exists(), "Test directory not found");
     let mut passed = 0;
     let mut failed = 0;
@@ -48,9 +48,14 @@ fn test_agu_files_in_dir(dir: &Path, show_err: bool) -> (i32, i32) {
         let path = entry.expect("Invalid entry").path();
         if path.is_dir() {
             match test_agu_file_in_dir(&path) {
-                Ok(_) => passed += 1,
+                Ok(_) => {
+                    passed += 1;
+                    if !should_pass {
+                        println!("❌ Test shouldn't have passed in {:?}", path);
+                    }
+                },
                 Err(err) => {
-                    if show_err {
+                    if should_pass {
                         println!("{}", err);
                     }
                     failed += 1;
@@ -73,7 +78,7 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
 
     let result = compile_aguda_program(src);
     match result {
-        Ok(_) => Ok(format!("✅ PARSED: {:?}", dir.file_name().unwrap())),
-        Err(e) => Err(format!("❌ {}\nIn test {:?}\n", e, dir.file_name().unwrap()))
+        Ok(_) => Ok(format!("✅ PARSED: {:?}", dir)),
+        Err(e) => Err(format!("❌ {}\nIn {:?}\n", e, dir))
     }
 }
