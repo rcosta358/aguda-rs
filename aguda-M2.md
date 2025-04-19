@@ -19,7 +19,7 @@ docker build -t aguda-rs .
 docker run aguda-rs
 ```
 
-This will also regenerate the parser with the [grammar file](./src/grammar.lalrpop).
+This will also regenerate the parser with the [grammar file](src/syntax/grammar.lalrpop).
 
 #### Running a Specific File
 

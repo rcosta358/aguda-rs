@@ -169,7 +169,7 @@ Id: String = {
 }
 
 #[inline]
-FunParamIds: Vec<Spanned<String>> = List<Spanned<Id>>;
+FunParamIds: Vec<Spanned<Id>> = List<Spanned<Id>>;
 
 #[inline]
 FunParamTypes: Vec<Spanned<Type>> = List<Spanned<Type>>;

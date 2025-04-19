@@ -3,6 +3,7 @@ use std::ops::Range;
 use crate::utils::indent;
 
 pub type Span = Range<usize>;
+pub type Id = String;
 
 #[derive(Debug, Clone)]
 pub struct Spanned<T> {
@@ -18,13 +19,13 @@ pub struct Program {
 #[derive(Debug, Clone)]
 pub enum Decl {
     Var {
-        id: Spanned<String>,
+        id: Spanned<Id>,
         ty: Spanned<Type>,
         expr: Spanned<Expr>
     },
     Fun{
-        id: Spanned<String>,
-        param_ids: Vec<Spanned<String>>,
+        id: Spanned<Id>,
+        param_ids: Vec<Spanned<Id>>,
         param_types: Vec<Spanned<Type>>,
         ret_type: Spanned<Type>,
         expr: Spanned<Expr>
@@ -38,7 +39,7 @@ pub enum Expr {
         rhs: Box<Spanned<Expr>>
     },
     Let {
-        id: Spanned<String>,
+        id: Spanned<Id>,
         ty: Spanned<Type>,
         expr: Box<Spanned<Expr>>
     },
@@ -64,7 +65,7 @@ pub enum Expr {
         els: Box<Spanned<Expr>>
     },
     FunCall {
-        id: Spanned<String>,
+        id: Spanned<Id>,
         args: Vec<Spanned<Expr>>
     },
     NewArray {
@@ -76,7 +77,7 @@ pub enum Expr {
         lhs: Spanned<Lhs>,
         index: Box<Spanned<Expr>>
     },
-    Id(Spanned<String>),
+    Id(Spanned<Id>),
     Num(i64),
     Str(String),
     Bool(bool),
@@ -86,7 +87,7 @@ pub enum Expr {
 #[derive(Debug, Clone)]
 pub enum Lhs {
     Var {
-        id: Spanned<String>
+        id: Spanned<Id>
     },
     Index {
         lhs: Box<Spanned<Lhs>>,
@@ -99,7 +100,24 @@ pub enum Op {
     Add, Sub, Mul, Div, Mod, Pow, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
 }
 
-#[derive(Debug, Clone)]
+impl Op {
+    pub fn get_type(&self) -> OpType {
+        match self {
+            Op::Add | Op::Sub | Op::Mul | Op::Div | Op::Mod | Op::Pow => OpType::Numerical,
+            Op::And | Op::Or => OpType::Logical,
+            Op::Eq | Op::Neq | Op::Lt | Op::Leq | Op::Gt | Op::Geq => OpType::Comparison,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum OpType {
+    Numerical,
+    Logical,
+    Comparison,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     Int,
     Bool,
@@ -111,7 +129,20 @@ pub enum Type {
     Any,
 }
 
-impl fmt::Display for Spanned<String> {
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Type::String => write!(f, "String"),
+            Type::Unit => write!(f, "Unit"),
+            Type::Int => write!(f, "Int"),
+            Type::Bool => write!(f, "Bool"),
+            Type::Array(ty) => write!(f, "{}[]", ty),
+            _ => panic!()
+        }
+    }
+}
+
+impl<T: fmt::Display> fmt::Display for Spanned<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.value)
     }

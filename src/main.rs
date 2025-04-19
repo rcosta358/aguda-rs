@@ -1,35 +1,12 @@
 use std::{env, fs};
 use std::path::Path;
-use aguda_rs::semantic::variable_checker::VariableChecker;
-use aguda_rs::syntax::lexer::Lexer;
-use aguda_rs::syntax::parser::Parser;
+use aguda_rs::compile_aguda_program;
 
 fn main() {
-    match read_source_file() {
-        Ok(src) => {
-            let mut lexer = Lexer::new(&src);
-            match lexer.tokenize() {
-                Ok(tokens) => {
-                    let parser = Parser::new(&src, tokens);
-                    match parser.parse() {
-                        Ok(ast) => {
-                            let mut var_checker = VariableChecker::new(&ast);
-                            match var_checker.check() {
-                                Ok(_) => println!("{}", ast.to_text()),
-                                Err(errors) => {
-                                    for error in &errors {
-                                        eprintln!("Semantic Error: {}", error.get_error(&src));
-                                    }
-                                },
-                            }
-                        },
-                        Err(e) => eprintln!("Syntax Error: {}", e),
-                    }
-                }
-                Err(e) => eprintln!("Lexical Error: {}", e)
-            }
-        }
-        Err(e) => eprintln!("{}", e),
+    let result = read_source_file().and_then(compile_aguda_program);
+    match result {
+        Ok(output) => println!("{}", output),
+        Err(err) => eprintln!("{}", err),
     }
 }
 

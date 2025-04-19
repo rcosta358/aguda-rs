@@ -1,3 +1,4 @@
+use std::cmp::min;
 use crate::syntax::ast::Span;
 
 pub fn format_error(
@@ -24,16 +25,14 @@ pub fn format_error(
 
 fn get_error_line(source: &str, pos: (usize, usize), length: usize) -> String {
     let (line, col) = pos;
-    if let Some(line_str) = source.lines().nth(line - 1) {
-        format!(
-            "{}\n\t{}{}",
-            line_str,
-            " ".repeat(col.saturating_sub(1)),
-            "^".repeat(length),
-        )
-    } else {
-        "".to_string()
-    }
+    let line_str = source.lines().nth(line - 1).unwrap_or("");
+    let remaining = line_str.len().saturating_sub(col.saturating_sub(1));
+    format!(
+        "{}\n\t{}{}",
+        line_str,
+        " ".repeat(col.saturating_sub(1)),
+        "^".repeat(length.min(remaining)),
+    )
 }
 
 fn get_position(source: &str, index: usize) -> (usize, usize) {

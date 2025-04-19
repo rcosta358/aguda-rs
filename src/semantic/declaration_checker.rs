@@ -1,31 +1,28 @@
-use crate::semantic::SemanticError;
+use crate::semantic::DeclarationError;
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type};
 use crate::semantic::symbol_table::{SymbolTable};
 
-pub struct VariableChecker<'a> {
-    prog: &'a Program,
+pub struct DeclarationChecker {
     table: SymbolTable,
-    errors: Vec<SemanticError>,
+    errors: Vec<DeclarationError>,
 }
 
-impl <'a> VariableChecker<'a> {
-    pub fn new(prog: &'a Program) -> Self {
+impl DeclarationChecker {
+    pub fn new() -> Self {
         Self {
-            prog,
             table: SymbolTable::new(),
             errors: Vec::new(),
         }
     }
 
-    pub fn check(&mut self) -> Result<(), Vec<SemanticError>> {
-        for decl in &self.prog.decls {
+    pub fn check(&mut self, prog: &Program) -> Result<(), Vec<DeclarationError>> {
+        for decl in &prog.decls {
             self.check_globals(&decl.value.clone());
         }
 
-        for decl in &self.prog.decls {
+        for decl in &prog.decls {
             self.check_decl(&decl.value.clone());
         }
-
         if self.errors.is_empty() {
             Ok(())
         } else {
@@ -37,7 +34,7 @@ impl <'a> VariableChecker<'a> {
         match decl {
             Decl::Var { id, ty, .. } => {
                 if self.table.declare(id.value.clone(), ty.value.clone()).is_err() {
-                    self.errors.push(SemanticError::DuplicateDeclaration(id.clone()));
+                    self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
             }
             Decl::Fun { id, param_types, ret_type, .. } => {
@@ -46,7 +43,7 @@ impl <'a> VariableChecker<'a> {
                     Box::new(ret_type.value.clone())
                 );
                 if self.table.declare(id.value.clone(), ty).is_err() {
-                    self.errors.push(SemanticError::DuplicateDeclaration(id.clone()));
+                    self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
             }
         }
@@ -63,7 +60,7 @@ impl <'a> VariableChecker<'a> {
                 self.table.enter_scope();
                 for (pid, pty) in param_ids.iter().zip(param_types.iter()) {
                     if self.table.declare(pid.value.clone(), pty.value.clone()).is_err() {
-                        self.errors.push(SemanticError::DuplicateDeclaration(pid.clone()));
+                        self.errors.push(DeclarationError::DuplicateDeclaration(pid.clone()));
                     }
                 }
                 self.check_expr(&expr.value);
@@ -76,12 +73,12 @@ impl <'a> VariableChecker<'a> {
         match expr {
             Expr::Id(id) => {
                 if self.table.lookup(&id.value).is_none() {
-                    self.errors.push(SemanticError::UndeclaredVariable(id.clone()));
+                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
                 }
             }
             Expr::Let { id, ty, expr } => {
                 if self.table.declare(id.value.clone(), ty.value.clone()).is_err() {
-                    self.errors.push(SemanticError::DuplicateDeclaration(id.clone()));
+                    self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
                 self.table.enter_scope();
                 self.check_expr(&expr.value);
@@ -93,7 +90,7 @@ impl <'a> VariableChecker<'a> {
             }
             Expr::FunCall { id, args } => {
                 if self.table.lookup(&id.value).is_none() {
-                    self.errors.push(SemanticError::UndeclaredVariable(id.clone()));
+                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
                 }
                 for arg in args {
                     self.check_expr(&arg.value);
@@ -135,7 +132,7 @@ impl <'a> VariableChecker<'a> {
         match lhs {
             Lhs::Var { id } => {
                 if self.table.lookup(&id.value).is_none() {
-                    self.errors.push(SemanticError::UndeclaredVariable(id.clone()));
+                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
                 }
             }
             Lhs::Index { lhs, index } => {

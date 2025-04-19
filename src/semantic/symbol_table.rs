@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
-use lazy_static::lazy_static;
+use crate::semantic::INIT_SYMBOLS;
 use crate::syntax::ast::Type;
 
 type ScopeRef = Rc<RefCell<Scope>>;
@@ -69,17 +69,4 @@ impl SymbolTable {
         }
         None
     }
-}
-
-lazy_static! {
-    static ref INIT_SYMBOLS: [(String, Type); 2] = [
-        (
-            "print".to_string(),
-            Type::Fun(vec![Type::Any], Box::new(Type::Unit))
-        ),
-        (
-            "length".to_string(),
-            Type::Fun(vec![Type::Array(Box::new(Type::Any))], Box::new(Type::Int))
-        ),
-    ];
 }
