@@ -1,4 +1,3 @@
-use crate::scope;
 use crate::semantic::DeclarationError;
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type};
 use crate::semantic::symbol_table::{SymbolTable, RESERVED_IDENTIFIERS};
@@ -41,31 +40,27 @@ impl DeclarationChecker {
                     self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
             }
-            Decl::Fun { id, param_ids, param_types, ret_type, .. } => {
+            Decl::Fun { id, params, ty, .. } => {
                 if RESERVED_IDENTIFIERS.contains(&id.value) {
                     self.errors.push(DeclarationError::ReservedIdentifier(id.clone()));
                     return
                 }
-                for param_id in param_ids {
+                for param_id in params {
                     if RESERVED_IDENTIFIERS.contains(&param_id.value) {
                         self.errors.push(DeclarationError::ReservedIdentifier(param_id.clone()));
                         return
                     }
                 }
-                if param_ids.len() != param_types.len() {
+                if params.len() != ty.params.len() {
                     self.errors.push(
                         DeclarationError::WrongFunctionSignature {
                             span: id.span.clone(),
-                            params_found: param_ids.len(),
-                            types_found: param_types.len(),
+                            params_found: params.len(),
+                            types_found: ty.params.len(),
                         }
                     );
                 }
-                let ty = Type::Fun(
-                    param_types.iter().map(|p| p.value.clone()).collect(),
-                    Box::new(ret_type.value.clone())
-                );
-                if self.table.declare(id.value.clone(), ty).is_err() {
+                if self.table.declare(id.value.clone(), Type::Fun(ty.clone())).is_err() {
                     self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
             }
@@ -75,26 +70,34 @@ impl DeclarationChecker {
     fn check_decl(&mut self, decl: &Decl) {
         match decl {
             Decl::Var { expr, .. } => {
-                scope!(self.table, { self.check_expr(&expr.value) });
+                // var scope
+                self.table.enter_scope();
+                self.check_expr(&expr.value);
+                self.table.exit_scope();
             }
-            Decl::Fun { param_ids, param_types, expr, .. } => {
-                scope!(self.table, {
-                    for (pid, pty) in param_ids.iter().zip(param_types.iter()) {
-                        if self.table.declare(pid.value.clone(), pty.value.clone()).is_err() {
-                            self.errors.push(DeclarationError::DuplicateDeclaration(pid.clone()));
-                        }
+            Decl::Fun { params, ty, expr, .. } => {
+                // function scope
+                self.table.enter_scope();
+                for (pid, pty) in params.iter().zip(ty.params.iter()) {
+                    if self.table.declare(pid.value.clone(), pty.clone()).is_err() {
+                        self.errors.push(DeclarationError::DuplicateDeclaration(pid.clone()));
                     }
-                    self.check_expr(&expr.value);
-                });
+                }
+                self.check_expr(&expr.value);
+                self.table.exit_scope();
             }
         }
     }
 
     fn check_expr(&mut self, expr: &Expr) {
         match expr {
-            Expr::Id(id) => {
-                if self.table.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
+            Expr::Chain { lhs, rhs } => {
+                self.check_expr(&lhs.value);
+                self.check_expr(&rhs.value);
+
+                // if lhs was a let, we need to exit the scope
+                if matches!(lhs.value, Expr::Let { .. }) {
+                    self.table.exit_scope();
                 }
             }
             Expr::Let { id, ty, expr } => {
@@ -105,35 +108,15 @@ impl DeclarationChecker {
                 if self.table.declare(id.value.clone(), ty.value.clone()).is_err() {
                     self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
                 }
+                // let scope
                 self.table.enter_scope();
                 self.check_expr(&expr.value);
-                // keep scope open, which will be closed in the chain
+                // keep scope open, which will be closed in the chain later
                 // this is needed so the variable is in scope for rest of the expression
             }
             Expr::Set { lhs, expr } => {
                 self.check_lhs(&lhs.value);
-                scope!(self.table, { self.check_expr(&expr.value) });
-            }
-            Expr::FunCall { id, args } => {
-                if self.table.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
-                }
-                for arg in args {
-                    self.check_expr(&arg.value);
-                }
-            }
-            Expr::ArrayIndex { lhs, index } => {
-                self.check_lhs(&lhs.value);
-                scope!(self.table, { self.check_expr(&index.value) });
-            }
-            Expr::Chain { lhs, rhs } => {
-                self.check_expr(&lhs.value);
-                self.check_expr(&rhs.value);
-
-                // if lhs was a let, we need to exit the scope
-                if matches!(lhs.value, Expr::Let { .. }) {
-                    self.table.exit_scope();
-                }
+                self.check_expr(&expr.value);
             }
             Expr::BinOp { lhs, rhs, .. } => {
                 self.check_expr(&lhs.value);
@@ -142,20 +125,49 @@ impl DeclarationChecker {
             Expr::Not { expr } => {
                 self.check_expr(&expr.value)
             },
-            Expr::While { cond, expr } => {
-                scope!(self.table, { self.check_expr(&cond.value) });
-                scope!(self.table, { self.check_expr(&expr.value) });
-            }
-            Expr::NewArray { size, init, .. } => {
-                scope!(self.table, { self.check_expr(&size.value) });
-                scope!(self.table, { self.check_expr(&init.value) });
+            Expr::FunCall { id, args } => {
+                if self.table.lookup(&id.value).is_none() {
+                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
+                }
+                for arg in args {
+                    self.check_expr(&arg.value);
+                }
             }
             Expr::IfElse { cond, then, els } => {
-                scope!(self.table, { self.check_expr(&cond.value) });
-                scope!(self.table, { self.check_expr(&then.value) });
-                scope!(self.table, { self.check_expr(&els.value) });
+                self.check_expr(&cond.value);
+
+                // then scope
+                self.table.enter_scope();
+                self.check_expr(&then.value);
+                self.table.exit_scope();
+
+                // else scope
+                self.table.enter_scope();
+                self.check_expr(&els.value);
+                self.table.exit_scope();
             }
-            Expr::Num(_) | Expr::Bool(_) | Expr::Str(_) | Expr::Unit => {}
+            Expr::While { cond, expr } => {
+                self.check_expr(&cond.value);
+
+                // while body scope
+                self.table.enter_scope();
+                self.check_expr(&expr.value);
+                self.table.exit_scope();
+            }
+            Expr::NewArray { size, init, .. } => {
+                self.check_expr(&size.value);
+                self.check_expr(&init.value);
+            }
+            Expr::ArrayIndex { lhs, index } => {
+                self.check_lhs(&lhs.value);
+                self.check_expr(&index.value);
+            }
+            Expr::Id(id) => {
+                if self.table.lookup(&id.value).is_none() {
+                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
+                }
+            }
+            Expr::Number(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit => {}
         }
     }
 

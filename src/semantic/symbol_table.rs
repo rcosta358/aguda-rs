@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::syntax::ast::Type;
+use crate::syntax::ast::{FunType, Type};
 
 type ScopeRef = Rc<RefCell<Scope>>;
 
@@ -71,25 +71,25 @@ impl SymbolTable {
     }
 }
 
-// helper macro to execute a block within a scope
-#[macro_export]
-macro_rules! scope {
-    ($table:expr, $body:block) => {
-        $table.enter_scope();
-        (|| $body)();
-        $table.exit_scope();
-    };
-}
-
 lazy_static! {
     pub static ref INIT_SYMBOLS: [(String, Type); 2] = [
         (
             "print".to_string(),
-            Type::Fun(vec![Type::Any], Box::new(Type::Unit))
+            Type::Fun(
+                FunType {
+                    params: vec![Type::Any],
+                    ret: Box::new(Type::Unit)
+                }
+            )
         ),
         (
             "length".to_string(),
-            Type::Fun(vec![Type::Array(Box::new(Type::Any))], Box::new(Type::Int))
+            Type::Fun(
+                FunType {
+                    params: vec![Type::Array(Box::new(Type::Any))],
+                    ret: Box::new(Type::Int)
+                }
+            )
         ),
     ];
     pub static ref RESERVED_IDENTIFIERS: Vec<String> =

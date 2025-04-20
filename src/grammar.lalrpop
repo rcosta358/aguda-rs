@@ -20,15 +20,15 @@ DeclVar: Decl = {
 
 DeclFunc: Decl = {
     "let" <id:Spanned<Id>>
-        "(" <param_ids:FunParamIds> ")"
-        ":" <sig:FunSignature>
+        "(" <params:IdList> ")"
+        ":" <ty:FunType>
         "=" <expr:Spanned<Expr>>
-    => Decl::Fun { id, param_ids, param_types: sig.0, ret_type: sig.1, expr },
+    => Decl::Fun { id, params, ty, expr },
 }
 
-FunSignature: (Vec<Spanned<Type>>, Spanned<Type>) = {
-    "(" <params:FunParamTypes> ")" "->" <ret:Spanned<Type>> => (params, ret), // multi param
-    <single:Spanned<Type>> "->" <ret:Spanned<Type>> => (vec![single], ret), // single param
+FunType: FunType = {
+    "(" <params:TypeList> ")" "->" <ret:Type> => FunType { params, ret: Box::new(ret) },
+    <param:Type> "->" <ret:Type> => FunType { params: vec![param], ret: Box::new(ret) }
 }
 
 Expr: Expr = {
@@ -125,14 +125,14 @@ PowExpr: Expr = {
 UnaryExpr: Expr = {
     // highest precedence
     <zero:Spanned<()>> "-" <e:Spanned<UnaryExpr>> => Expr::BinOp {
-        lhs: Box::new(Spanned { value: Expr::Num(0), span: zero.span }), op: Op::Sub, rhs: Box::new(e)
+        lhs: Box::new(Spanned { value: Expr::Number(0), span: zero.span }), op: Op::Sub, rhs: Box::new(e)
     },
     "!" <e:Spanned<UnaryExpr>> => Expr::Not { expr: Box::new(e) },
     BaseExpr,
 }
 
 BaseExpr: Expr = {
-    <id:Spanned<Id>> "(" <args:FunArgs> ")" => Expr::FunCall { id, args },
+    <id:Spanned<Id>> "(" <args:ExprList> ")" => Expr::FunCall { id, args },
     <lhs:Spanned<Lhs>> "[" <index:Spanned<Expr>> "]" => Expr::ArrayIndex { lhs, index: Box::new(index) },
     <id:Spanned<Id>> => Expr::Id(id),
     "(" <e:Expr> ")" => e,
@@ -140,8 +140,8 @@ BaseExpr: Expr = {
 }
 
 LiteralExpr: Expr = {
-    <s:"string"> => Expr::Str(s.to_string()),
-    <n:"num">    => Expr::Num(n.to_string().parse().unwrap()),
+    <s:"string"> => Expr::String(s.to_string()),
+    <n:"num">    => Expr::Number(n.to_string().parse().unwrap()),
     "true"       => Expr::Bool(true),
     "false"      => Expr::Bool(false),
     "unit"       => Expr::Unit,
@@ -170,13 +170,13 @@ Id: String = {
 }
 
 #[inline]
-FunParamIds: Vec<Spanned<Id>> = List<Spanned<Id>>;
+IdList: Vec<Spanned<Id>> = List<Spanned<Id>>;
 
 #[inline]
-FunParamTypes: Vec<Spanned<Type>> = List<Spanned<Type>>;
+TypeList: Vec<Type> = List<Type>;
 
 #[inline]
-FunArgs: Vec<Spanned<Expr>> = List<Spanned<Expr>>;
+ExprList: Vec<Spanned<Expr>> = List<Spanned<Expr>>;
 
 #[inline]
 Type: Type = {

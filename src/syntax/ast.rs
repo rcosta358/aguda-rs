@@ -5,7 +5,7 @@ use crate::utils::indent;
 pub type Span = Range<usize>;
 pub type Id = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Spanned<T> {
     pub value: T,
     pub span: Span,
@@ -25,9 +25,8 @@ pub enum Decl {
     },
     Fun {
         id: Spanned<Id>,
-        param_ids: Vec<Spanned<Id>>,
-        param_types: Vec<Spanned<Type>>,
-        ret_type: Spanned<Type>,
+        params: Vec<Spanned<Id>>,
+        ty: FunType,
         expr: Spanned<Expr>
     }
 }
@@ -78,8 +77,8 @@ pub enum Expr {
         index: Box<Spanned<Expr>>
     },
     Id(Spanned<Id>),
-    Num(i64),
-    Str(String),
+    Number(i64),
+    String(String),
     Bool(bool),
     Unit,
 }
@@ -147,9 +146,14 @@ pub enum Type {
     String,
     Unit,
     Array(Box<Type>),
-    // these types are not used in the parser
-    Fun(Vec<Type>, Box<Type>),
+    Fun(FunType),
     Any,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct FunType {
+    pub params: Vec<Type>,
+    pub ret: Box<Type>,
 }
 
 impl<T: fmt::Display> fmt::Display for Spanned<T> {
@@ -171,20 +175,20 @@ impl Program {
 impl Decl {
     pub fn to_text(&self, level: usize) -> String {
         match self {
-            Decl::Fun { id, param_ids, param_types, ret_type, expr } => {
+            Decl::Fun { id, params, ty, expr } => {
                 format!(
                     "let {} ({}) : ({}) -> {} =\n{}{}",
                     id,
-                    param_ids
+                    params
                         .iter()
                         .map(|id| id.value.to_string())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    param_types.iter()
-                        .map(|ty| ty.value.to_text())
+                    ty.params.iter()
+                        .map(|ty| ty.to_text())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    ret_type.value.to_text(),
+                    ty.ret.to_text(),
                     indent(level + 1),
                     expr.value.to_text(level + 1)
                 )
@@ -264,10 +268,10 @@ impl Expr {
                 )
             }
             Expr::Not { expr } => format!("!{}", expr.value.to_text(level)),
-            Expr::Num(n) => n.to_string(),
+            Expr::Number(n) => n.to_string(),
             Expr::Bool(b) => format!("{}", b),
             Expr::Unit => "unit".to_string(),
-            Expr::Str(s) => format!("{}", s),
+            Expr::String(s) => format!("{}", s),
             Expr::Id(id) => id.to_string(),
             Expr::FunCall { id, args } => {
                 format!(
