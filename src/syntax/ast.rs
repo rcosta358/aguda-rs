@@ -156,6 +156,20 @@ pub struct FunType {
     pub ret: Box<Type>,
 }
 
+impl FunType {
+    pub fn to_text(&self) -> String {
+        format!(
+            "({}) -> {}",
+            self.params
+                .iter()
+                .map(|ty| ty.to_text())
+                .collect::<Vec<_>>()
+                .join(", "),
+            self.ret.to_text()
+        )
+    }
+}
+
 impl<T: fmt::Display> fmt::Display for Spanned<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.value)
@@ -177,18 +191,14 @@ impl Decl {
         match self {
             Decl::Fun { id, params, ty, expr } => {
                 format!(
-                    "let {} ({}) : ({}) -> {} =\n{}{}",
+                    "let {}({}) : {} =\n{}{}",
                     id,
                     params
                         .iter()
                         .map(|id| id.value.to_string())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    ty.params.iter()
-                        .map(|ty| ty.to_text())
-                        .collect::<Vec<_>>()
-                        .join(", "),
-                    ty.ret.to_text(),
+                    ty.to_text(),
                     indent(level + 1),
                     expr.value.to_text(level + 1)
                 )
@@ -296,7 +306,8 @@ impl Type {
             Type::Bool => "Bool".to_string(),
             Type::String => "String".to_string(),
             Type::Array(inner) => format!("{}[]", inner.to_text()),
-            _ => panic!()
+            Type::Fun(ty) => ty.to_text(),
+            Type::Any => "Any".to_string(),
         }
     }
 }

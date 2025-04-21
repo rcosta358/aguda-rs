@@ -49,6 +49,10 @@ impl SymbolTable {
     }
 
     pub fn declare(&mut self, id: String, ty: Type) -> Result<(), ()> {
+        if id == "_" {
+            // wildcards are not declared
+            return Ok(());
+        }
         let mut scope = self.current_scope.borrow_mut();
         if scope.symbols.contains_key(&id) {
             Err(())
@@ -58,11 +62,15 @@ impl SymbolTable {
         }
     }
 
-    pub fn lookup(&self, name: &str) -> Option<Type> {
+    pub fn lookup(&self, id: &str) -> Option<Type> {
+        if id == "_" {
+            // wildcards cannot be looked up
+            return None;
+        }
         let mut scope_opt = Some(self.current_scope.clone());
         while let Some(scope_ref) = scope_opt {
             let scope = scope_ref.borrow();
-            if let Some(info) = scope.symbols.get(name) {
+            if let Some(info) = scope.symbols.get(id) {
                 return Some(info.clone());
             }
             scope_opt = scope.parent.clone();

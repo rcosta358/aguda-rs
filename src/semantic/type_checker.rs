@@ -1,9 +1,6 @@
-use std::collections::HashMap;
 use crate::semantic::TypeError;
 use crate::semantic::symbol_table::SymbolTable;
 use crate::syntax::ast::*;
-
-pub type Ctx = HashMap<String, Type>;
 
 #[derive(Debug)]
 pub struct TypeChecker {
@@ -202,20 +199,36 @@ impl TypeChecker {
 
     pub fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
         let found = self.type_of(expr);
+
         match expected {
-            Type::Any => {},
-            Type::Array(inner) if **inner == Type::Any => {},
-            _ => {
-                if &found != expected {
-                    self.errors.push(
-                        TypeError::TypeMismatch {
+            // any type matches any type
+            Type::Any => return,
+
+            // array of any should match an array of any type
+            Type::Array(expected_inner) if **expected_inner == Type::Any => {
+                match found {
+                    Type::Array(_) => return,
+                    _ => {
+                        // not an array
+                        self.errors.push(TypeError::TypeMismatch {
                             span: expr.span.clone(),
                             expected: expected.clone(),
                             found,
-                        }
-                    );
+                        });
+                    }
+                }
+            }
+            // all other cases must match exactly
+            _ => {
+                if &found != expected {
+                    self.errors.push(TypeError::TypeMismatch {
+                        span: expr.span.clone(),
+                        expected: expected.clone(),
+                        found,
+                    });
                 }
             }
         }
     }
+
 }

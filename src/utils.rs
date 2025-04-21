@@ -18,7 +18,11 @@ pub fn format_error(
         error_line_str
     );
     if let Some(expected) = expected {
-        msg.push_str(&format!("\nExpected: {}", expected.join(", ")));
+        msg.push_str(&format!(
+            "\n{} {}",
+            "Expected:".blue().bold(),
+            expected.join(", ").blue()
+        ));
     }
     msg
 }

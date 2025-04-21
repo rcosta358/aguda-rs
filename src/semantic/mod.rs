@@ -42,13 +42,19 @@ pub enum TypeError {
 impl DeclarationError {
     pub fn get_message(&self, src: &str) -> String {
         match self {
-            DeclarationError::UndeclaredIdentifier(var) =>
+            DeclarationError::UndeclaredIdentifier(var) => {
+                let msg = if var.value == "_" {
+                    "wildcard identifier cannot be used"
+                } else {
+                    &format!("undeclared identifier '{}'", var.value)
+                };
                 format_error(
                     src,
                     var.span.clone(),
-                    &format!("undeclared identifier '{}'", var.value),
+                    msg,
                     None
-                ),
+                )
+            },
             DeclarationError::DuplicateDeclaration(var) =>
                 format_error(
                     src,

@@ -26,10 +26,10 @@ impl <'a> Parser<'a> {
             .parse(self.tokens.clone())
             .map_err(|e| match e {
                 ParseError::UnrecognizedToken { token: (start, _, end), expected } => {
-                    format_error(&self.src, start..end, "unrecognized token", Some(&expected))
+                    format_error(&self.src, start..end, "unexpected token", Some(&expected))
                 }
                 ParseError::UnrecognizedEof { location, expected } => {
-                    format_error(&self.src, location..location, "unrecognized end of input", Some(&expected))
+                    format_error(&self.src, location..location, "unexpected end of input", Some(&expected))
                 }
                 ParseError::InvalidToken { location } => {
                     format_error(&self.src, location..location, "invalid token", None)
@@ -38,6 +38,6 @@ impl <'a> Parser<'a> {
                     format_error(&self.src, start..end, "unexpected extra token", None)
                 }
                 other => format!("unexpected error: {:?}", other),
-            }) as Result<Program, String>
+            })
     }
 }
