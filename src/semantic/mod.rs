@@ -39,8 +39,12 @@ pub enum TypeError {
     },
 }
 
-impl DeclarationError {
-    pub fn get_message(&self, src: &str) -> String {
+pub trait SemanticError {
+    fn get_message(&self, src: &str) -> String;
+}
+
+impl SemanticError for DeclarationError {
+    fn get_message(&self, src: &str) -> String {
         match self {
             DeclarationError::UndeclaredIdentifier(var) => {
                 let msg = if var.value == "_" {
@@ -80,8 +84,8 @@ impl DeclarationError {
     }
 }
 
-impl TypeError {
-    pub fn get_message(&self, src: &str) -> String {
+impl SemanticError for TypeError {
+    fn get_message(&self, src: &str) -> String {
         match self {
             TypeError::TypeMismatch { span, found, expected } => {
                 format_error(

@@ -1,4 +1,5 @@
 use colored::Colorize;
+use crate::semantic::SemanticError;
 use crate::syntax::ast::Span;
 
 pub fn format_error(
@@ -59,4 +60,25 @@ fn get_position(source: &str, index: usize) -> (usize, usize) {
 
 pub fn indent(level: usize) -> String {
     "  ".repeat(level)
+}
+
+pub fn format_checker_errors<T>(
+    errors: Vec<T>,
+    src: &str,
+    label: &str,
+    max_errors: usize,
+) -> String where T: SemanticError
+{
+    let mut formatted = errors
+        .iter()
+        .take(max_errors)
+        .map(|e| format!("{} {}", label.red().bold(), e.get_message(src)))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    let remaining = errors.len().saturating_sub(max_errors);
+    if remaining > 0 {
+        formatted.push_str(&format!("\n  (+{} more errors)", remaining).red().to_string());
+    }
+    formatted
 }

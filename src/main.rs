@@ -12,6 +12,9 @@ fn main() {
 
 fn read_source_file() -> Result<String, String> {
     let filepath = env::args().nth(1).unwrap_or_else(|| String::from("./main.agu"));
+    if filepath.is_empty() || !filepath.ends_with(".agu") {
+        return Err("Invalid aguda file".to_string());
+    }
     let path = Path::new(&filepath);
     if !path.exists() {
         return Err(format!("The source file '{}' does not exist", filepath));
