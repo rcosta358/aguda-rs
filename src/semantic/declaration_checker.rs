@@ -1,6 +1,6 @@
-use crate::semantic::DeclarationError;
+use crate::semantic::{DeclarationError, RESERVED_IDENTIFIERS};
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type};
-use crate::semantic::symbol_table::{SymbolTable, RESERVED_IDENTIFIERS};
+use crate::semantic::symbol_table::SymbolTable;
 
 pub struct DeclarationChecker {
     symbols: SymbolTable,

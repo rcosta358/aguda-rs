@@ -199,7 +199,6 @@ impl TypeChecker {
 
     pub fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
         let found = self.type_of(expr);
-
         match expected {
             // any type matches any type
             Type::Any => return,

@@ -1,9 +1,10 @@
-use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::syntax::ast::{FunType, Type};
+use crate::semantic::INIT_SYMBOLS;
+use crate::syntax::ast::Type;
 
+// wrapper for shared and mutable access
 type ScopeRef = Rc<RefCell<Scope>>;
 
 #[derive(Debug, Clone)]
@@ -14,7 +15,7 @@ struct Scope {
 
 #[derive(Debug, Clone)]
 pub struct SymbolTable {
-    current_scope: ScopeRef,
+    curr_scope: ScopeRef,
 }
 
 impl SymbolTable {
@@ -25,37 +26,38 @@ impl SymbolTable {
             symbols,
             parent: None,
         }));
-        SymbolTable { current_scope: root }
+        SymbolTable { curr_scope: root }
     }
 
     pub fn enter_scope(&mut self) {
         let new_scope = Rc::new(RefCell::new(Scope {
             symbols: HashMap::new(),
-            parent: Some(self.current_scope.clone()),
+            parent: Some(self.curr_scope.clone()),
         }));
-        self.current_scope = new_scope;
+        self.curr_scope = new_scope; // enter new nested scope
     }
 
     pub fn exit_scope(&mut self) {
         let parent_opt = {
-            let curr = self.current_scope.borrow();
+            let curr = self.curr_scope.borrow();
             curr.parent.clone()
         };
+        // go back to parent scope
         if let Some(parent) = parent_opt {
-            self.current_scope = parent;
+            self.curr_scope = parent;
         } else {
-            panic!("tried to exit the root scope");
+            panic!("cannot exit the root scope");
         }
     }
 
     pub fn declare(&mut self, id: String, ty: Type) -> Result<(), ()> {
         if id == "_" {
-            // wildcards are not declared
+            // wildcards are not declared (ignored)
             return Ok(());
         }
-        let mut scope = self.current_scope.borrow_mut();
+        let mut scope = self.curr_scope.borrow_mut();
         if scope.symbols.contains_key(&id) {
-            Err(())
+            Err(()) // duplicate declaration
         } else {
             scope.symbols.insert(id, ty);
             Ok(())
@@ -67,7 +69,9 @@ impl SymbolTable {
             // wildcards cannot be looked up
             return None;
         }
-        let mut scope_opt = Some(self.current_scope.clone());
+        let mut scope_opt = Some(self.curr_scope.clone());
+
+        // look for the identifier in the current scope and its parents
         while let Some(scope_ref) = scope_opt {
             let scope = scope_ref.borrow();
             if let Some(info) = scope.symbols.get(id) {
@@ -77,29 +81,4 @@ impl SymbolTable {
         }
         None
     }
-}
-
-lazy_static! {
-    pub static ref INIT_SYMBOLS: [(String, Type); 2] = [
-        (
-            "print".to_string(),
-            Type::Fun(
-                FunType {
-                    params: vec![Type::Any],
-                    ret: Box::new(Type::Unit)
-                }
-            )
-        ),
-        (
-            "length".to_string(),
-            Type::Fun(
-                FunType {
-                    params: vec![Type::Array(Box::new(Type::Any))],
-                    ret: Box::new(Type::Int)
-                }
-            )
-        ),
-    ];
-    pub static ref RESERVED_IDENTIFIERS: Vec<String> =
-        INIT_SYMBOLS.iter().map(|s| s.0.clone()).collect::<Vec<_>>();
 }
