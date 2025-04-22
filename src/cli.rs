@@ -10,7 +10,7 @@ pub struct Cli {
     pub file: String,
 
     /// Maximum number of errors to display
-    #[arg(short, long, default_value_t = 10)]
+    #[arg(short, long, default_value_t = 5)]
     pub max_errors: usize,
 
     /// Skip printing the AST to stdout

@@ -12,9 +12,11 @@ pub enum Token {
     Id(String),
 
     #[regex("[0-9]+", |lex| lex.slice().parse().map_err(|e| LexicalError::from(e)))]
+    #[regex("[0-9]+\\.[0-9]+", |_| Err(LexicalError::FloatingPointNumber), priority = 0)]
     Int(i64),
 
     #[regex("\"[^\"\n]*\"", |lex| lex.slice().to_string())]
+    #[regex("\"[^\"\n]*", |_| Err(LexicalError::UnterminatedString), priority = 0)]
     String(String),
 
     #[token("true")]
@@ -162,10 +164,16 @@ impl<'a> Lexer<'a> {
                 Ok(token) => tokens.push((span.start, token, span.end)),
                 Err(e) => {
                     return match e {
-                        LexicalError::InvalidInteger(e) =>
-                            Err(format_error(&self.src, span, &e, None)),
                         LexicalError::UnrecognizedToken =>
                             Err(format_error(&self.src, span, "unrecognized token", None)),
+                        LexicalError::UnterminatedString =>
+                            Err(format_error(&self.src, span, "unterminated string", None)),
+                        LexicalError::InvalidInteger =>
+                            Err(format_error(&self.src, span, "invalid integer literal", None)),
+                        LexicalError::IntegerOverflow =>
+                            Err(format_error(&self.src, span, "integer overflow", None)),
+                        LexicalError::FloatingPointNumber =>
+                            Err(format_error(&self.src, span, "non-supported floating point number", None)),
                     }
                 }
             }
@@ -176,8 +184,10 @@ impl<'a> Lexer<'a> {
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub enum LexicalError {
-    InvalidInteger(String),
-
+    InvalidInteger,
+    IntegerOverflow,
+    FloatingPointNumber,
+    UnterminatedString,
     #[default]
     UnrecognizedToken,
 }
@@ -186,8 +196,8 @@ impl From<ParseIntError> for LexicalError {
     fn from(err: ParseIntError) -> Self {
         use std::num::IntErrorKind::*;
         match err.kind() {
-            PosOverflow | NegOverflow => LexicalError::InvalidInteger("integer overflow".to_owned()),
-            _ => LexicalError::InvalidInteger("invalid integer".to_owned()),
+            PosOverflow | NegOverflow => LexicalError::IntegerOverflow,
+            _ => LexicalError::InvalidInteger,
         }
     }
 }

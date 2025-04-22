@@ -22,16 +22,16 @@ fn test_parser() {
     println!("\n📊 Test Summary ({})", total_tests);
     println!("========================");
     println!("Valid tests ({})", valid_tests);
-    println!("✅ Passed: {}", valid_passed);
-    println!("❌ Failed: {}", valid_failed);
+    println!("✅  Passed: {}", valid_passed);
+    println!("❌  Failed: {}", valid_failed);
     println!("========================");
     println!("Invalid syntax tests ({})", invalid_syntax_tests);
-    println!("✅ Passed: {}", invalid_syntax_passed);
-    println!("❌ Failed: {}", invalid_syntax_failed);
+    println!("✅  Passed: {}", invalid_syntax_passed);
+    println!("❌  Failed: {}", invalid_syntax_failed);
     println!("========================");
     println!("Invalid semantic tests ({})", invalid_semantic_tests);
-    println!("✅ Passed: {}", invalid_semantic_passed);
-    println!("❌ Failed: {}", invalid_semantic_failed);
+    println!("✅  Passed: {}", invalid_semantic_passed);
+    println!("❌  Failed: {}", invalid_semantic_failed);
     println!("========================");
     println!("Success rate: {:.2}%", success_rate);
 

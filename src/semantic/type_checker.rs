@@ -177,7 +177,7 @@ impl TypeChecker {
     fn type_of_lhs(&mut self, lhs: &Spanned<Lhs>) -> Type {
         match &lhs.value {
             Lhs::Var { id } => {
-                self.symbols.lookup(&id.value).expect("undefined identifier")
+                self.symbols.lookup(&id.value).unwrap()
             }
             Lhs::Index { lhs, index } => {
                 let arr_type = self.type_of_lhs(lhs);

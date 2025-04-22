@@ -40,8 +40,8 @@ pub fn format_error(
     if let Some(expected) = expected {
         msg.push_str(&format!(
             "\n{} {}",
-            "Expected:".blue().bold(),
-            expected.join(", ").blue()
+            "Expected:".cyan().blue(),
+            expected.join(", ")
         ));
     }
     msg
