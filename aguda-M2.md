@@ -21,12 +21,20 @@ docker run aguda-rs
 
 This will also regenerate the parser with the [grammar file](./src/grammar.lalrpop).
 
-#### Running a Specific File
+### Program Arguments
 
-To run a specific file, place the file in the root directory, rebuild the image and run:
+| Option                     | Description                     | Default     |
+|----------------------------|---------------------------------|-------------|
+| `-f`, `--file <...>`       | Path to the source `.agu` file  | `main.agu`  |
+| `-m`, `--max-errors <...>` | Max number of errors to display | `10`        |
+| `--no-print-ast`           | Skip printing the AST to stdout |             |
+| `-h`, `--help`             | Show help message               |             |
+| `-V`, `--version`          | Show version information        |             |
+
+Example usage:
 
 ```sh
-docker run aguda-rs cargo run <filename>.agu
+docker run aguda-rs cargo run -- --file hello.agu --max-errors 5 --no-print-ast
 ```
 
 #### Running the Tests

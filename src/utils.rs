@@ -1,6 +1,25 @@
+use std::fs;
+use std::path::Path;
 use colored::Colorize;
 use crate::semantic::SemanticError;
 use crate::syntax::ast::Span;
+
+pub fn read_source_file(file: String) -> Result<String, String> {
+    if file.is_empty() || !file.ends_with(".agu") {
+        return Err("Invalid aguda file".to_string());
+    }
+    let path = Path::new(&file);
+    if !path.exists() {
+        return Err(format!("Cannot find source file '{}'", file));
+    }
+    match fs::read_to_string(path) {
+        Ok(content) if content.trim().is_empty() => {
+            Err(format!("Source file '{}' is empty", file))
+        }
+        Ok(content) => Ok(content),
+        Err(e) => Err(format!("Error reading file '{}': {}", file, e)),
+    }
+}
 
 pub fn format_error(
     source: &str,

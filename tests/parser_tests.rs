@@ -66,7 +66,7 @@ fn test_agu_files_in_dir(dir: &Path, should_pass: bool) -> (i32, i32) {
     (passed, failed)
 }
 
-fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
+fn test_agu_file_in_dir(dir: &Path) -> Result<(), String> {
     let agu_file = fs::read_dir(dir)
         .map_err(|e| format!("Failed to read dir {:?}: {}", dir, e))?
         .map(|entry| entry.expect("Invalid entry").path())
@@ -76,15 +76,15 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<String, String> {
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
 
-    let result = compile_aguda_program(src.clone());
+    let result = compile_aguda_program(src.clone(), 1, false);
     match result {
-        Ok(_) => Ok(format!("✅ PARSED: {:?}", dir)),
+        Ok(_) => Ok(()),
         Err(e) => {
             let author = src.lines()
                 .next()
                 .and_then(|line| line.strip_prefix("-- Author: "))
                 .unwrap_or("unknown author");
-            Err(format!("❌ {}\nIn {:?} from {}\n", e, dir, author))
+            Err(format!("{}\nIn {:?} from {}\n", e, dir, author))
         }
     }
 }

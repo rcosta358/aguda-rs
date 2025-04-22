@@ -71,14 +71,18 @@ impl SemanticError for DeclarationError {
                 format_error(
                     src,
                     var.span.clone(),
-                    &format!("reserved identifier '{}'", var.value),
+                    &format!("reserved identifier '{}' cannot be used", var.value),
                     None
                 ),
             DeclarationError::WrongFunctionSignature { span, params_found, types_found } =>
                 format_error(
                     src,
                     span.clone(),
-                    &format!("wrong function signature, found {} parameter(s) and {} type(s)", params_found, types_found),
+                    &format!(
+                        "wrong function signature, found {} parameter(s) and {} type(s)",
+                        params_found,
+                        types_found
+                    ),
                     None
                 ),
         }
