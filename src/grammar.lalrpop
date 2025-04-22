@@ -10,14 +10,14 @@ pub Program: Program = {
 
 Decl: Decl = {
     DeclVar,
-    DeclFunc,
+    DeclFun,
 }
 
 DeclVar: Decl = {
     "let" <id:Spanned<Id>> ":" <ty:Spanned<Type>> "=" <expr:Spanned<Expr>> => Decl::Var { id, ty, expr },
 }
 
-DeclFunc: Decl = {
+DeclFun: Decl = {
     "let" <id:Spanned<Id>>
         "(" <params:IdList> ")"
         ":" <ty:FunType>
@@ -124,7 +124,7 @@ PowExpr: Expr = {
 UnaryExpr: Expr = {
     // highest precedence
     <zero:Spanned<()>> "-" <e:Spanned<UnaryExpr>> => Expr::BinOp {
-        lhs: Box::new(Spanned { value: Expr::Number(0), span: zero.span }), op: Op::Sub, rhs: Box::new(e)
+        lhs: Box::new(Spanned { value: Expr::Int(0), span: zero.span }), op: Op::Sub, rhs: Box::new(e)
     },
     "!" <e:Spanned<UnaryExpr>> => Expr::Not { expr: Box::new(e) },
     BaseExpr,
@@ -140,7 +140,7 @@ BaseExpr: Expr = {
 
 LiteralExpr: Expr = {
     <s:"string"> => Expr::String(s.to_string()),
-    <n:"num">    => Expr::Number(n.to_string().parse().unwrap()),
+    <n:"int">    => Expr::Int(n.to_string().parse().unwrap()),
     "true"       => Expr::Bool(true),
     "false"      => Expr::Bool(false),
     "unit"       => Expr::Unit,
@@ -210,7 +210,7 @@ extern {
     // map lexer tokens
     enum Token {
         "id"     => Token::Id(<String>),
-        "num"    => Token::Int(<i64>),
+        "int"    => Token::Int(<i64>),
         "string" => Token::String(<String>),
         "true"   => Token::True,
         "false"  => Token::False,

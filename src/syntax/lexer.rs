@@ -4,7 +4,7 @@ use crate::utils::format_error;
 
 #[derive(Logos, Debug, PartialEq, Clone)]
 #[logos(error=LexicalError)]
-#[logos(skip r"[ \t\r\n\f]+")] // ignore whitespace
+#[logos(skip r"[ \t\r\n\f]+")] // ignore whitespaces
 #[logos(skip r"--(.*)")] // ignore comments
 pub enum Token {
 

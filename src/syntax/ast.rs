@@ -77,7 +77,7 @@ pub enum Expr {
         index: Box<Spanned<Expr>>
     },
     Id(Spanned<Id>),
-    Number(i64),
+    Int(i64),
     String(String),
     Bool(bool),
     Unit,
@@ -147,7 +147,7 @@ pub enum Type {
     Unit,
     Array(Box<Type>),
     Fun(FunType),
-    Any,
+    Any, // not used by the parser, only by the type checker
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -191,7 +191,7 @@ impl Decl {
         match self {
             Decl::Fun { id, params, ty, expr } => {
                 format!(
-                    "let {}({}) : {} =\n{}{}",
+                    "let {} ({}) : {} =\n{}{}",
                     id,
                     params
                         .iter()
@@ -278,7 +278,7 @@ impl Expr {
                 )
             }
             Expr::Not { expr } => format!("!{}", expr.value.to_text(level)),
-            Expr::Number(n) => n.to_string(),
+            Expr::Int(n) => n.to_string(),
             Expr::Bool(b) => format!("{}", b),
             Expr::Unit => "unit".to_string(),
             Expr::String(s) => format!("{}", s),
@@ -293,7 +293,12 @@ impl Expr {
                         .join(", ")
                 )
             },
-            Expr::ArrayIndex { lhs, index } => format!("{}[{}]", lhs.value.to_text(), index.value.to_text(level)),
+            Expr::ArrayIndex { lhs, index } =>
+                format!(
+                    "{}[{}]",
+                    lhs.value.to_text(),
+                    index.value.to_text(level)
+                ),
         }
     }
 }
@@ -315,8 +320,8 @@ impl Type {
 impl Lhs {
     pub fn to_text(&self) -> String {
         match self {
-            Lhs::Index { lhs, index } => format!("{}[{}]", lhs.value.to_text(), index.value.to_text(0)),
             Lhs::Var { id } => id.to_string(),
+            Lhs::Index { lhs, index } => format!("{}[{}]", lhs.value.to_text(), index.value.to_text(0)),
         }
     }
 }

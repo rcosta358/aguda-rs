@@ -20,8 +20,8 @@ impl TypeChecker {
     pub fn check(&mut self, prog: &Program) -> Result<(), Vec<TypeError>> {
         for decl in &prog.decls {
             match &decl.value {
-                Decl::Var { ty, expr, ..} => {
-                    // var scope
+                Decl::Var { ty, expr, .. } => {
+                    // variable scope
                     self.symbols.enter_scope();
                     self.check_against(expr, &ty.value);
                     self.symbols.exit_scope();
@@ -52,13 +52,12 @@ impl TypeChecker {
                 self.type_of(rhs)
             }
             Expr::Let { id, ty, expr } => {
-
                 // let scope
                 self.symbols.enter_scope();
                 self.check_against(expr, &ty.value);
                 self.symbols.exit_scope();
 
-                // only declare after inner scope
+                // only declare after inner scope so it's not visible inside the let scope
                 self.symbols.declare(id.value.clone(), ty.value.clone()).unwrap();
                 Type::Unit
             }
@@ -91,8 +90,8 @@ impl TypeChecker {
                     }
                 }
             }
-            Expr::Not { expr: e } => {
-                self.check_against(e, &Type::Bool);
+            Expr::Not { expr } => {
+                self.check_against(expr, &Type::Bool);
                 Type::Bool
             }
             Expr::FunCall { id, args } => {
@@ -118,7 +117,7 @@ impl TypeChecker {
                             found: fun_type,
                         }
                     );
-                    Type::Unit
+                    Type::Any // avoid error propagation
                 }
             }
             Expr::IfElse { cond, then, els } => {
@@ -163,11 +162,11 @@ impl TypeChecker {
                             found: arr_type,
                         }
                     );
-                    Type::Unit
+                    Type::Any // avoid error propagation
                 }
             }
             Expr::Id(id) => self.symbols.lookup(&id.value).unwrap(),
-            Expr::Number(_) => Type::Int,
+            Expr::Int(_) => Type::Int,
             Expr::String(_) => Type::String,
             Expr::Bool(_) => Type::Bool,
             Expr::Unit => Type::Unit,
@@ -191,7 +190,7 @@ impl TypeChecker {
                             found: arr_type,
                         }
                     );
-                    Type::Unit
+                    Type::Any // avoid error propagation
                 }
             }
         }
@@ -199,11 +198,14 @@ impl TypeChecker {
 
     pub fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
         let found = self.type_of(expr);
+        if found == Type::Any {
+            return; // avoid error propagation
+        }
         match expected {
             // any type matches any type
             Type::Any => return,
 
-            // array of any should match an array of any type
+            // array of any matches any array of any type
             Type::Array(expected_inner) if **expected_inner == Type::Any => {
                 match found {
                     Type::Array(_) => return,

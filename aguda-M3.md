@@ -23,7 +23,7 @@ docker run aguda-rs
 
 This will also regenerate the parser with the [grammar file](./src/grammar.lalrpop).
 
-### Program Arguments
+### Command Line Arguments
 
 | Option                     | Description                     | Default     |
 |----------------------------|---------------------------------|-------------|
