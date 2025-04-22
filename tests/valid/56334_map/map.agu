@@ -4,7 +4,8 @@ let buildArray(_) : Unit -> Int[] =
     let array : Int[] = new Int [3 | 0];
     set array[0] = 2;
     set array[1] = 4;
-    set array[2] = 7
+    set array[2] = 7;
+    array
 
 let map(array,n) : (Int[],Int) -> Int[] =
     let i : Int = 0;

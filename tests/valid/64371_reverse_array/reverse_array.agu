@@ -7,14 +7,14 @@ let reverseArray(arr, left, right): (Int[], Int, Int) -> Unit =
         set arr[left] = arr[right];
         set arr[right] = tmp;
         reverseArray(arr, left + 1, right - 1)
-    );
+    )
 
 let main: Unit =
     let n: Int = 10;
     let i: Int = 0;
     let arr: Int[] = new Int[n | 0];
     while i < n do ( -- fill array with 1..n
-        set arr[i] = i + 1; 
+        set arr[i] = i + 1;
         set i = i + 1
     );
     reverseArray(arr, 0, n - 1);

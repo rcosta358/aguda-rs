@@ -4,7 +4,7 @@ let fibonacci (n, memo) : (Int, Int[]) -> Int =
     -- Base cases
     if n == 0 then 0
     else if n == 1 then 1
-    else 
+    else (
         -- If not already computed
         if memo[n] == -1 then (
             -- Compute and store the result
@@ -12,6 +12,7 @@ let fibonacci (n, memo) : (Int, Int[]) -> Int =
         ) ;
         -- Return the memoized result
         memo[n]
+    )
 
 let _ : Unit =
     let n : Int = 100 ;

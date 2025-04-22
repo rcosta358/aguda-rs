@@ -18,11 +18,12 @@ let bubbleSort(array) : Int[] -> Int[] =
     let swapped : Bool = false;
     let i : Int = 0;
     while i < length(array)-1 do (
-        if array[i] > array[i+1] then
+        if array[i] > array[i+1] then (
             let swapValue : Int = array[i];
             set array[i] = array[i+1];
             set array[i+1] = swapValue;
             set swapped = true
+        )
     );
     if swapped then bubbleSort(array) else array
 
