@@ -2,42 +2,41 @@ lalrpop_util::lalrpop_mod!(pub grammar);
 
 use crate::syntax::lexer::Token;
 use crate::syntax::parser::grammar::ProgramParser;
-use crate::syntax::ast::Program;
+use crate::syntax::ast::{Program, Spanned};
 use lalrpop_util::ParseError;
-use crate::utils::format_error;
+use crate::errors::SyntaxError;
 
-pub struct Parser <'a> {
+pub struct Parser {
     parser: ProgramParser,
-    src: &'a str,
-    tokens: Vec<(usize, Token, usize)>
+    tokens: Vec<Spanned<Token>>
 }
 
-impl <'a> Parser<'a> {
-    pub fn new(src: &str, tokens: Vec<(usize, Token, usize)>) -> Parser {
+impl Parser {
+    pub fn new(tokens: Vec<Spanned<Token>>) -> Parser {
         Parser {
             parser: ProgramParser::new(),
-            src,
             tokens
         }
     }
 
-    pub fn parse(&self) -> Result<Program, String> {
+    pub fn parse(&self) -> Result<Program, SyntaxError> {
+        let tokens = self.tokens.iter().map(|t| (t.span.start, t.value.clone(), t.span.end)).collect::<Vec<_>>();
         self.parser
-            .parse(self.tokens.clone())
+            .parse(tokens)
             .map_err(|e| match e {
-                ParseError::UnrecognizedToken { token: (start, _, end), expected } => {
-                    format_error(&self.src, start..end, "unexpected token", Some(&expected))
-                }
-                ParseError::UnrecognizedEof { location, expected } => {
-                    format_error(&self.src, location..location, "unexpected end of input", Some(&expected))
-                }
-                ParseError::InvalidToken { location } => {
-                    format_error(&self.src, location..location, "invalid token", None)
-                }
-                ParseError::ExtraToken { token: (start, _, end) } => {
-                    format_error(&self.src, start..end, "unexpected extra token", None)
-                }
-                other => format!("unexpected error: {:?}", other),
+                ParseError::UnrecognizedToken { token: (start, _, end), expected } =>
+                    SyntaxError::unexpected_token(start..end, expected),
+
+                ParseError::UnrecognizedEof { location, expected } =>
+                    SyntaxError::unexpected_eof(location..location, expected),
+
+                ParseError::InvalidToken { location } =>
+                    SyntaxError::invalid_token(location..location),
+
+                ParseError::ExtraToken { token: (start, _, end) } =>
+                    SyntaxError::extra_token(start..end),
+
+                _ => panic!("unexpected error: {:?}", e),
             })
     }
 }

@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::Path;
 use aguda_rs::compile_aguda_program;
+use aguda_rs::errors::formatting::format_compile_errors;
 
 #[test]
 fn test_parser() {
@@ -76,15 +77,9 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<(), String> {
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
 
-    let result = compile_aguda_program(src.clone(), 1, false);
+    let result = compile_aguda_program(&src);
     match result {
         Ok(_) => Ok(()),
-        Err(e) => {
-            let author = src.lines()
-                .next()
-                .and_then(|line| line.strip_prefix("-- Author: "))
-                .unwrap_or("unknown author");
-            Err(format!("{}\nIn {:?} from {}\n", e, dir, author))
-        }
+        Err(e) => Err(format_compile_errors(e, 1, &agu_path.to_string_lossy(), &src))
     }
 }

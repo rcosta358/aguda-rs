@@ -1,4 +1,4 @@
-use crate::semantic::TypeError;
+use crate::errors::TypeError;
 use crate::semantic::symbol_table::SymbolTable;
 use crate::syntax::ast::*;
 
@@ -99,11 +99,7 @@ impl TypeChecker {
                 if let Type::Fun(ty) = fun_type {
                     if ty.params.len() != args.len() {
                         self.errors.push(
-                            TypeError::WrongNumberOfArguments {
-                                span: span.clone(),
-                                expected: ty.params.len(),
-                                found: args.len(),
-                            }
+                            TypeError::wrong_num_of_args(span.clone(), args.len(), ty.params.len())
                         )
                     }
                     for (arg, arg_type) in args.iter().zip(ty.params.iter()) {
@@ -112,10 +108,7 @@ impl TypeChecker {
                     *ty.ret.clone()
                 } else {
                     self.errors.push(
-                        TypeError::NotCallable {
-                            span: span.clone(),
-                            found: fun_type,
-                        }
+                        TypeError::not_callable(span.clone(), fun_type)
                     );
                     Type::Any // avoid error propagation
                 }
@@ -156,12 +149,7 @@ impl TypeChecker {
                 if let Type::Array(elem_ty) = arr_type {
                     *elem_ty.clone()
                 } else {
-                    self.errors.push(
-                        TypeError::NotIndexable {
-                            span: span.clone(),
-                            found: arr_type,
-                        }
-                    );
+                    self.errors.push(TypeError::not_indexable(span.clone(), arr_type));
                     Type::Any // avoid error propagation
                 }
             }
@@ -184,12 +172,7 @@ impl TypeChecker {
                 if let Type::Array(elem) = arr_type {
                     *elem.clone()
                 } else {
-                    self.errors.push(
-                        TypeError::NotIndexable {
-                            span: lhs.span.clone(),
-                            found: arr_type,
-                        }
-                    );
+                    self.errors.push(TypeError::not_indexable(lhs.span.clone(), arr_type));
                     Type::Any // avoid error propagation
                 }
             }
@@ -211,22 +194,18 @@ impl TypeChecker {
                     Type::Array(_) => return,
                     _ => {
                         // not an array
-                        self.errors.push(TypeError::TypeMismatch {
-                            span: expr.span.clone(),
-                            expected: expected.clone(),
-                            found,
-                        });
+                        self.errors.push(
+                            TypeError::type_mismatch(expr.span.clone(), found, expected.clone())
+                        );
                     }
                 }
             }
             // all other cases must match exactly
             _ => {
                 if &found != expected {
-                    self.errors.push(TypeError::TypeMismatch {
-                        span: expr.span.clone(),
-                        expected: expected.clone(),
-                        found,
-                    });
+                    self.errors.push(
+                        TypeError::type_mismatch(expr.span.clone(), found, expected.clone())
+                    );
                 }
             }
         }

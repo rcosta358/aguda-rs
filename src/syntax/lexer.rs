@@ -1,9 +1,11 @@
+
 use std::num::ParseIntError;
 use logos::Logos;
-use crate::utils::format_error;
+use crate::errors::{LexicalError, LexicalErrorKind};
+use crate::syntax::ast::Spanned;
 
 #[derive(Logos, Debug, PartialEq, Clone)]
-#[logos(error=LexicalError)]
+#[logos(error=LexicalErrorKind)]
 #[logos(skip r"[ \t\r\n\f]+")] // ignore whitespaces
 #[logos(skip r"--(.*)")] // ignore comments
 pub enum Token {
@@ -11,12 +13,12 @@ pub enum Token {
     #[regex("[a-zA-Z_][a-zA-Z0-9'_]*", |lex| lex.slice().to_string(), priority = 0)]
     Id(String),
 
-    #[regex("[0-9]+", |lex| lex.slice().parse().map_err(|e| LexicalError::from(e)))]
-    #[regex("[0-9]+\\.[0-9]+", |_| Err(LexicalError::FloatingPointNumber), priority = 0)]
+    #[regex("[0-9]+", |lex| lex.slice().parse().map_err(|e| LexicalErrorKind::from(e)))]
+    #[regex("[0-9]+\\.[0-9]+", |_| Err(LexicalErrorKind::FloatingPointNumber), priority = 0)]
     Int(i64),
 
     #[regex("\"[^\"\n]*\"", |lex| lex.slice().to_string())]
-    #[regex("\"[^\"\n]*", |_| Err(LexicalError::UnterminatedString), priority = 0)]
+    #[regex("\"[^\"\n]*", |_| Err(LexicalErrorKind::UnterminatedString), priority = 0)]
     String(String),
 
     #[token("true")]
@@ -145,36 +147,24 @@ pub enum Token {
 
 pub struct Lexer<'a> {
     lexer: logos::Lexer<'a, Token>,
-    src: &'a str,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(src: &'a str) -> Self {
         Self {
-            lexer: Token::lexer(src),
-            src
+            lexer: Token::lexer(src)
         }
     }
 
-    pub fn tokenize(&mut self) -> Result<Vec<(usize, Token, usize)>, String> {
+    pub fn tokenize(&mut self) -> Result<Vec<Spanned<Token>>, LexicalError> {
         let mut tokens = Vec::new();
         while let Some(tok) = self.lexer.next() {
             let span = self.lexer.span();
             match tok {
-                Ok(token) => tokens.push((span.start, token, span.end)),
+                Ok(token) => tokens.push(Spanned { value: token, span }),
                 Err(e) => {
-                    return match e {
-                        LexicalError::UnrecognizedToken =>
-                            Err(format_error(&self.src, span, "unrecognized token", None)),
-                        LexicalError::UnterminatedString =>
-                            Err(format_error(&self.src, span, "unterminated string", None)),
-                        LexicalError::InvalidInteger =>
-                            Err(format_error(&self.src, span, "invalid integer literal", None)),
-                        LexicalError::IntegerOverflow =>
-                            Err(format_error(&self.src, span, "integer overflow", None)),
-                        LexicalError::FloatingPointNumber =>
-                            Err(format_error(&self.src, span, "non-supported floating point number", None)),
-                    }
+                    let error = LexicalError { kind: e, span };
+                    return Err(error);
                 }
             }
         }
@@ -182,22 +172,12 @@ impl<'a> Lexer<'a> {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
-pub enum LexicalError {
-    InvalidInteger,
-    IntegerOverflow,
-    FloatingPointNumber,
-    UnterminatedString,
-    #[default]
-    UnrecognizedToken,
-}
-
-impl From<ParseIntError> for LexicalError {
+impl From<ParseIntError> for LexicalErrorKind {
     fn from(err: ParseIntError) -> Self {
         use std::num::IntErrorKind::*;
         match err.kind() {
-            PosOverflow | NegOverflow => LexicalError::IntegerOverflow,
-            _ => LexicalError::InvalidInteger,
+            PosOverflow | NegOverflow => LexicalErrorKind::IntegerOverflow,
+            _ => LexicalErrorKind::InvalidInteger,
         }
     }
 }

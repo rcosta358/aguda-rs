@@ -1,4 +1,5 @@
-use crate::semantic::{DeclarationError, RESERVED_IDENTIFIERS};
+use crate::errors::DeclarationError;
+use crate::semantic::RESERVED_IDENTIFIERS;
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type};
 use crate::semantic::symbol_table::SymbolTable;
 
@@ -34,24 +35,20 @@ impl DeclarationChecker {
     fn declare_fun_decl(&mut self, decl: &Decl) {
         if let Decl::Fun { id, params, ty, .. } = decl {
             if RESERVED_IDENTIFIERS.contains(&id.value) {
-                self.errors.push(DeclarationError::ReservedIdentifier(id.clone()));
+                self.errors.push(DeclarationError::reserved_identifier(id.clone()));
             }
             if params.len() != ty.params.len() {
                 self.errors.push(
-                    DeclarationError::WrongFunctionSignature {
-                        span: id.span.clone(),
-                        params_found: params.len(),
-                        types_found: ty.params.len(),
-                    }
+                    DeclarationError::wrong_function_signature(id.span.clone(), params.len(), ty.params.len())
                 );
             }
             for param_id in params {
                 if RESERVED_IDENTIFIERS.contains(&param_id.value) {
-                    self.errors.push(DeclarationError::ReservedIdentifier(param_id.clone()));
+                    self.errors.push(DeclarationError::reserved_identifier(param_id.clone()));
                 }
             }
             if self.symbols.declare(id.value.clone(), Type::Fun(ty.clone())).is_err() {
-                self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
+                self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
             }
         }
     }
@@ -60,7 +57,7 @@ impl DeclarationChecker {
         match decl {
             Decl::Var { expr, id, ty } => {
                 if RESERVED_IDENTIFIERS.contains(&id.value) {
-                    self.errors.push(DeclarationError::ReservedIdentifier(id.clone()));
+                    self.errors.push(DeclarationError::reserved_identifier(id.clone()));
                 }
                 // variable scope
                 self.symbols.enter_scope();
@@ -69,7 +66,7 @@ impl DeclarationChecker {
 
                 // only declare after inner scope so it's not visible inside the let scope
                 if self.symbols.declare(id.value.clone(), ty.value.clone()).is_err() {
-                    self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
+                    self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
                 }
             }
             Decl::Fun { params, ty, expr, .. } => {
@@ -77,7 +74,7 @@ impl DeclarationChecker {
                 self.symbols.enter_scope();
                 for (param_id, param_ty) in params.iter().zip(ty.params.iter()) {
                     if self.symbols.declare(param_id.value.clone(), param_ty.clone()).is_err() {
-                        self.errors.push(DeclarationError::DuplicateDeclaration(param_id.clone()));
+                        self.errors.push(DeclarationError::duplicate_declaration(param_id.clone()));
                     }
                 }
                 self.check_expr(&expr.value);
@@ -94,7 +91,7 @@ impl DeclarationChecker {
             }
             Expr::Let { id, ty, expr } => {
                 if RESERVED_IDENTIFIERS.contains(&id.value) {
-                    self.errors.push(DeclarationError::ReservedIdentifier(id.clone()));
+                    self.errors.push(DeclarationError::reserved_identifier(id.clone()));
                 }
                 // let scope
                 self.symbols.enter_scope();
@@ -103,7 +100,7 @@ impl DeclarationChecker {
 
                 // only declare after inner scope so it's not visible inside the let scope
                 if self.symbols.declare(id.value.clone(), ty.value.clone()).is_err() {
-                    self.errors.push(DeclarationError::DuplicateDeclaration(id.clone()));
+                    self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
                 }
             }
             Expr::Set { lhs, expr } => {
@@ -119,7 +116,7 @@ impl DeclarationChecker {
             },
             Expr::FunCall { id, args } => {
                 if self.symbols.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
+                    self.errors.push(DeclarationError::undeclared_identifier(id.clone()));
                 }
                 for arg in args {
                     self.check_expr(&arg.value);
@@ -156,7 +153,7 @@ impl DeclarationChecker {
             }
             Expr::Id(id) => {
                 if self.symbols.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
+                    self.errors.push(DeclarationError::undeclared_identifier(id.clone()));
                 }
             }
             Expr::Int(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit => {}
@@ -167,7 +164,7 @@ impl DeclarationChecker {
         match lhs {
             Lhs::Var { id } => {
                 if self.symbols.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::UndeclaredIdentifier(id.clone()));
+                    self.errors.push(DeclarationError::undeclared_identifier(id.clone()));
                 }
             }
             Lhs::Index { lhs, index } => {

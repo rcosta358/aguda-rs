@@ -1,36 +1,34 @@
-use colored::Colorize;
 use crate::semantic::type_checker::TypeChecker;
 use crate::semantic::declaration_checker::DeclarationChecker;
+use crate::syntax::ast::Program;
 use crate::syntax::lexer::Lexer;
 use crate::syntax::parser::Parser;
-use crate::utils::format_checker_errors;
+use crate::errors::CompileError;
 
 pub mod syntax;
 pub mod semantic;
 pub mod utils;
 pub mod cli;
+pub mod errors;
 
 pub fn compile_aguda_program(
-    src: String,
-    max_errors: usize,
-    print_ast: bool
-) -> Result<String, String> {
-    let tokens = Lexer::new(&src)
+    src: &str,
+) -> Result<Program, Vec<CompileError>> {
+    let tokens = Lexer::new(src)
         .tokenize()
-        .map_err(|e| format!("{} {}", "Lexical Error:".red().bold(), e))?;
+        .map_err(|e| vec![CompileError::from(e)])?;
 
-    let ast = Parser::new(&src, tokens)
+    let ast = Parser::new(tokens)
         .parse()
-        .map_err(|e| format!("{} {}", "Syntax Error:".red().bold(), e))?;
+        .map_err(|e| vec![CompileError::from(e)])?;
 
     let symbol_table = DeclarationChecker::new()
         .check(&ast)
-        .map_err(|e| format_checker_errors(e, &src, "Declaration Error:", max_errors))?;
+        .map_err(|errs| errs.into_iter().map(CompileError::from).collect::<Vec<_>>())?;
 
     TypeChecker::new(symbol_table)
         .check(&ast)
-        .map_err(|e| format_checker_errors(e, &src, "Type Error:", max_errors))?;
+        .map_err(|errs| errs.into_iter().map(CompileError::from).collect::<Vec<_>>())?;
 
-    let output = if print_ast { ast.to_text() } else { "".to_string() };
-    Ok(output)
+    Ok(ast)
 }

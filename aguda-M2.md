@@ -27,14 +27,14 @@ This will also regenerate the parser with the [grammar file](./src/grammar.lalrp
 |----------------------------|---------------------------------|-------------|
 | `-f`, `--file <...>`       | Path to the source `.agu` file  | `main.agu`  |
 | `-m`, `--max-errors <...>` | Max number of errors to display | `10`        |
-| `--no-print-ast`           | Skip printing the AST to stdout |             |
+| `--suppress-ast`           | Skip printing the AST to stdout |             |
 | `-h`, `--help`             | Show help message               |             |
 | `-V`, `--version`          | Show version information        |             |
 
 Example usage:
 
 ```sh
-docker run aguda-rs cargo run -- --file hello.agu --max-errors 5 --no-print-ast
+docker run aguda-rs cargo run -- --file hello.agu --max-errors 5 --suppress-ast
 ```
 
 #### Running the Tests

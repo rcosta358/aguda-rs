@@ -15,5 +15,5 @@ pub struct Cli {
 
     /// Skip printing the AST to stdout
     #[arg(long, default_value_t = false)]
-    pub no_print_ast: bool,
+    pub suppress_ast: bool,
 }
