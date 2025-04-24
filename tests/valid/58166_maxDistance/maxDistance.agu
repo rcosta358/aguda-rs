@@ -18,8 +18,8 @@ let maxDistance (a) : Int[] -> Int =
     let max : Int = a[0];
     let i : Int = 0;
     while i < length(a) do  (
-        if a[i] < min then set min = a[i] else unit;
-        if a[i] > max then set max = a[i] else unit;
+        if a[i] < min then set min = a[i];
+        if a[i] > max then set max = a[i];
         set i = i + 1
     ) ;
     let result : Int = calcDist(max, min);

@@ -96,7 +96,7 @@ pub enum Lhs {
 
 #[derive(Debug, Clone)]
 pub enum Op {
-    Add, Sub, Mul, Div, Mod, Pow, And, Or, Eq, Neq, Lt, Leq, Gt, Geq, Concat
+    Add, Sub, Mul, Div, Mod, Pow, And, Or, Eq, Neq, Lt, Leq, Gt, Geq
 }
 
 impl Op {
@@ -116,7 +116,6 @@ impl Op {
             Op::Leq => "<=",
             Op::Gt => ">",
             Op::Geq => ">=",
-            Op::Concat => "++"
         };
         text.to_string()
     }
@@ -126,7 +125,6 @@ impl Op {
             Op::Add | Op::Sub | Op::Mul | Op::Div | Op::Mod | Op::Pow => OpType::Numerical,
             Op::And | Op::Or => OpType::Logical,
             Op::Eq | Op::Neq | Op::Lt | Op::Leq | Op::Gt | Op::Geq => OpType::Comparison,
-            Op::Concat => OpType::String,
         }
     }
 }
@@ -136,7 +134,6 @@ pub enum OpType {
     Numerical,
     Logical,
     Comparison,
-    String,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -2,7 +2,7 @@
 
 -- Calculates only for positive numbers or 0 and returns -1 for negative values
 let powerTen (n) : Int -> Int =
-    if n < 0 then -1 else unit;
+    if n < 0 then -1;
     if n == 0 then 1 else 10 * powerTen(n - 1)
 
 let _ : Unit =
