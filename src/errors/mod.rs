@@ -136,7 +136,7 @@ pub struct DeclarationError {
 
 #[derive(Debug, Clone)]
 pub enum DeclarationErrorKind {
-    UndeclaredIdentifier(Id),
+    UndeclaredSymbol(Id),
     DuplicateDeclaration(Id),
     ReservedIdentifier(Id),
     WrongFunctionSignature {
@@ -148,7 +148,7 @@ pub enum DeclarationErrorKind {
 impl DeclarationError {
     pub fn undeclared_identifier(spanned: Spanned<Id>) -> Self {
         Self {
-            kind: DeclarationErrorKind::UndeclaredIdentifier(spanned.value),
+            kind: DeclarationErrorKind::UndeclaredSymbol(spanned.value),
             span: spanned.span,
         }
     }
@@ -242,4 +242,9 @@ impl From<TypeError> for CompileError {
     fn from(e: TypeError) -> Self {
         CompileError::Semantic(SemanticError::Type(e))
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Warning {
+    UnusedSymbol(Spanned<Id>),
 }

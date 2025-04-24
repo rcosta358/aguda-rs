@@ -30,10 +30,10 @@ impl TypeChecker {
                     // function scope
                     self.symbols.enter_scope();
                     for (param_id, param_ty) in params.iter().zip(ty.params.iter()) {
-                        self.symbols.declare(param_id.value.clone(), param_ty.clone()).unwrap();
+                        self.symbols.declare(param_id.clone(), param_ty.clone()).unwrap();
                     }
                     self.check_against(expr, &ty.ret);
-                    self.symbols.exit_scope()
+                    self.symbols.exit_scope();
                 }
             }
         }
@@ -58,7 +58,7 @@ impl TypeChecker {
                 self.symbols.exit_scope();
 
                 // only declare after inner scope so it's not visible inside the let scope
-                self.symbols.declare(id.value.clone(), ty.value.clone()).unwrap();
+                self.symbols.declare(id.clone(), ty.value.clone()).unwrap();
                 Type::Unit
             }
             Expr::Set { lhs, expr } => {
