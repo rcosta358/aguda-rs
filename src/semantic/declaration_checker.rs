@@ -45,7 +45,7 @@ impl DeclarationChecker {
             }
             if params.len() != ty.params.len() {
                 self.errors.push(
-                    DeclarationError::wrong_function_signature(id.span.clone(), params.len(), ty.params.len())
+                    DeclarationError::function_signature_mismatch(id.span.clone(), params.len(), ty.params.len())
                 );
             }
             for param_id in params {
@@ -53,7 +53,9 @@ impl DeclarationChecker {
                     self.errors.push(DeclarationError::reserved_identifier(param_id.clone()));
                 }
             }
-            self.symbols.declare(id.clone(), Type::Fun(ty.clone()));
+            if !self.symbols.declare(id.clone(), Type::Fun(ty.clone())) {
+                self.errors.push(DeclarationError::redefined_function(id.clone()));
+            }
         }
     }
 

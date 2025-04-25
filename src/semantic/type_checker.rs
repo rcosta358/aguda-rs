@@ -97,7 +97,7 @@ impl TypeChecker {
                 if let Type::Fun(ty) = fun_type {
                     if ty.params.len() != args.len() {
                         self.errors.push(
-                            TypeError::wrong_num_of_args(span.clone(), args.len(), ty.params.len())
+                            TypeError::arg_count_mismatch(span.clone(), args.len(), ty.params.len())
                         )
                     }
                     for (arg, arg_type) in args.iter().zip(ty.params.iter()) {

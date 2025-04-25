@@ -57,9 +57,10 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                     }
                     msg
                 }
-                SyntaxErrorKind::UnexpectedEof(expected) => {
+                SyntaxErrorKind::UnexpectedEof(mut expected) => {
                     let mut msg = format_message(path, src, span, &label, "unexpected end of input", Color::Red);
                     if !suppress_hints {
+                        expected.push("EOF".to_string());
                         add_syntax_hints(&mut msg, expected);
                     }
                     msg
@@ -78,11 +79,11 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                     let label = "Declaration Error:";
                     let span = e.span.clone();
                     match e.kind.clone() {
-                        DeclarationErrorKind::UndeclaredSymbol(id) => {
+                        DeclarationErrorKind::UndeclaredIdentifier(id) => {
                             let msg = if id == "_" {
                                 "wildcard identifier cannot be used"
                             } else {
-                                &format!("undeclared symbol '{}'", id.bold())
+                                &format!("undeclared identifier {}", id.bold())
                             };
                             format_message(
                                 path,
@@ -93,25 +94,36 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                                 Color::Red,
                             )
                         },
+                        DeclarationErrorKind::RedefinedFunction(id) =>
+                            format_message(
+                                path,
+                                src,
+                                span,
+                                &label,
+                                &format!("duplicate function declaration of {}", id.bold()),
+                                Color::Red,
+                            ),
                         DeclarationErrorKind::ReservedIdentifier(id) =>
                             format_message(
                                 path,
                                 src,
                                 span,
                                 &label,
-                                &format!("reserved identifier '{}' cannot be used", id.bold()),
+                                &format!("reserved identifier {} cannot be used", id.bold()),
                                 Color::Red,
                             ),
-                        DeclarationErrorKind::WrongFunctionSignature { params_found, types_found } =>
+                        DeclarationErrorKind::FunctionSignatureMismatch { params_found, types_found } =>
                             format_message(
                                 path,
                                 src,
                                 span,
                                 &label,
                                 &format!(
-                                    "wrong function signature, found {} parameter(s) and {} type(s)",
-                                    params_found.to_string().bold(),
-                                    types_found.to_string().bold()
+                                    "wrong function signature, found {} parameter{} and {} type{}",
+                                    params_found,
+                                    if params_found > 1 { "s" } else { "" },
+                                    types_found,
+                                    if types_found > 1 { "s" } else { "" }
                                 ),
                                 Color::Red,
                             ),
@@ -131,7 +143,7 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                                 Color::Red,
                             )
                         }
-                        TypeErrorKind::WrongNumberOfArguments { found, expected } => {
+                        TypeErrorKind::ArgumentCountMismatch { found, expected } => {
                             format_message(
                                 path,
                                 src,
@@ -192,7 +204,7 @@ fn format_message(
 }
 
 fn add_syntax_hints(msg: &mut String, expected: Vec<String>) {
-    let hint = get_syntax_hint(msg.clone(), expected.clone());
+    let hint = get_syntax_hint(expected.clone());
     match hint {
         Some(hint) => {
             msg.push_str(&format!(
@@ -210,10 +222,7 @@ fn add_syntax_hints(msg: &mut String, expected: Vec<String>) {
         }
     }
 }
-fn get_syntax_hint(msg: String, expected: Vec<String>) -> Option<String> {
-    if msg.contains("unexpected end of input") {
-        return Some("do you have an extra semicolon at the end?".to_string());
-    }
+fn get_syntax_hint(expected: Vec<String>) -> Option<String> {
     let expected = expected
         .iter()
         .map(|e| e.trim_matches('"'))
@@ -226,6 +235,7 @@ fn get_syntax_hint(msg: String, expected: Vec<String>) -> Option<String> {
 
     // pairs of (token, hint) ordered by priority (highest to lowest)
     let token_hints = [
+        ("EOF", "do you have an extra semicolon at the end?"),
         ("->", "did you forget the return type in the function definition?"),
         (")", "did you forget a closing parenthesis?"),
         ("]", "did you forget a closing bracket?"),
@@ -288,32 +298,32 @@ pub fn format_warnings(
 fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str) -> String {
     let label = "Warning:".yellow().bold().to_string();
     match warning {
-        Warning::UnusedSymbol(sym) => {
+        Warning::UnusedIdentifier(sym) => {
             let mut msg = format_message(
                 path,
                 src,
                 sym.span.clone(),
                 &label,
-                &format!("unused symbol '{}'", sym.value.bold()),
+                &format!("unused identifier {}", sym.value.bold()),
                 Color::Yellow,
             );
             if !suppress_hints {
                 let hint = format!(
-                    "\n{} if this is intentional, prefix it with an underscore: '_{}'",
+                    "\n{} if this is intentional, prefix it with an underscore: {}",
                     "Hint:".cyan().bold(),
-                    sym.value.bold()
+                    format!("_{}", sym.value).bold()
                 );
                 msg.push_str(&hint);
             }
             msg
         },
-        Warning::DuplicateDeclaration(id) => {
+        Warning::RedefinedVariable(id) => {
             format_message(
                 path,
                 src,
                 id.span.clone(),
                 &label,
-                &format!("the symbol '{}' is redefined in the same scope", id.value.bold()),
+                &format!("the variable {} is redefined in the same scope", id.value.bold()),
                 Color::Yellow,
             )
         }

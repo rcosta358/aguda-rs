@@ -149,9 +149,10 @@ pub struct DeclarationError {
 
 #[derive(Debug, Clone)]
 pub enum DeclarationErrorKind {
-    UndeclaredSymbol(Id),
+    UndeclaredIdentifier(Id),
+    RedefinedFunction(Id),
     ReservedIdentifier(Id),
-    WrongFunctionSignature {
+    FunctionSignatureMismatch {
         params_found: usize,
         types_found: usize,
     },
@@ -160,7 +161,14 @@ pub enum DeclarationErrorKind {
 impl DeclarationError {
     pub fn undeclared_identifier(spanned: Spanned<Id>) -> Self {
         Self {
-            kind: DeclarationErrorKind::UndeclaredSymbol(spanned.value),
+            kind: DeclarationErrorKind::UndeclaredIdentifier(spanned.value),
+            span: spanned.span,
+        }
+    }
+
+    pub fn redefined_function(spanned: Spanned<Id>) -> Self {
+        Self {
+            kind: DeclarationErrorKind::RedefinedFunction(spanned.value),
             span: spanned.span,
         }
     }
@@ -172,9 +180,9 @@ impl DeclarationError {
         }
     }
 
-    pub fn wrong_function_signature(span: Span, params_found: usize, types_found: usize) -> Self {
+    pub fn function_signature_mismatch(span: Span, params_found: usize, types_found: usize) -> Self {
         Self {
-            kind: DeclarationErrorKind::WrongFunctionSignature {
+            kind: DeclarationErrorKind::FunctionSignatureMismatch {
                 params_found,
                 types_found,
             },
@@ -201,7 +209,7 @@ pub enum TypeErrorKind {
         found: Type,
         expected: Type,
     },
-    WrongNumberOfArguments {
+    ArgumentCountMismatch {
         found: usize,
         expected: usize,
     },
@@ -221,9 +229,9 @@ impl TypeError {
         }
     }
 
-    pub fn wrong_num_of_args(span: Span, found: usize, expected: usize) -> Self {
+    pub fn arg_count_mismatch(span: Span, found: usize, expected: usize) -> Self {
         Self {
-            kind: TypeErrorKind::WrongNumberOfArguments { found, expected },
+            kind: TypeErrorKind::ArgumentCountMismatch { found, expected },
             span,
         }
     }
@@ -251,6 +259,6 @@ impl From<TypeError> for CompileError {
 
 #[derive(Debug, Clone)]
 pub enum Warning {
-    UnusedSymbol(Spanned<Id>),
-    DuplicateDeclaration(Spanned<Id>),
+    UnusedIdentifier(Spanned<Id>),
+    RedefinedVariable(Spanned<Id>),
 }

@@ -76,14 +76,18 @@ impl SymbolTable {
         }
     }
 
-    pub fn declare(&mut self, id: Spanned<String>, ty: Type) {
+    // returns true if the identifier was declared
+    pub fn declare(&mut self, id: Spanned<String>, ty: Type) -> bool {
         if id.value == "_" {
             // wildcards are not declared (ignored)
-            return
+            return true
         }
         let mut scope = self.curr_scope.borrow_mut();
         if scope.symbols.contains_key(&id.value) { // duplicate declaration
-            self.warnings.push(Warning::DuplicateDeclaration(id.clone()));
+            if let Type::Fun(_) = ty {
+                return false
+            }
+            self.warnings.push(Warning::RedefinedVariable(id.clone()));
         }
         let symbol = Symbol {
             ty,
@@ -91,6 +95,7 @@ impl SymbolTable {
             used: false,
         };
         scope.symbols.insert(id.value, symbol);
+        true
     }
 
     pub fn lookup(&self, id: &str) -> Option<Type> {
@@ -119,7 +124,7 @@ impl SymbolTable {
         let curr = self.curr_scope.borrow();
         for (id, sym) in curr.symbols.iter() {
             if !sym.used {
-                all.push(Warning::UnusedSymbol(Spanned {
+                all.push(Warning::UnusedIdentifier(Spanned {
                     value: id.clone(),
                     span:  sym.span.clone(),
                 }));
@@ -139,7 +144,7 @@ impl SymbolTable {
 
         // add warnings
         for (id, sym) in unused_symbols.iter() {
-            let warning = Warning::UnusedSymbol(Spanned {
+            let warning = Warning::UnusedIdentifier(Spanned {
                 value: id.clone(),
                 span: sym.span.clone(),
             });
