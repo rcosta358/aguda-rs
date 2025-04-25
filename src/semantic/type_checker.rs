@@ -30,7 +30,7 @@ impl TypeChecker {
                     // function scope
                     self.symbols.enter_scope();
                     for (param_id, param_ty) in params.iter().zip(ty.params.iter()) {
-                        self.symbols.declare(param_id.clone(), param_ty.clone()).unwrap();
+                        let _ = self.symbols.declare(param_id.clone(), param_ty.clone());
                     }
                     self.check_against(expr, &ty.ret);
                     self.symbols.exit_scope();
@@ -49,16 +49,17 @@ impl TypeChecker {
         match &expr.value {
             Expr::Chain { lhs, rhs } => {
                 self.type_of(lhs);
+                if let Expr::Let { id, ty, .. } = &lhs.value {
+                    // declare the let binding in the scope
+                    self.symbols.declare(id.clone(), ty.value.clone());
+                }
                 self.type_of(rhs)
             }
-            Expr::Let { id, ty, expr } => {
+            Expr::Let { ty, expr, .. } => {
                 // let scope
                 self.symbols.enter_scope();
                 self.check_against(expr, &ty.value);
                 self.symbols.exit_scope();
-
-                // only declare after inner scope so it's not visible inside the let scope
-                self.symbols.declare(id.clone(), ty.value.clone()).unwrap();
                 Type::Unit
             }
             Expr::Set { lhs, expr } => {
@@ -90,7 +91,9 @@ impl TypeChecker {
                 Type::Bool
             }
             Expr::FunCall { id, args } => {
-                let fun_type = self.symbols.lookup(&id.value).unwrap();
+                let Some(fun_type) = self.symbols.lookup(&id.value) else {
+                    return Type::Any; // undeclared symbol, error already reported
+                };
                 if let Type::Fun(ty) = fun_type {
                     if ty.params.len() != args.len() {
                         self.errors.push(
@@ -148,7 +151,7 @@ impl TypeChecker {
                     Type::Any // avoid error propagation
                 }
             }
-            Expr::Id(id) => self.symbols.lookup(&id.value).unwrap(),
+            Expr::Id(id) => self.symbols.lookup(&id.value).unwrap_or(Type::Any),
             Expr::Int(_) => Type::Int,
             Expr::String(_) => Type::String,
             Expr::Bool(_) => Type::Bool,
@@ -158,9 +161,7 @@ impl TypeChecker {
 
     fn type_of_lhs(&mut self, lhs: &Spanned<Lhs>) -> Type {
         match &lhs.value {
-            Lhs::Var { id } => {
-                self.symbols.lookup(&id.value).unwrap()
-            }
+            Lhs::Var { id } => self.symbols.lookup(&id.value).unwrap_or(Type::Any),
             Lhs::Index { lhs, index } => {
                 let arr_type = self.type_of_lhs(lhs);
                 self.check_against(index, &Type::Int);

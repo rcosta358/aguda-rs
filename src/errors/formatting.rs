@@ -93,15 +93,6 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                                 Color::Red,
                             )
                         },
-                        DeclarationErrorKind::DuplicateDeclaration(id) =>
-                            format_message(
-                                path,
-                                src,
-                                span,
-                                &label,
-                                &format!("duplicate symbol '{}' in the same scope", id.bold()),
-                                Color::Red,
-                            ),
                         DeclarationErrorKind::ReservedIdentifier(id) =>
                             format_message(
                                 path,
@@ -230,7 +221,7 @@ fn get_syntax_hint(msg: String, expected: Vec<String>) -> Option<String> {
 
     // if all start with uppercase, then the parser expects a type
     if expected.iter().all(|e| e.chars().next().map_or(false, |c| c.is_uppercase())) {
-        return Some("did you forget the type?".to_string());
+        return Some("did you forget or misspell the type?".to_string());
     }
 
     // pairs of (token, hint) ordered by priority (highest to lowest)
@@ -303,11 +294,7 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
                 src,
                 sym.span.clone(),
                 &label,
-                &format!(
-                    "unused symbol '{}'",
-                    sym.value.bold(),
-
-                ),
+                &format!("unused symbol '{}'", sym.value.bold()),
                 Color::Yellow,
             );
             if !suppress_hints {
@@ -319,6 +306,16 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
                 msg.push_str(&hint);
             }
             msg
+        },
+        Warning::DuplicateDeclaration(id) => {
+            format_message(
+                path,
+                src,
+                id.span.clone(),
+                &label,
+                &format!("the symbol '{}' is redefined in the same scope", id.value.bold()),
+                Color::Yellow,
+            )
         }
     }
 }

@@ -76,14 +76,14 @@ impl SymbolTable {
         }
     }
 
-    pub fn declare(&mut self, id: Spanned<String>, ty: Type) -> Result<(), ()> {
+    pub fn declare(&mut self, id: Spanned<String>, ty: Type) {
         if id.value == "_" {
             // wildcards are not declared (ignored)
-            return Ok(());
+            return
         }
         let mut scope = self.curr_scope.borrow_mut();
-        if scope.symbols.contains_key(&id.value) {
-            return Err(()); // duplicate declaration
+        if scope.symbols.contains_key(&id.value) { // duplicate declaration
+            self.warnings.push(Warning::DuplicateDeclaration(id.clone()));
         }
         let symbol = Symbol {
             ty,
@@ -91,7 +91,6 @@ impl SymbolTable {
             used: false,
         };
         scope.symbols.insert(id.value, symbol);
-        Ok(())
     }
 
     pub fn lookup(&self, id: &str) -> Option<Type> {

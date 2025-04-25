@@ -122,6 +122,19 @@ pub enum SemanticError {
     Type(TypeError),
 }
 
+impl SemanticError {
+    pub fn from_both(
+        decl_errors: Vec<DeclarationError>,
+        type_errors: Vec<TypeError>
+    ) -> Vec<SemanticError> {
+        decl_errors
+            .into_iter()
+            .map(SemanticError::Declaration)
+            .chain(type_errors.into_iter().map(SemanticError::Type))
+            .collect()
+    }
+}
+
 impl From<SemanticError> for CompileError {
     fn from(e: SemanticError) -> Self {
         CompileError::Semantic(e)
@@ -137,7 +150,6 @@ pub struct DeclarationError {
 #[derive(Debug, Clone)]
 pub enum DeclarationErrorKind {
     UndeclaredSymbol(Id),
-    DuplicateDeclaration(Id),
     ReservedIdentifier(Id),
     WrongFunctionSignature {
         params_found: usize,
@@ -149,13 +161,6 @@ impl DeclarationError {
     pub fn undeclared_identifier(spanned: Spanned<Id>) -> Self {
         Self {
             kind: DeclarationErrorKind::UndeclaredSymbol(spanned.value),
-            span: spanned.span,
-        }
-    }
-
-    pub fn duplicate_declaration(spanned: Spanned<Id>) -> Self {
-        Self {
-            kind: DeclarationErrorKind::DuplicateDeclaration(spanned.value),
             span: spanned.span,
         }
     }
@@ -247,4 +252,5 @@ impl From<TypeError> for CompileError {
 #[derive(Debug, Clone)]
 pub enum Warning {
     UnusedSymbol(Spanned<Id>),
+    DuplicateDeclaration(Spanned<Id>),
 }

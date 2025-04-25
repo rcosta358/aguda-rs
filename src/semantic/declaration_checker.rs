@@ -16,7 +16,7 @@ impl DeclarationChecker {
         }
     }
 
-    pub fn check(&mut self, prog: &Program) -> Result<(SymbolTable, Vec<Warning>), Vec<DeclarationError>> {
+    pub fn check(&mut self, prog: &Program) -> (SymbolTable, Vec<DeclarationError>, Vec<Warning>) {
         // declare functions first to allow mutually recursive function calls
         for decl in &prog.decls {
             self.declare_fun_decl(&decl.value.clone());
@@ -35,12 +35,7 @@ impl DeclarationChecker {
             };
             self.symbols.lookup(id); // lookup to mark as used
         }
-
-        if self.errors.is_empty() {
-            Ok((self.symbols.clone(), self.symbols.get_warnings()))
-        } else {
-            Err(self.errors.clone())
-        }
+        (self.symbols.clone(), self.errors.clone(), self.symbols.get_warnings())
     }
 
     fn declare_fun_decl(&mut self, decl: &Decl) {
@@ -58,9 +53,7 @@ impl DeclarationChecker {
                     self.errors.push(DeclarationError::reserved_identifier(param_id.clone()));
                 }
             }
-            if self.symbols.declare(id.clone(), Type::Fun(ty.clone())).is_err() {
-                self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
-            }
+            self.symbols.declare(id.clone(), Type::Fun(ty.clone()));
         }
     }
 
@@ -76,17 +69,13 @@ impl DeclarationChecker {
                 self.symbols.exit_scope();
 
                 // only declare after inner scope so it's not visible inside the let scope
-                if self.symbols.declare(id.clone(), ty.value.clone()).is_err() {
-                    self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
-                }
+                self.symbols.declare(id.clone(), ty.value.clone());
             }
             Decl::Fun { params, ty, expr, .. } => {
                 // function scope
                 self.symbols.enter_scope();
                 for (param_id, param_ty) in params.iter().zip(ty.params.iter()) {
-                    if self.symbols.declare(param_id.clone(), param_ty.clone()).is_err() {
-                        self.errors.push(DeclarationError::duplicate_declaration(param_id.clone()));
-                    }
+                    self.symbols.declare(param_id.clone(), param_ty.clone());
                 }
                 self.check_expr(&expr.value);
                 self.symbols.exit_scope();
@@ -98,9 +87,13 @@ impl DeclarationChecker {
         match expr {
             Expr::Chain { lhs, rhs } => {
                 self.check_expr(&lhs.value);
+                if let Expr::Let { id, ty, .. } = &lhs.value {
+                    // declare the let binding in the scope
+                    self.symbols.declare(id.clone(), ty.value.clone());
+                }
                 self.check_expr(&rhs.value);
             }
-            Expr::Let { id, ty, expr } => {
+            Expr::Let { id, expr, .. } => {
                 if RESERVED_IDENTIFIERS.contains(&id.value) {
                     self.errors.push(DeclarationError::reserved_identifier(id.clone()));
                 }
@@ -108,11 +101,6 @@ impl DeclarationChecker {
                 self.symbols.enter_scope();
                 self.check_expr(&expr.value);
                 self.symbols.exit_scope();
-
-                // only declare after inner scope so it's not visible inside the let scope
-                if self.symbols.declare(id.clone(), ty.value.clone()).is_err() {
-                    self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
-                }
             }
             Expr::Set { lhs, expr } => {
                 self.check_lhs(&lhs.value);
