@@ -25,18 +25,23 @@ This will also regenerate the parser with the [grammar file](./src/grammar.lalrp
 
 ### Command Line Arguments
 
-| Option                     | Description                     | Default     |
-|----------------------------|---------------------------------|-------------|
-| `-f`, `--file <...>`       | Path to the source `.agu` file  | `main.agu`  |
-| `-m`, `--max-errors <...>` | Max number of errors to display | `10`        |
-| `--suppress-ast`           | Skip printing the AST to stdout |             |
-| `-h`, `--help`             | Show help message               |             |
-| `-V`, `--version`          | Show version information        |             |
+| Option                          | Description                                               | Default    |
+|---------------------------------|-----------------------------------------------------------|------------|
+| `-f, --file <FILE>`             | Path to the source .agu file                              | `main.agu` |
+| `--max-errors <MAX_ERRORS>`     | Maximum number of errors to display                       | `5`        |
+| `--max-warnings <MAX_WARNINGS>` | Maximum number of warnings to display                     | `5`        |
+| `--suppress-errors`             | Suppress errors in the output                             |            |
+| `--suppress-warnings`           | Suppress warnings in the output                           |            |
+| `--suppress-hints`              | Suppress hints in the output                              |            |
+| `--suppress-ast`                | Suppress the textual representation of the AST in output  |            |
+| `--suppress-all`                | Suppress all output                                       |            |
+| `-h, --help`                    | Print help                                                |            |
+| `-V, --version`                 | Print version                                             |            |
 
 Example usage:
 
 ```sh
-docker run aguda-rs cargo run -- --file hello.agu --max-errors 5 --suppress-ast
+docker run aguda-rs cargo run -- --file hello.agu --max-errors 10 --suppress-ast
 ```
 
 #### Running the Tests

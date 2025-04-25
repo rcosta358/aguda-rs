@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use aguda_rs::compile_aguda_program;
-use aguda_rs::errors::formatting::format_compile_errors;
+use aguda_rs::errors::formatting::format_errors;
 
 #[test]
 fn test_parser() {
@@ -80,6 +80,6 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<(), String> {
     let result = compile_aguda_program(&src);
     match result {
         Ok(_) => Ok(()),
-        Err(e) => Err(format_compile_errors(e, 1, &agu_path.to_string_lossy(), &src))
+        Err(e) => Err(format_errors(e, 1, true, &agu_path.to_string_lossy(), &src))
     }
 }

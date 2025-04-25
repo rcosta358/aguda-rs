@@ -13,15 +13,27 @@ pub struct Cli {
     #[arg(long, default_value_t = 5)]
     pub max_errors: usize,
 
-    /// Skip printing the AST to stdout
-    #[arg(long, default_value_t = false)]
-    pub suppress_ast: bool,
-
-    /// Skip printing the warnings to stdout
-    #[arg(long, default_value_t = false)]
-    pub suppress_warnings: bool,
-
     /// Maximum number of warnings to display
     #[arg(long, default_value_t = 5)]
     pub max_warnings: usize,
+
+    /// Suppress errors in the output
+    #[arg(long, default_value_t = false)]
+    pub suppress_errors: bool,
+
+    /// Suppress warnings in the output
+    #[arg(long, default_value_t = false)]
+    pub suppress_warnings: bool,
+
+    /// Suppress hints in the output
+    #[arg(long, default_value_t = false)]
+    pub suppress_hints: bool,
+
+    /// Suppress the textual representation of the AST in the output
+    #[arg(long, default_value_t = false)]
+    pub suppress_ast: bool,
+
+    /// Suppress all output
+    #[arg(long, default_value_t = false)]
+    pub suppress_all: bool,
 }

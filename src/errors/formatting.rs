@@ -1,11 +1,13 @@
+use std::collections::HashSet;
 use colored::{Color, Colorize};
 use crate::errors::*;
 use crate::syntax::ast::Span;
 use crate::utils::get_position_in_src;
 
-pub fn format_compile_errors(
+pub fn format_errors(
     errors: Vec<CompileError>,
     max_errors: usize,
+    suppress_hints: bool,
     file: &str,
     src: &str
 ) -> String {
@@ -13,7 +15,7 @@ pub fn format_compile_errors(
     let (display_errors, suppressed_errors) = errors.split_at(split_index);
     let mut errors_str = display_errors
         .iter()
-        .map(|e| format_compile_err(e, &file, &src))
+        .map(|e| format_error(e, suppress_hints, &file, &src))
         .collect::<Vec<_>>()
         .join("\n");
     if suppressed_errors.len() > 0 {
@@ -22,7 +24,7 @@ pub fn format_compile_errors(
     errors_str
 }
 
-fn format_compile_err(e: &CompileError, path: &str, src: &str) -> String {
+fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -> String {
     match e {
         CompileError::Lexical(e) => {
             let label = "Lexical Error:";
@@ -50,12 +52,18 @@ fn format_compile_err(e: &CompileError, path: &str, src: &str) -> String {
             let span = e.span.clone();
             match e.kind.clone() {
                 SyntaxErrorKind::UnexpectedToken(expected) => {
-                    let mut str = format_message(path, src, span, &label, "unexpected token", Color::Red);
-                    append_expected(&mut str, expected)
+                    let mut msg = format_message(path, src, span, &label, "unexpected token", Color::Red);
+                    if !suppress_hints {
+                        add_syntax_hints(&mut msg, expected);
+                    }
+                    msg
                 }
                 SyntaxErrorKind::UnexpectedEof(expected) => {
-                    let mut str = format_message(path, src, span, &label, "unexpected end of input", Color::Red);
-                    append_expected(&mut str, expected)
+                    let mut msg = format_message(path, src, span, &label, "unexpected end of input", Color::Red);
+                    if !suppress_hints {
+                        add_syntax_hints(&mut msg, expected);
+                    }
+                    msg
                 }
                 SyntaxErrorKind::InvalidToken => {
                     format_message(path, src, span, &label, "invalid token", Color::Red)
@@ -193,13 +201,61 @@ fn format_message(
     )
 }
 
-fn append_expected(msg: &mut String, expected: Vec<String>) -> String {
-    msg.push_str(&format!(
-        "\n{} {}",
-        "Expected:".bold(),
-        expected.join(", ")
-    ));
-    msg.clone()
+fn add_syntax_hints(msg: &mut String, expected: Vec<String>) {
+    let hint = get_syntax_hint(msg.clone(), expected.clone());
+    match hint {
+        Some(hint) => {
+            msg.push_str(&format!(
+                "\n{} {}",
+                "Hint:".cyan().bold(),
+                hint
+            ));
+        }
+        None => {
+            msg.push_str(&format!(
+                "\n{} {}",
+                "Expected:".cyan().bold(),
+                expected.join(", ")
+            ));
+        }
+    }
+}
+fn get_syntax_hint(msg: String, expected: Vec<String>) -> Option<String> {
+    if msg.contains("unexpected end of input") {
+        return Some("do you have an extra semicolon at the end?".to_string());
+    }
+    let expected = expected
+        .iter()
+        .map(|e| e.trim_matches('"'))
+        .collect::<Vec<_>>();
+
+    // if all start with uppercase, then the parser expects a type
+    if expected.iter().all(|e| e.chars().next().unwrap().map(|c| c.is_uppercase())) {
+        return Some("did you forget the type?".to_string());
+    }
+
+    // pairs of (token, hint) ordered by priority (highest to lowest)
+    let token_hints = [
+        ("->", "did you forget the return type in the function definition?"),
+        (")", "did you forget a closing parenthesis?"),
+        ("]", "did you forget a closing bracket?"),
+        ("then", "did you forget a 'then' after your if condition?"),
+        ("do", "did you forget a 'do' after your while condition?"),
+        ("id", "did you forget a variable, a parameter or a function name?"),
+        (":", "did you forget the type annotation?"),
+        (",", "did you forget a comma?"),
+        (";", "did you forget a semicolon?")
+    ];
+
+    // iterate over hints and return the first one that matches
+    for &(token, hint) in &token_hints {
+        if expected.contains(&token) {
+            return Some(hint.to_string());
+        }
+    }
+
+    // no hint found
+    None
 }
 
 fn get_error_line(
@@ -222,6 +278,7 @@ fn get_error_line(
 pub fn format_warnings(
     warnings: Vec<Warning>,
     max_warnings: usize,
+    suppress_hints: bool,
     file: &str,
     src: &str
 ) -> String {
@@ -229,7 +286,7 @@ pub fn format_warnings(
     let (display_warnings, suppressed_warnings) = warnings.split_at(split_index);
     let mut warnings_str = display_warnings
         .iter()
-        .map(|w| format_warning(w, &file, &src))
+        .map(|w| format_warning(w, suppress_hints, &file, &src))
         .collect::<Vec<_>>()
         .join("\n");
     if suppressed_warnings.len() > 0 {
@@ -238,19 +295,31 @@ pub fn format_warnings(
     warnings_str
 }
 
-fn format_warning(w: &Warning, path: &str, src: &str) -> String {
-    match w {
+fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str) -> String {
+    let label = "Warning:".yellow().bold().to_string();
+    match warning {
         Warning::UnusedSymbol(sym) => {
-            let label = "Warning:".yellow().bold().to_string();
-            let span = sym.span.clone();
-            format_message(
+            let mut msg = format_message(
                 path,
                 src,
-                span,
+                sym.span.clone(),
                 &label,
-                &format!("unused symbol '{}'", sym.value.bold()),
+                &format!(
+                    "unused symbol '{}'",
+                    sym.value.bold(),
+
+                ),
                 Color::Yellow,
-            )
+            );
+            if !suppress_hints {
+                let hint = format!(
+                    "\n{} if this is intentional, prefix it with an underscore: '_{}'",
+                    "Hint:".cyan().bold(),
+                    sym.value.bold()
+                );
+                msg.push_str(&hint);
+            }
+            msg
         }
     }
 }

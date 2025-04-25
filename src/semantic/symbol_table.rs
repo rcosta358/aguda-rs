@@ -134,7 +134,7 @@ impl SymbolTable {
         // collect all unused symbols in the current scope
         let unused_symbols: Vec<(Id, Symbol)> = scope.symbols
             .iter()
-            .filter(|(_, symbol)| !symbol.used)
+            .filter(|(id, symbol)| !symbol.used && !id.starts_with("_"))
             .map(|(id, symbol)| (id.clone(), symbol.clone()))
             .collect();
 
