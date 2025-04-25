@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use colored::{Color, Colorize};
 use crate::errors::*;
 use crate::syntax::ast::Span;
@@ -230,7 +229,7 @@ fn get_syntax_hint(msg: String, expected: Vec<String>) -> Option<String> {
         .collect::<Vec<_>>();
 
     // if all start with uppercase, then the parser expects a type
-    if expected.iter().all(|e| e.chars().next().unwrap().map(|c| c.is_uppercase())) {
+    if expected.iter().all(|e| e.chars().next().map_or(false, |c| c.is_uppercase())) {
         return Some("did you forget the type?".to_string());
     }
 
