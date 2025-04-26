@@ -282,8 +282,8 @@ fn get_syntax_hint(expected: Vec<String>) -> Option<String> {
         .map(|e| e.trim_matches('"'))
         .collect::<Vec<_>>();
 
-    // if all start with uppercase, then the parser expects a type
-    if expected.iter().all(|e| e.chars().next().map_or(false, |c| c.is_uppercase())) {
+    // if any starts with an uppercase, then the parser expects a type
+    if expected.iter().any(|e| e.chars().next().map_or(false, |c| c.is_uppercase())) {
         return Some("did you forget or misspell the type?".to_string());
     }
 
@@ -362,7 +362,7 @@ lazy_static! {
         ("]", "did you forget a closing bracket?"),
         ("then", "did you forget a 'then' after your if condition?"),
         ("do", "did you forget a 'do' after your while condition?"),
-        ("id", "did you forget a variable, a parameter or a function name?"),
+        ("id", "did you forget an identifier?"),
         (":", "did you forget the type annotation?"),
         (",", "did you forget a comma?"),
         (";", "did you forget a semicolon?")

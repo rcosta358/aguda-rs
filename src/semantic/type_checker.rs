@@ -81,7 +81,8 @@ impl TypeChecker {
                     }
                     OpType::Comparison => {
                         let left_type = self.type_of(lhs);
-                        self.check_against(rhs, &left_type);
+                        let right_type = self.type_of(rhs);
+                        self.check_equal(&left_type, &right_type, &span);
                         Type::Bool
                     }
                 }

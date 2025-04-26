@@ -83,6 +83,6 @@ After the declaration checking is done, if there are no errors, since the declar
 The type checker is implemented with bidirectional type checking, with `type_of` and `check_against`.
 The `type_of` function synthesizes the type of an expression and the `check_against` analyzes it by checking it against the expected type.
 The `check_against` function only has three cases: one for the `Any` type, another for an `Any[]` type and another for all other cases, which must match the expected type exactly.
-There is an extra function `check_equal`, which compares two types and is only used in the if expression, in order to provide a better error message when the types of the then and else branches don't match.
+There is an extra function `check_equal`, which compares two types, in order to provide better error messages when two types that should match don't, for example in if expressions and in comparisons.
 
 The type checker's implementation is in [`type_checker.rs`](./src/semantic/type_checker.rs).
