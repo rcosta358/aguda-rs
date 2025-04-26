@@ -1,7 +1,8 @@
 use crate::errors::{DeclarationError, Warning};
 use crate::semantic::RESERVED_IDENTIFIERS;
-use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type};
+use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type, Id, Spanned};
 use crate::semantic::symbol_table::SymbolTable;
+use crate::utils::suggest_similar;
 
 pub struct DeclarationChecker {
     symbols: SymbolTable,
@@ -116,9 +117,7 @@ impl DeclarationChecker {
                 self.check_expr(&expr.value)
             },
             Expr::FunCall { id, args } => {
-                if self.symbols.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::undeclared_identifier(id.clone()));
-                }
+                self.check_id(id);
                 for arg in args {
                     self.check_expr(&arg.value);
                 }
@@ -152,26 +151,26 @@ impl DeclarationChecker {
                 self.check_lhs(&lhs.value);
                 self.check_expr(&index.value);
             }
-            Expr::Id(id) => {
-                if self.symbols.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::undeclared_identifier(id.clone()));
-                }
-            }
+            Expr::Id(id) => self.check_id(id),
             Expr::Int(_) | Expr::Bool(_) | Expr::String(_) | Expr::Unit => {}
         }
     }
 
     fn check_lhs(&mut self, lhs: &Lhs) {
         match lhs {
-            Lhs::Var { id } => {
-                if self.symbols.lookup(&id.value).is_none() {
-                    self.errors.push(DeclarationError::undeclared_identifier(id.clone()));
-                }
-            }
+            Lhs::Var { id } => self.check_id(id),
             Lhs::Index { lhs, index } => {
                 self.check_lhs(&lhs.value);
                 self.check_expr(&index.value);
             }
+        }
+    }
+
+    fn check_id(&mut self, id: &Spanned<Id>) {
+        if self.symbols.lookup(&id.value).is_none() {
+            let all_symbols = self.symbols.get_visible_symbols();
+            let similar = suggest_similar(all_symbols, &id.value);
+            self.errors.push(DeclarationError::undeclared_identifier(id.clone(), similar));
         }
     }
 }

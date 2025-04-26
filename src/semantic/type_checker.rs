@@ -191,18 +191,21 @@ impl TypeChecker {
                     _ => {
                         // not an array
                         self.errors.push(
-                            TypeError::type_mismatch(expr.span.clone(), found, expected.clone())
+                            TypeError::type_mismatch(expr.span.clone(), found, expected.clone(), None)
                         );
                     }
                 }
             }
             // all other cases must match exactly
             _ => {
-                if &found != expected {
-                    self.errors.push(
-                        TypeError::type_mismatch(expr.span.clone(), found, expected.clone())
-                    );
+                if &found == expected {
+                    return; // types match
                 }
+                let extra = match expr.value {
+                    Expr::IfElse { .. } => Some("'then' and 'else' branches must have the same type".to_string()),
+                    _ => None,
+                };
+                self.errors.push(TypeError::type_mismatch(expr.span.clone(), found, expected.clone(), extra));
             }
         }
     }

@@ -1,4 +1,5 @@
 use colored::{Color, Colorize};
+use lazy_static::lazy_static;
 use crate::errors::*;
 use crate::syntax::ast::Span;
 use crate::utils::get_position_in_src;
@@ -18,7 +19,9 @@ pub fn format_errors(
         .collect::<Vec<_>>()
         .join("\n");
     if suppressed_errors.len() > 0 {
-        errors_str.push_str(&format!("\n  (+{} more errors)", suppressed_errors.len()).red().bold().to_string());
+        errors_str.push_str(
+            &format!("\n  (+{} more errors)", suppressed_errors.len()).red().bold().to_string()
+        );
     }
     errors_str
 }
@@ -79,20 +82,30 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                     let label = "Declaration Error:";
                     let span = e.span.clone();
                     match e.kind.clone() {
-                        DeclarationErrorKind::UndeclaredIdentifier(id) => {
+                        DeclarationErrorKind::UndeclaredIdentifier(id, similar) => {
                             let msg = if id == "_" {
                                 "wildcard identifier cannot be used"
                             } else {
                                 &format!("undeclared identifier {}", id.bold())
                             };
-                            format_message(
+                            let mut msg = format_message(
                                 path,
                                 src,
                                 span,
                                 &label,
                                 msg,
                                 Color::Red,
-                            )
+                            );
+                            if !suppress_hints {
+                                if let Some(similar) = similar {
+                                    msg.push_str(&format!(
+                                        "\n{} did you mean {}?",
+                                        "Hint:".cyan().bold(),
+                                        similar.bold()
+                                    ));
+                                }
+                            }
+                            msg
                         },
                         DeclarationErrorKind::RedefinedFunction(id) =>
                             format_message(
@@ -133,15 +146,35 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                     let label = "Type Error:";
                     let span = e.span.clone();
                     match e.kind.clone() {
-                        TypeErrorKind::TypeMismatch { found, expected } => {
-                            format_message(
+                        TypeErrorKind::TypeMismatch { found, expected, extra } => {
+                            let mut msg = format_message(
                                 path,
                                 src,
-                                span,
+                                span.clone(),
                                 &label,
-                                &format!("type mismatch, found {}, expected {}", found.to_text().bold(), expected.to_text().bold()),
+                                &format!(
+                                    "{}, found {}, expected {}",
+                                    extra.unwrap_or("type mismatch".to_string()),
+                                    found.to_text().bold(),
+                                    expected.to_text().bold()
+                                ),
                                 Color::Red,
-                            )
+                            );
+                            if !suppress_hints {
+                                let length = span.end - span.start;
+                                if length == 0 {
+                                    // spanning token that does not exist in the source code
+                                    // so, it has to refer to 'else unit' in an if expression
+                                    msg.push_str(
+                                        &format!(
+                                            "\n{} when using an if expression without an 'else' branch, the 'then' branch must be of type {}",
+                                            "Hint:".cyan().bold(),
+                                            "Unit".bold()
+                                        )
+                                    )
+                                }
+                            }
+                            msg
                         }
                         TypeErrorKind::ArgumentCountMismatch { found, expected } => {
                             format_message(
@@ -203,6 +236,23 @@ fn format_message(
     )
 }
 
+fn get_error_line(
+    source: &str,
+    pos: (usize, usize),
+    length: usize,
+    color: Color,
+) -> String {
+    let (line, col) = pos;
+    let line_str = source.lines().nth(line - 1).unwrap_or("");
+    let remaining = line_str.len().saturating_sub(col.saturating_sub(1));
+    format!(
+        "{}\n\t{}{}",
+        line_str,
+        " ".repeat(col.saturating_sub(1)),
+        "^".repeat(length.min(remaining)).color(color).bold(),
+    )
+}
+
 fn add_syntax_hints(msg: &mut String, expected: Vec<String>) {
     let hint = get_syntax_hint(expected.clone());
     match hint {
@@ -233,22 +283,8 @@ fn get_syntax_hint(expected: Vec<String>) -> Option<String> {
         return Some("did you forget or misspell the type?".to_string());
     }
 
-    // pairs of (token, hint) ordered by priority (highest to lowest)
-    let token_hints = [
-        ("EOF", "do you have an extra semicolon at the end?"),
-        ("->", "did you forget the return type in the function definition?"),
-        (")", "did you forget a closing parenthesis?"),
-        ("]", "did you forget a closing bracket?"),
-        ("then", "did you forget a 'then' after your if condition?"),
-        ("do", "did you forget a 'do' after your while condition?"),
-        ("id", "did you forget a variable, a parameter or a function name?"),
-        (":", "did you forget the type annotation?"),
-        (",", "did you forget a comma?"),
-        (";", "did you forget a semicolon?")
-    ];
-
     // iterate over hints and return the first one that matches
-    for &(token, hint) in &token_hints {
+    for &(token, hint) in TOKEN_HINTS.iter() {
         if expected.contains(&token) {
             return Some(hint.to_string());
         }
@@ -256,23 +292,6 @@ fn get_syntax_hint(expected: Vec<String>) -> Option<String> {
 
     // no hint found
     None
-}
-
-fn get_error_line(
-    source: &str,
-    pos: (usize, usize),
-    length: usize,
-    color: Color,
-) -> String {
-    let (line, col) = pos;
-    let line_str = source.lines().nth(line - 1).unwrap_or("");
-    let remaining = line_str.len().saturating_sub(col.saturating_sub(1));
-    format!(
-        "{}\n\t{}{}",
-        line_str,
-        " ".repeat(col.saturating_sub(1)),
-        "^".repeat(length.min(remaining)).color(color).bold(),
-    )
 }
 
 pub fn format_warnings(
@@ -328,4 +347,20 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
             )
         }
     }
+}
+
+lazy_static! {
+    // pairs of (token, hint) ordered by priority (highest to lowest)
+    static ref TOKEN_HINTS: [(& 'static str, & 'static str); 10] = [
+        ("EOF", "do you have an extra semicolon at the end?"),
+        ("->", "did you forget the return type in the function definition?"),
+        (")", "did you forget a closing parenthesis?"),
+        ("]", "did you forget a closing bracket?"),
+        ("then", "did you forget a 'then' after your if condition?"),
+        ("do", "did you forget a 'do' after your while condition?"),
+        ("id", "did you forget a variable, a parameter or a function name?"),
+        (":", "did you forget the type annotation?"),
+        (",", "did you forget a comma?"),
+        (";", "did you forget a semicolon?")
+    ];
 }

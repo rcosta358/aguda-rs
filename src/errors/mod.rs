@@ -149,7 +149,7 @@ pub struct DeclarationError {
 
 #[derive(Debug, Clone)]
 pub enum DeclarationErrorKind {
-    UndeclaredIdentifier(Id),
+    UndeclaredIdentifier(Id, Option<Id>),
     RedefinedFunction(Id),
     ReservedIdentifier(Id),
     FunctionSignatureMismatch {
@@ -159,9 +159,9 @@ pub enum DeclarationErrorKind {
 }
 
 impl DeclarationError {
-    pub fn undeclared_identifier(spanned: Spanned<Id>) -> Self {
+    pub fn undeclared_identifier(spanned: Spanned<Id>, similar: Option<Id>) -> Self {
         Self {
-            kind: DeclarationErrorKind::UndeclaredIdentifier(spanned.value),
+            kind: DeclarationErrorKind::UndeclaredIdentifier(spanned.value, similar),
             span: spanned.span,
         }
     }
@@ -208,6 +208,7 @@ pub enum TypeErrorKind {
     TypeMismatch {
         found: Type,
         expected: Type,
+        extra: Option<String>,
     },
     ArgumentCountMismatch {
         found: usize,
@@ -222,9 +223,9 @@ pub enum TypeErrorKind {
 }
 
 impl TypeError {
-    pub fn type_mismatch(span: Span, found: Type, expected: Type) -> Self {
+    pub fn type_mismatch(span: Span, found: Type, expected: Type, extra: Option<String>) -> Self {
         Self {
-            kind: TypeErrorKind::TypeMismatch { found, expected },
+            kind: TypeErrorKind::TypeMismatch { found, expected, extra },
             span,
         }
     }

@@ -39,7 +39,7 @@ impl SymbolTable {
                     span: Span::default(),
                     used: true,
                 };
-                (id, symbol)
+                (id.to_string(), symbol)
             })
             .collect::<HashMap<_, _>>();
         let root = Rc::new(RefCell::new(Scope {
@@ -114,6 +114,21 @@ impl SymbolTable {
             scope_opt = scope.parent.clone();
         }
         None
+    }
+
+    pub fn get_visible_symbols(&self) -> Vec<Id> {
+        let mut names = Vec::new();
+        let mut scope_opt = Some(self.curr_scope.clone());
+        while let Some(scope_ref) = scope_opt {
+            let scope = scope_ref.borrow();
+            for name in scope.symbols.keys() {
+                names.push(name.clone());
+            }
+            scope_opt = scope.parent.clone();
+        }
+        names.sort();
+        names.dedup();
+        names
     }
 
     pub fn get_warnings(&self) -> Vec<Warning> {

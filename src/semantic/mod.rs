@@ -6,10 +6,10 @@ pub mod declaration_checker;
 pub mod type_checker;
 
 lazy_static! {
-    pub static ref INIT_SYMBOLS: [(String, Type); 2] = [
+    pub static ref INIT_SYMBOLS: [(&'static str, Type); 2] = [
         (
             // print: Any -> Unit
-            "print".to_string(),
+            "print",
             Type::Fun(
                 FunType {
                     params: vec![Type::Any],
@@ -19,7 +19,7 @@ lazy_static! {
         ),
         (
             // length: Any[] -> Int
-            "length".to_string(),
+            "length",
             Type::Fun(
                 FunType {
                     params: vec![Type::Array(Box::new(Type::Any))],
@@ -29,5 +29,5 @@ lazy_static! {
         ),
     ];
     pub static ref RESERVED_IDENTIFIERS: Vec<String> =
-        INIT_SYMBOLS.iter().map(|s| s.0.clone()).collect::<Vec<_>>();
+        INIT_SYMBOLS.iter().map(|s| s.0.to_string()).collect::<Vec<_>>();
 }

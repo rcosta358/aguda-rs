@@ -1,5 +1,7 @@
 use std::fs;
 use std::path::Path;
+use strsim::levenshtein;
+use crate::syntax::ast::Id;
 
 pub fn read_source_file(file: &str) -> Result<String, String> {
     if file.is_empty() || !file.ends_with(".agu") {
@@ -38,4 +40,16 @@ pub fn get_position_in_src(source: &str, index: usize) -> (usize, usize) {
 
 pub fn indent(level: usize) -> String {
     "  ".repeat(level)
+}
+
+pub fn suggest_similar(symbols: Vec<Id>, name: &str) -> Option<String> {
+    symbols
+        .iter()
+        .map(|id| (id, levenshtein(name, id)))
+        .min_by_key(|&(_, dist)| dist)
+        .and_then(|(best, dist)| if dist <= 2 {
+            Some(best.to_string())
+        } else {
+            None
+        })
 }

@@ -10,6 +10,7 @@ lalrpop-util = "0.22.1"
 lazy_static = "1.5.0"
 colored = "3.0.0"
 clap = { version = "4", features = ["derive"] }
+strsim = "0.11.1"
 
 [build-dependencies]
 lalrpop = "0.22.1"
