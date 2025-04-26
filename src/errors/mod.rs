@@ -208,8 +208,8 @@ pub enum TypeErrorKind {
     TypeMismatch {
         found: Type,
         expected: Type,
-        extra: Option<String>,
     },
+    IncompatibleTypes(Type, Type),
     ArgumentCountMismatch {
         found: usize,
         expected: usize,
@@ -223,9 +223,16 @@ pub enum TypeErrorKind {
 }
 
 impl TypeError {
-    pub fn type_mismatch(span: Span, found: Type, expected: Type, extra: Option<String>) -> Self {
+    pub fn type_mismatch(span: Span, found: Type, expected: Type) -> Self {
         Self {
-            kind: TypeErrorKind::TypeMismatch { found, expected, extra },
+            kind: TypeErrorKind::TypeMismatch { found, expected },
+            span,
+        }
+    }
+
+    pub fn expected_equal_types(span: Span, lhs: Type, rhs: Type) -> Self {
+        Self {
+            kind: TypeErrorKind::IncompatibleTypes(lhs, rhs),
             span,
         }
     }

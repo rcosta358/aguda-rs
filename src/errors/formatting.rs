@@ -146,34 +146,38 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                     let label = "Type Error:";
                     let span = e.span.clone();
                     match e.kind.clone() {
-                        TypeErrorKind::TypeMismatch { found, expected, extra } => {
-                            let mut msg = format_message(
+                        TypeErrorKind::TypeMismatch { found, expected } => {
+                            format_message(
                                 path,
                                 src,
                                 span.clone(),
                                 &label,
                                 &format!(
-                                    "{}, found {}, expected {}",
-                                    extra.unwrap_or("type mismatch".to_string()),
+                                    "type mismatch, found {}, expected {}",
                                     found.to_text().bold(),
                                     expected.to_text().bold()
                                 ),
                                 Color::Red,
+                            )
+                        }
+                        TypeErrorKind::IncompatibleTypes(lhs, rhs) => {
+                            let mut msg = format_message(
+                                path,
+                                src,
+                                span,
+                                &label,
+                                &format!("expected equal types, found {} and {}", lhs.to_text().bold(), rhs.to_text().bold()),
+                                Color::Red,
                             );
-                            if !suppress_hints {
-                                let length = span.end - span.start;
-                                if length == 0 {
-                                    // spanning token that does not exist in the source code
-                                    // so, it has to refer to 'else unit' in an if expression
-                                    msg.push_str(
-                                        &format!(
-                                            "\n{} when using an if expression without an 'else' branch, the 'then' branch must be of type {}",
-                                            "Hint:".cyan().bold(),
-                                            "Unit".bold()
-                                        )
+                            if !suppress_hints && rhs == Type::Unit {
+                                msg.push_str(
+                                    &format!(
+                                        "\n{} when using an if expression without an 'else' branch, the 'then' branch must be of type {}",
+                                        "Hint:".cyan().bold(),
+                                        "Unit".bold()
                                     )
-                                }
-                            }
+                                )
+                            };
                             msg
                         }
                         TypeErrorKind::ArgumentCountMismatch { found, expected } => {

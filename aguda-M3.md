@@ -80,8 +80,9 @@ The symbol table's implementation is in [`symbol_table.rs`](./src/semantic/symbo
 
 After the declaration checking is done, if there are no errors, since the declaration checking still contains the global declarations and the `print` and `length` functions in the symbol table, it is then reused for the type checking, which will have a jump start in the analysis. 
 
-The type checker is implemented with bidirectional type checking, with `type_of` and `check_against`. However, it's not the conventional synthethize and analyze. 
-The `type_of` function both synthesizes the type of an expression and analyzes it by checking it against the expected type using the `check_against` function.
-This means that errors can be sufficiently precise without needing to repeat the pattern matching of each expression node twice, both in `type_of` and `check_against`. So, the `check_against` function only has three cases: one for the `Any` type, another for an `Any[]` type and another for all other cases, which must match the expected type exactly.
+The type checker is implemented with bidirectional type checking, with `type_of` and `check_against`.
+The `type_of` function synthesizes the type of an expression and the `check_against` analyzes it by checking it against the expected type.
+The `check_against` function only has three cases: one for the `Any` type, another for an `Any[]` type and another for all other cases, which must match the expected type exactly.
+There is an extra function `check_equal`, which compares two types and is only used in the if expression, in order to provide a better error message when the types of the then and else branches don't match.
 
 The type checker's implementation is in [`type_checker.rs`](./src/semantic/type_checker.rs).

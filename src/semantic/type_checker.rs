@@ -121,9 +121,10 @@ impl TypeChecker {
 
                 // else scope
                 self.symbols.enter_scope();
-                self.check_against(els, &then_type);
+                let else_type = self.type_of(els);
                 self.symbols.exit_scope();
 
+                self.check_equal(&then_type, &else_type, &span);
                 then_type
             }
             Expr::While { cond, expr } => {
@@ -191,22 +192,31 @@ impl TypeChecker {
                     _ => {
                         // not an array
                         self.errors.push(
-                            TypeError::type_mismatch(expr.span.clone(), found, expected.clone(), None)
+                            TypeError::type_mismatch(expr.span.clone(), found, expected.clone())
                         );
                     }
                 }
             }
             // all other cases must match exactly
             _ => {
-                if &found == expected {
-                    return; // types match
+                if &found != expected {
+                    self.errors.push(TypeError::type_mismatch(expr.span.clone(), found, expected.clone()));
                 }
-                let extra = match expr.value {
-                    Expr::IfElse { .. } => Some("'then' and 'else' branches must have the same type".to_string()),
-                    _ => None,
-                };
-                self.errors.push(TypeError::type_mismatch(expr.span.clone(), found, expected.clone(), extra));
             }
+        }
+    }
+
+    pub fn check_equal(&mut self, lhs: &Type, rhs: &Type, span: &Span) {
+        if lhs == rhs {
+            return; // types match
+        }
+        match (lhs, rhs) {
+            (Type::Array(l), Type::Array(r)) => self.check_equal(l, r, span),
+            _ => {
+                self.errors.push(
+                    TypeError::expected_equal_types(span.clone(), lhs.clone(), rhs.clone())
+                );
+            },
         }
     }
 }
