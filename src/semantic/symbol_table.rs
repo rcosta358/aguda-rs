@@ -83,10 +83,11 @@ impl SymbolTable {
             return true
         }
         let mut scope = self.curr_scope.borrow_mut();
-        if scope.symbols.contains_key(&id.value) { // duplicate declaration
-            if let Type::Fun(_) = ty {
-                return false
+        if scope.symbols.contains_key(&id.value) { // redefinition
+            if scope.parent.is_none() { // global scope
+                return false // cannot redeclare global declarations
             }
+            // if we are in a nested scope, we can redeclare
             self.warnings.push(Warning::RedefinedVariable(id.clone()));
         }
         let symbol = Symbol {

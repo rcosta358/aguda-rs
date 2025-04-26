@@ -150,7 +150,7 @@ pub struct DeclarationError {
 #[derive(Debug, Clone)]
 pub enum DeclarationErrorKind {
     UndeclaredIdentifier(Id, Option<Id>),
-    RedefinedFunction(Id),
+    DuplicateDeclaration(Id),
     ReservedIdentifier(Id),
     FunctionSignatureMismatch {
         params_found: usize,
@@ -166,9 +166,9 @@ impl DeclarationError {
         }
     }
 
-    pub fn redefined_function(spanned: Spanned<Id>) -> Self {
+    pub fn duplicate_declaration(spanned: Spanned<Id>) -> Self {
         Self {
-            kind: DeclarationErrorKind::RedefinedFunction(spanned.value),
+            kind: DeclarationErrorKind::DuplicateDeclaration(spanned.value),
             span: spanned.span,
         }
     }

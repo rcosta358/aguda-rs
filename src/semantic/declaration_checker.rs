@@ -55,7 +55,7 @@ impl DeclarationChecker {
                 }
             }
             if !self.symbols.declare(id.clone(), Type::Fun(ty.clone())) {
-                self.errors.push(DeclarationError::redefined_function(id.clone()));
+                self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
             }
         }
     }
@@ -71,8 +71,10 @@ impl DeclarationChecker {
                 self.check_expr(&expr.value);
                 self.symbols.exit_scope();
 
-                // only declare after inner scope so it's not visible inside the let scope
-                self.symbols.declare(id.clone(), ty.value.clone());
+                // only declare after exiting scope so it's not visible inside
+                if !self.symbols.declare(id.clone(), ty.value.clone()) {
+                    self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
+                }
             }
             Decl::Fun { params, ty, expr, .. } => {
                 // function scope

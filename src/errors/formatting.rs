@@ -107,13 +107,13 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                             }
                             msg
                         },
-                        DeclarationErrorKind::RedefinedFunction(id) =>
+                        DeclarationErrorKind::DuplicateDeclaration(id) =>
                             format_message(
                                 path,
                                 src,
                                 span,
                                 &label,
-                                &format!("duplicate function declaration of {}", id.bold()),
+                                &format!("duplicate declaration of {}", id.bold()),
                                 Color::Red,
                             ),
                         DeclarationErrorKind::ReservedIdentifier(id) =>
