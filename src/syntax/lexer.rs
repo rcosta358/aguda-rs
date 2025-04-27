@@ -1,7 +1,7 @@
 
 use std::num::ParseIntError;
 use logos::Logos;
-use crate::errors::{LexicalError, LexicalErrorKind};
+use crate::diagnostics::errors::{LexicalError, LexicalErrorKind};
 use crate::syntax::ast::Spanned;
 
 #[derive(Logos, Debug, PartialEq, Clone)]

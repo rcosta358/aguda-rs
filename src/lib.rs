@@ -3,13 +3,14 @@ use crate::semantic::declaration_checker::DeclarationChecker;
 use crate::syntax::ast::Program;
 use crate::syntax::lexer::Lexer;
 use crate::syntax::parser::Parser;
-use crate::errors::{CompileError, SemanticError, Warning};
+use crate::diagnostics::errors::{CompileError, SemanticError};
+use crate::diagnostics::warnings::Warning;
 
 pub mod syntax;
 pub mod semantic;
 pub mod utils;
 pub mod cli;
-pub mod errors;
+pub mod diagnostics;
 
 pub fn compile_aguda_program(
     src: &str,

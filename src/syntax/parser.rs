@@ -4,7 +4,7 @@ use crate::syntax::lexer::Token;
 use crate::syntax::parser::grammar::ProgramParser;
 use crate::syntax::ast::{Program, Spanned};
 use lalrpop_util::ParseError;
-use crate::errors::SyntaxError;
+use crate::diagnostics::errors::SyntaxError;
 
 pub struct Parser {
     parser: ProgramParser,

@@ -2,7 +2,7 @@ use clap::Parser;
 use colored::Colorize;
 use aguda_rs::cli::Cli;
 use aguda_rs::compile_aguda_program;
-use aguda_rs::errors::formatting::{format_errors, format_warnings};
+use aguda_rs::diagnostics::formatting::{format_errors, format_warnings};
 use aguda_rs::utils::read_source_file;
 
 fn main() {
@@ -16,7 +16,6 @@ fn main() {
                     format_errors(errors, args.max_errors, args.suppress_hints, &args.file, &src)
                 }
             })?;
-
         let mut output = String::new();
         if args.suppress_all {
             return Ok(output);

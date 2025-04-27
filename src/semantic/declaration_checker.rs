@@ -1,4 +1,5 @@
-use crate::errors::{DeclarationError, Warning};
+use crate::diagnostics::errors::DeclarationError;
+use crate::diagnostics::warnings::Warning;
 use crate::semantic::RESERVED_IDENTIFIERS;
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type, Id, Spanned};
 use crate::semantic::symbol_table::SymbolTable;

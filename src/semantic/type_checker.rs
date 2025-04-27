@@ -1,4 +1,4 @@
-use crate::errors::TypeError;
+use crate::diagnostics::errors::TypeError;
 use crate::semantic::symbol_table::SymbolTable;
 use crate::syntax::ast::*;
 

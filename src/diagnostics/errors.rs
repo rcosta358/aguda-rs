@@ -1,8 +1,6 @@
 use crate::syntax::ast::{Id, Span, Spanned, Type};
 use crate::syntax::lexer::Token;
 
-pub mod formatting;
-
 pub enum CompileError {
     Lexical(LexicalError),
     Syntax(SyntaxError),
@@ -23,6 +21,62 @@ pub enum LexicalErrorKind {
     UnterminatedString,
     #[default]
     UnrecognizedToken,
+}
+
+#[derive(Debug, Clone)]
+pub struct SyntaxError {
+    pub kind: SyntaxErrorKind,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum SyntaxErrorKind {
+    UnexpectedToken(Vec<String>, Token),
+    UnexpectedEof(Vec<String>),
+    InvalidToken,
+    ExtraToken,
+}
+
+#[derive(Debug, Clone)]
+pub struct DeclarationError {
+    pub kind: DeclarationErrorKind,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone)]
+pub enum DeclarationErrorKind {
+    UndeclaredIdentifier(Id, Option<Id>),
+    DuplicateDeclaration(Id),
+    ReservedIdentifier(Id),
+    FunctionSignatureMismatch {
+        params_found: usize,
+        types_found: usize,
+    },
+}
+
+#[derive(Debug, Clone)]
+pub struct TypeError {
+    pub kind: TypeErrorKind,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone)]
+pub enum TypeErrorKind {
+    TypeMismatch {
+        found: Type,
+        expected: Type,
+    },
+    IncompatibleTypes(Type, Type),
+    ArgumentCountMismatch {
+        found: usize,
+        expected: usize,
+    },
+    NotCallable {
+        found: Type
+    },
+    NotIndexable {
+        found: Type
+    },
 }
 
 impl LexicalError {
@@ -68,19 +122,6 @@ impl From<LexicalError> for CompileError {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct SyntaxError {
-    pub kind: SyntaxErrorKind,
-    pub span: Span,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum SyntaxErrorKind {
-    UnexpectedToken(Vec<String>, Token),
-    UnexpectedEof(Vec<String>),
-    InvalidToken,
-    ExtraToken,
-}
 
 impl SyntaxError {
     pub fn unexpected_token(span: Span, expected: Vec<String>, found: Token) -> Self {
@@ -142,23 +183,6 @@ impl From<SemanticError> for CompileError {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct DeclarationError {
-    pub kind: DeclarationErrorKind,
-    pub span: Span,
-}
-
-#[derive(Debug, Clone)]
-pub enum DeclarationErrorKind {
-    UndeclaredIdentifier(Id, Option<Id>),
-    DuplicateDeclaration(Id),
-    ReservedIdentifier(Id),
-    FunctionSignatureMismatch {
-        params_found: usize,
-        types_found: usize,
-    },
-}
-
 impl DeclarationError {
     pub fn undeclared_identifier(spanned: Spanned<Id>, similar: Option<Id>) -> Self {
         Self {
@@ -196,31 +220,6 @@ impl From<DeclarationError> for CompileError {
     fn from(e: DeclarationError) -> Self {
         CompileError::Semantic(SemanticError::Declaration(e))
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct TypeError {
-    pub kind: TypeErrorKind,
-    pub span: Span,
-}
-
-#[derive(Debug, Clone)]
-pub enum TypeErrorKind {
-    TypeMismatch {
-        found: Type,
-        expected: Type,
-    },
-    IncompatibleTypes(Type, Type),
-    ArgumentCountMismatch {
-        found: usize,
-        expected: usize,
-    },
-    NotCallable {
-        found: Type
-    },
-    NotIndexable {
-        found: Type
-    },
 }
 
 impl TypeError {
@@ -264,10 +263,4 @@ impl From<TypeError> for CompileError {
     fn from(e: TypeError) -> Self {
         CompileError::Semantic(SemanticError::Type(e))
     }
-}
-
-#[derive(Debug, Clone)]
-pub enum Warning {
-    UnusedIdentifier(Spanned<Id>),
-    RedefinedVariable(Spanned<Id>),
 }

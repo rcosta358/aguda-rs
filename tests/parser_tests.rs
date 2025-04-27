@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use aguda_rs::compile_aguda_program;
-use aguda_rs::errors::formatting::format_errors;
+use aguda_rs::diagnostics::formatting::format_errors;
 
 #[test]
 fn test_parser() {

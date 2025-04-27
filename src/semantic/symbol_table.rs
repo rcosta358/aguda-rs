@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::errors::Warning;
+use crate::diagnostics::warnings::Warning;
 use crate::semantic::INIT_SYMBOLS;
 use crate::syntax::ast::{Id, Span, Spanned, Type};
 
@@ -146,7 +146,7 @@ impl SymbolTable {
                 }));
             }
         }
-        all.reverse(); // return errors from top to bottom
+        all.reverse(); // return warnings from top to bottom
         all
     }
 

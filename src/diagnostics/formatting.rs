@@ -1,7 +1,9 @@
 use colored::{Color, Colorize};
-use lazy_static::lazy_static;
-use crate::errors::*;
-use crate::syntax::ast::Span;
+use crate::diagnostics::errors::*;
+use crate::diagnostics::hints::get_syntax_hints;
+use crate::diagnostics::warnings::Warning;
+use crate::syntax::ast::{Span, Type};
+use crate::syntax::lexer::Token;
 use crate::utils::get_position_in_src;
 
 pub fn format_errors(
@@ -56,14 +58,15 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
                 SyntaxErrorKind::UnexpectedToken(expected, found) => {
                     let mut msg = format_message(path, src, span, &label, "unexpected token", Color::Red);
                     if !suppress_hints {
-                        add_syntax_hints(&mut msg, expected, Some(found));
+                        msg.push_str(&format_hints(expected, Some(found)))
                     }
                     msg
                 }
-                SyntaxErrorKind::UnexpectedEof(expected) => {
+                SyntaxErrorKind::UnexpectedEof(mut expected) => {
                     let mut msg = format_message(path, src, span, &label, "unexpected end of input", Color::Red);
                     if !suppress_hints {
-                        add_syntax_hints(&mut msg, expected, None);
+                        expected.push("!eof".to_string());
+                        msg.push_str(&format_hints(expected, None));
                     }
                     msg
                 }
@@ -216,111 +219,6 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
     }
 }
 
-fn format_message(
-    path: &str,
-    source: &str,
-    span: Span,
-    label: &str,
-    description: &str,
-    color: Color,
-) -> String {
-    let pos = get_position_in_src(source, span.start);
-    let length = span.end - span.start;
-    let error_line_str = get_error_line(source, pos, length, color);
-    let location = format!("{}:{}:{}", path, pos.0, pos.1);
-    format!(
-        "{}\n{} {} at line {}, column {}\n\t{}",
-        location,
-        label.color(color).bold().to_string(),
-        description,
-        pos.0,
-        pos.1,
-        error_line_str
-    )
-}
-
-fn get_error_line(
-    source: &str,
-    pos: (usize, usize),
-    length: usize,
-    color: Color,
-) -> String {
-    let (line, col) = pos;
-    let line_str = source.lines().nth(line - 1).unwrap_or("");
-    let remaining = line_str.len().saturating_sub(col.saturating_sub(1));
-    format!(
-        "{}\n\t{}{}",
-        line_str,
-        " ".repeat(col.saturating_sub(1)),
-        "^".repeat(length.min(remaining)).color(color).bold(),
-    )
-}
-
-fn add_syntax_hints(msg: &mut String, expected: Vec<String>, found: Option<Token>) {
-    let hint = get_syntax_hint(expected.clone(), found);
-    match hint {
-        Some(hint) => {
-            msg.push_str(&format!(
-                "\n{} {}",
-                "Hint:".cyan().bold(),
-                hint
-            ));
-        }
-        None => {
-            msg.push_str(&format!(
-                "\n{} {}",
-                "Expected:".cyan().bold(),
-                expected.join(", ")
-            ));
-        }
-    }
-}
-
-fn get_syntax_hint(expected: Vec<String>, found: Option<Token>) -> Option<String> {
-    let expected = expected
-        .iter()
-        .map(|e| e.trim_matches('"'))
-        .collect::<Vec<_>>();
-
-    if let Some(found) = found {
-        let hint = match found {
-            Token::Else => Some("do you have an 'else' without a matching 'if'?".to_string()),
-            Token::Then => Some("do you have an 'then' without a matching 'if'?".to_string()),
-            Token::Do => Some("do you have a 'do' without a matching 'while'?".to_string()),
-            Token::RightParen => Some("do you have an extra closing parenthesis?".to_string()),
-            Token::RightBracket => Some("do you have an extra closing bracket?".to_string()),
-            Token::Assign if expected.contains(&"==") => Some("did you mean '==' instead of '='?".to_string()),
-            Token::Pipe if expected.contains(&"||") => Some("did you mean '||' instead of '|'?".to_string()),
-            Token::Unit if expected.contains(&"Unit") => Some("did you mean 'Unit' instead of 'unit'?".to_string()),
-            Token::UnitType if expected.contains(&"unit") => Some("did you mean 'unit' instead of 'Unit'?".to_string()),
-            _ => None,
-        };
-        if hint.is_some() {
-            return hint;
-        }
-    }
-
-    // if any starts with an uppercase, then the parser expects a type
-    if expected.iter().any(|e| e.chars().next().map_or(false, |c| c.is_uppercase())) {
-        return Some("expected a type".to_string());
-    }
-
-    // if expected contains all of possible values, then the parser expects a variable or literal
-    if VALUES.iter().all(|e| expected.contains(&e)) {
-        return Some("expected a variable or literal".to_string());
-    }
-
-    // iterate over hints and return the first one that matches
-    for &(token, hint) in EXPECTED_TOKEN_HINTS.iter() {
-        if expected.contains(&token) {
-            return Some(hint.to_string());
-        }
-    }
-
-    // no hint found
-    None
-}
-
 pub fn format_warnings(
     warnings: Vec<Warning>,
     max_warnings: usize,
@@ -376,19 +274,47 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
     }
 }
 
-lazy_static! {
-    // pairs of (token, hint) ordered by priority (highest to lowest)
-    static ref EXPECTED_TOKEN_HINTS: [(& 'static str, & 'static str); 9] = [
-        ("->", "did you forget the return type in the function definition?"),
-        (")", "did you forget a closing parenthesis?"),
-        ("]", "did you forget a closing bracket?"),
-        ("then", "did you forget a 'then' after your if condition?"),
-        ("do", "did you forget a 'do' after your while condition?"),
-        ("|", "did you forget the '|' in array initialization?"),
-        (":", "did you forget the type annotation?"),
-        (",", "did you forget a comma?"),
-        (";", "did you forget a semicolon?"),
-    ];
+pub fn format_hints(expected: Vec<String>, found: Option<Token>) -> String {
+    let hints = get_syntax_hints(expected, found);
+    format!("\n{}\n- {}", "Hints:".cyan().bold(), hints.join("\n- "))
+}
 
-    static ref VALUES: [& 'static str; 6] = ["id", "int", "string", "true", "false", "unit"];
+fn format_message(
+    path: &str,
+    source: &str,
+    span: Span,
+    label: &str,
+    description: &str,
+    color: Color,
+) -> String {
+    let pos = get_position_in_src(source, span.start);
+    let length = span.end - span.start;
+    let error_line_str = get_line_in_src(source, pos, length, color);
+    let location = format!("{}:{}:{}", path, pos.0, pos.1);
+    format!(
+        "{}\n{} {} at line {}, column {}\n\t{}",
+        location,
+        label.color(color).bold().to_string(),
+        description,
+        pos.0,
+        pos.1,
+        error_line_str
+    )
+}
+
+fn get_line_in_src(
+    source: &str,
+    pos: (usize, usize),
+    length: usize,
+    color: Color,
+) -> String {
+    let (line, col) = pos;
+    let line_str = source.lines().nth(line - 1).unwrap_or("");
+    let remaining = line_str.len().saturating_sub(col.saturating_sub(1));
+    format!(
+        "{}\n\t{}{}",
+        line_str,
+        " ".repeat(col.saturating_sub(1)),
+        "^".repeat(length.min(remaining)).color(color).bold(),
+    )
 }
