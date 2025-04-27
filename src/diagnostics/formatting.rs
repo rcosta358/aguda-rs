@@ -276,7 +276,12 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
 
 pub fn format_hints(expected: Vec<String>, found: Option<Token>) -> String {
     let hints = get_syntax_hints(expected, found);
-    format!("\n{}\n- {}", "Hints:".cyan().bold(), hints.join("\n- "))
+    if hints.len() == 1 {
+        format!("\n{} {}", "Hint:".cyan().bold(), hints.first().unwrap())
+    } else {
+        format!("\n{}\n- {}", "Hints:".cyan().bold(), hints.join("\n- "))
+    }
+
 }
 
 fn format_message(

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use std::cell::RefCell;
 use crate::diagnostics::warnings::Warning;
@@ -118,18 +118,16 @@ impl SymbolTable {
     }
 
     pub fn get_visible_symbols(&self) -> Vec<Id> {
-        let mut names = Vec::new();
+        let mut set = HashSet::new();
         let mut scope_opt = Some(self.curr_scope.clone());
         while let Some(scope_ref) = scope_opt {
             let scope = scope_ref.borrow();
             for name in scope.symbols.keys() {
-                names.push(name.clone());
+                set.insert(name.clone());
             }
             scope_opt = scope.parent.clone();
         }
-        names.sort();
-        names.dedup();
-        names
+        set.into_iter().collect()
     }
 
     pub fn get_warnings(&self) -> Vec<Warning> {

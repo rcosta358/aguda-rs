@@ -63,7 +63,7 @@ pub fn get_syntax_hints(expected: Vec<String>, found: Option<Token>) -> Vec<Stri
     }
     if hints.is_empty() {
         // fallback to a generic hint of expected tokens
-        hints.push(format!("Expected: {}", expected.join(", ")));
+        hints.push(format!("expected {}", expected.join(", ")));
     }
     hints
 }

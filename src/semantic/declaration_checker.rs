@@ -32,8 +32,7 @@ impl DeclarationChecker {
         // mark the last declaration as used (entry point)
         if let Some(last_decl) = prog.decls.last() {
             let id = match &last_decl.value {
-                Decl::Fun { id, .. } => &id.value,
-                Decl::Var { id, .. } => &id.value,
+                Decl::Fun { id, .. } | Decl::Var { id, .. } => &id.value,
             };
             self.symbols.lookup(id); // lookup to mark as used
         }
