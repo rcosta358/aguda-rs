@@ -1,4 +1,5 @@
 use crate::syntax::ast::{Id, Span, Spanned, Type};
+use crate::syntax::lexer::Token;
 
 pub mod formatting;
 
@@ -75,16 +76,16 @@ pub struct SyntaxError {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SyntaxErrorKind {
-    UnexpectedToken(Vec<String>),
+    UnexpectedToken(Vec<String>, Token),
     UnexpectedEof(Vec<String>),
     InvalidToken,
     ExtraToken,
 }
 
 impl SyntaxError {
-    pub fn unexpected_token(span: Span, expected: Vec<String>) -> Self {
+    pub fn unexpected_token(span: Span, expected: Vec<String>, found: Token) -> Self {
         Self {
-            kind: SyntaxErrorKind::UnexpectedToken(expected),
+            kind: SyntaxErrorKind::UnexpectedToken(expected, found),
             span,
         }
     }

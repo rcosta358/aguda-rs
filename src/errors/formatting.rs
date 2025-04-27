@@ -53,18 +53,17 @@ fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -
             let label = "Syntax Error:";
             let span = e.span.clone();
             match e.kind.clone() {
-                SyntaxErrorKind::UnexpectedToken(expected) => {
+                SyntaxErrorKind::UnexpectedToken(expected, found) => {
                     let mut msg = format_message(path, src, span, &label, "unexpected token", Color::Red);
                     if !suppress_hints {
-                        add_syntax_hints(&mut msg, expected);
+                        add_syntax_hints(&mut msg, expected, Some(found));
                     }
                     msg
                 }
-                SyntaxErrorKind::UnexpectedEof(mut expected) => {
+                SyntaxErrorKind::UnexpectedEof(expected) => {
                     let mut msg = format_message(path, src, span, &label, "unexpected end of input", Color::Red);
                     if !suppress_hints {
-                        expected.push("EOF".to_string());
-                        add_syntax_hints(&mut msg, expected);
+                        add_syntax_hints(&mut msg, expected, None);
                     }
                     msg
                 }
@@ -257,8 +256,8 @@ fn get_error_line(
     )
 }
 
-fn add_syntax_hints(msg: &mut String, expected: Vec<String>) {
-    let hint = get_syntax_hint(expected.clone());
+fn add_syntax_hints(msg: &mut String, expected: Vec<String>, found: Option<Token>) {
+    let hint = get_syntax_hint(expected.clone(), found);
     match hint {
         Some(hint) => {
             msg.push_str(&format!(
@@ -276,19 +275,43 @@ fn add_syntax_hints(msg: &mut String, expected: Vec<String>) {
         }
     }
 }
-fn get_syntax_hint(expected: Vec<String>) -> Option<String> {
+
+fn get_syntax_hint(expected: Vec<String>, found: Option<Token>) -> Option<String> {
     let expected = expected
         .iter()
         .map(|e| e.trim_matches('"'))
         .collect::<Vec<_>>();
 
+    if let Some(found) = found {
+        let hint = match found {
+            Token::Else => Some("do you have an 'else' without a matching 'if'?".to_string()),
+            Token::Then => Some("do you have an 'then' without a matching 'if'?".to_string()),
+            Token::Do => Some("do you have a 'do' without a matching 'while'?".to_string()),
+            Token::RightParen => Some("do you have an extra closing parenthesis?".to_string()),
+            Token::RightBracket => Some("do you have an extra closing bracket?".to_string()),
+            Token::Assign if expected.contains(&"==") => Some("did you mean '==' instead of '='?".to_string()),
+            Token::Pipe if expected.contains(&"||") => Some("did you mean '||' instead of '|'?".to_string()),
+            Token::Unit if expected.contains(&"Unit") => Some("did you mean 'Unit' instead of 'unit'?".to_string()),
+            Token::UnitType if expected.contains(&"unit") => Some("did you mean 'unit' instead of 'Unit'?".to_string()),
+            _ => None,
+        };
+        if hint.is_some() {
+            return hint;
+        }
+    }
+
     // if any starts with an uppercase, then the parser expects a type
     if expected.iter().any(|e| e.chars().next().map_or(false, |c| c.is_uppercase())) {
-        return Some("did you forget or misspell the type?".to_string());
+        return Some("expected a type".to_string());
+    }
+
+    // if expected contains all of possible values, then the parser expects a variable or literal
+    if VALUES.iter().all(|e| expected.contains(&e)) {
+        return Some("expected a variable or literal".to_string());
     }
 
     // iterate over hints and return the first one that matches
-    for &(token, hint) in TOKEN_HINTS.iter() {
+    for &(token, hint) in EXPECTED_TOKEN_HINTS.iter() {
         if expected.contains(&token) {
             return Some(hint.to_string());
         }
@@ -355,16 +378,17 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
 
 lazy_static! {
     // pairs of (token, hint) ordered by priority (highest to lowest)
-    static ref TOKEN_HINTS: [(& 'static str, & 'static str); 10] = [
-        ("EOF", "do you have an extra semicolon at the end?"),
+    static ref EXPECTED_TOKEN_HINTS: [(& 'static str, & 'static str); 9] = [
         ("->", "did you forget the return type in the function definition?"),
         (")", "did you forget a closing parenthesis?"),
         ("]", "did you forget a closing bracket?"),
         ("then", "did you forget a 'then' after your if condition?"),
         ("do", "did you forget a 'do' after your while condition?"),
-        ("id", "did you forget an identifier?"),
+        ("|", "did you forget the '|' in array initialization?"),
         (":", "did you forget the type annotation?"),
         (",", "did you forget a comma?"),
-        (";", "did you forget a semicolon?")
+        (";", "did you forget a semicolon?"),
     ];
+
+    static ref VALUES: [& 'static str; 6] = ["id", "int", "string", "true", "false", "unit"];
 }

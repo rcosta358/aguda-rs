@@ -24,9 +24,8 @@ impl Parser {
         self.parser
             .parse(tokens)
             .map_err(|e| match e {
-                ParseError::UnrecognizedToken { token: (start, _, end), expected } =>
-                    SyntaxError::unexpected_token(start..end, expected),
-
+                ParseError::UnrecognizedToken { token: (start, found, end), expected } =>
+                    SyntaxError::unexpected_token(start..end, expected, found),
                 ParseError::UnrecognizedEof { location, expected } =>
                     SyntaxError::unexpected_eof(location..location, expected),
 
