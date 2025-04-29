@@ -25,11 +25,6 @@ DeclFun: Decl = {
     => Decl::Fun { id, params, ty, expr },
 }
 
-FunType: FunType = {
-    "(" <params:TypeList> ")" "->" <ret:Type> => FunType { params, ret: Box::new(ret) },
-    <param:Type> "->" <ret:Type> => FunType { params: vec![param], ret: Box::new(ret) }
-}
-
 Expr: Expr = {
     ChainExpr,
 }
@@ -138,11 +133,11 @@ BaseExpr: Expr = {
 }
 
 LiteralExpr: Expr = {
-    <s:"string"> => Expr::String(s.to_string()),
-    <n:"int">    => Expr::Int(n.to_string().parse().unwrap()),
-    "true"       => Expr::Bool(true),
-    "false"      => Expr::Bool(false),
-    "unit"       => Expr::Unit,
+    "string" => Expr::String(<>.to_string()),
+    "int"    => Expr::Int(<>.to_string().parse().unwrap()),
+    "true"   => Expr::Bool(true),
+    "false"  => Expr::Bool(false),
+    "unit"   => Expr::Unit,
 }
 
 Lhs: Lhs = {
@@ -164,7 +159,7 @@ List<T>: Vec<T> = {
 
 #[inline]
 Id: String = {
-    <id:"id"> => id.to_string(),
+    "id" => <>.to_string(),
 }
 
 #[inline]
@@ -176,13 +171,31 @@ TypeList: Vec<Type> = List<Type>;
 #[inline]
 ExprList: Vec<Spanned<Expr>> = List<Spanned<Expr>>;
 
-#[inline]
-Type: Type = {
-    <base:BaseType> <dims:("[" "]")*> => {
-        dims.into_iter().fold(base, |acc, _| Type::Array(Box::new(acc)))
-    }
+Type: Type = ArrowType;
+
+ArrowType: Type = {
+    FunType => Type::Fun(<>),
+    SimpleType,
 }
 
+FunType: FunType = {
+    "(" <params:TypeList> ")" "->" <ret:ArrowType> => FunType { params, ret: Box::new(ret) },
+    <param:SimpleType> "->" <ret:ArrowType> => FunType { params: vec![param], ret: Box::new(ret) },
+}
+
+SimpleType: Type = {
+    <base:BaseType> <dims:("[" "]")*> => dims.into_iter().fold(base, |acc, _| Type::Array(Box::new(acc))),
+}
+
+#[inline]
+BaseType: Type = {
+    "Int"    => Type::Int,
+    "Bool"   => Type::Bool,
+    "String" => Type::String,
+    "Unit"   => Type::Unit,
+}
+
+#[inline]
 Spanned<T>: Spanned<T> = <l:@L> <t:T> <r:@R> => Spanned { value: t, span: l..r };
 
 #[inline]
@@ -192,14 +205,6 @@ SpannedType: Spanned<Type> = {
             value: dims.into_iter().fold(base, |acc, _| Type::Array(Box::new(acc))),
             span: l..r
         }
-}
-
-#[inline]
-BaseType: Type = {
-    "Int"    => Type::Int,
-    "Bool"   => Type::Bool,
-    "String" => Type::String,
-    "Unit"   => Type::Unit,
 }
 
 extern {
