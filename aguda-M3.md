@@ -14,16 +14,55 @@ In this phase, the semantic analysis was implemented, including the symbol table
 
 ### Running with Docker
 
-To build the image and run the container, run:
+#### Prerequisites
+- [Docker](https://www.docker.com/) installed and running
+- [Docker Compose](https://docs.docker.com/compose/) installed
+
+#### Build the Image
+
+To build the Docker image, run:
 
 ```sh
-docker build -t aguda-rs .
-docker run aguda-rs
+docker-compose build
 ```
 
-This will also regenerate the parser with the [grammar file](./src/grammar.lalrpop).
+#### Spawn a Shell in the Container
+
+To create a container and spawn a shell inside it, run:
+
+```sh
+docker-compose run --rm aguda-rs bash
+```
+
+This will automatically clone the tests from the [aguda-testing](https://git.alunos.di.fc.ul.pt/tcomp000/aguda-testing) repository.
+Also, it will also build and re-generate the parser with the [grammar file](./src/grammar.lalrpop).
+
+#### Run the Compiler
+
+Then, inside the container's shell, to run the compiler, run:
+
+```sh
+cargo run
+```
+
+#### Run the Tests
+To run the tests, run:
+
+```sh
+cargo test
+```
+
+#### Run a Specific File
+
+To run a specific file, run:
+
+```sh
+cargo run -- --file path/to/file.agu
+```
 
 ### Command Line Arguments
+
+The compiler also accepts various command line arguments to customize its behavior:
 
 | Option                          | Description                                               | Default    |
 |---------------------------------|-----------------------------------------------------------|------------|
@@ -41,26 +80,8 @@ This will also regenerate the parser with the [grammar file](./src/grammar.lalrp
 Example usage:
 
 ```sh
-docker run aguda-rs cargo run -- --file hello.agu --max-errors 10 --suppress-ast
+cargo run -- --file hello.agu --max-errors 10 --suppress-ast
 ```
-
-#### Running the Tests
-
-To run the test pool, run:
-
-```sh
-docker run aguda-rs cargo test -- --nocapture
-```
-
-To change the directory where to look for the tests, modify the following line in [`parser_tests.rs`](./tests/parser_tests.rs):
-
-```rust
-let base_dir = Path::new("./tests/"); // replace with the desired directory
-```
-
-##### Test Results
-
-Since the language won't support higher-order functions, my parser only considers types to be basic types (`Int`, `Bool`, `String`, `Unit`) and arrays of these. However, there are some tests that assume that the types can be function types, namely in the function signatures.
 
 ### Implementation
 
