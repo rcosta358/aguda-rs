@@ -10,10 +10,12 @@ let createArray (_) : Unit -> Int[] =
     a
 
 let calcDist (x, y) : (Int, Int) -> Int =
-    if x - y < 0 then -(x - y) else x - y
+    let retVal : Int = 0;
+    if x - y < 0 then set retVal = -(x - y) else set retVal = x - y
 
 let maxDistance (a) : Int[] -> Int =
-    if length(a) == 0 then 0 else
+    let result : Int = 0;
+    if length(a) == 0 then set result = 0 else (
     let min : Int = a[0];
     let max : Int = a[0];
     let i : Int = 0;
@@ -22,7 +24,7 @@ let maxDistance (a) : Int[] -> Int =
         if a[i] > max then set max = a[i];
         set i = i + 1
     ) ;
-    let result : Int = calcDist(max, min);
+    let result : Int = calcDist(max, min));
     result
 
 let _ : Unit =

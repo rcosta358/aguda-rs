@@ -12,7 +12,7 @@ let min(a) : Int [] -> Int =
 let max(b) : Int [] -> Int =
    let max : Int = 0;
    let y : Int = 0;
-   while i < length(b) do (
+   while y < length(b) do (
 	if a[i] > max then set max = a[i];
 	set y = y + 1
 );

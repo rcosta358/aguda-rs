@@ -1,7 +1,7 @@
 -- Author: 64854, Diogo Almeida
 
-let printA (_) : Unit -> String =
+let printA (_) : Unit -> Unit =
     print("a")
 
 let _ : Unit =
-    printA(_)
+    printA(unit)

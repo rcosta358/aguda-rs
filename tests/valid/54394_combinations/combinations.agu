@@ -7,5 +7,5 @@ let fac (n) : Int -> Int =
 let comb (n, k) : (Int, Int) -> Int =
      fac(n) / (fac(k) * fac(n-k))
 
-let _ : Int = fac(6, 2)
+let _ : Int = comb(6, 2)
 

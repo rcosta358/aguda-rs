@@ -3,9 +3,9 @@
 
 -- Assumes both have the same len
 let zip (a1, a2) : (Int[], Int[]) -> Int[][]=
-    let out : Int[][] = new Int[lenght(a1) | new Int[2 | 0]];
+    let out : Int[][] = new Int[] [length(a1) | new Int[2 | 0]];
     let i : Int = 0;
-    while i < lenght(a1) do (
+    while i < length(a1) do (
         set out[i][0] = a1[i];
         set out[i][0] = a2[i];
         set i = i+1

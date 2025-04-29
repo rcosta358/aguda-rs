@@ -8,4 +8,4 @@ let sumArray (arr) : Int[] -> Int =
   );
   sum
 
-let _ : Int = sumArray(new Int[] [5 | 10])
+let _ : Int = sumArray(new Int[5 | 10])

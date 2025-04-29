@@ -2,6 +2,7 @@
 
 let giantHeart (_) : Unit -> Unit =
     let heart_matrix : String[] = new String[13 | ""]; -- 17 chars
+    let i : Int = 0 ;
     while i < length(heart_matrix) do (
         if i == 0 then print("   ___     ___   \n") ;
         if i == 1 then print("  /   \   /   \  \n") ;
