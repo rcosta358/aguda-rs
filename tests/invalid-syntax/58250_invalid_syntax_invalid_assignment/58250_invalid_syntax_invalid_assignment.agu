@@ -1,4 +1,0 @@
--- Author: 58250, Leonardo Monteiro
-
-let a : Int = 17
-a = 22  -- should be "set a = 20"

@@ -1,6 +1,0 @@
--- Author: 58215, Manuel Lourenço
-
-Let x : int = 5;
-
-let main : Unit = 
-    print(x)

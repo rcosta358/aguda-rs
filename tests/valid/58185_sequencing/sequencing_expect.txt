@@ -1,2 +1,0 @@
-Value of returnFirst(1, 2): 1
-Value of returnLast(10, 20, 30): 30

@@ -1,3 +1,0 @@
--- tcomp000, vasco t. vasconcelos
-
-let _ : Int = (while false do 5) + 5

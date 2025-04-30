@@ -1,7 +1,0 @@
--- tcomp000, vasco t. vasconcelos
-
--- Function declaration. Should we expect 10 or 40?
-
-let fun(n): Int -> Int = n + n
-let fun(n): Int -> Int = 4 * n
-let main: Int = fun(5)

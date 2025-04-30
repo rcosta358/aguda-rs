@@ -1,3 +1,0 @@
--- Author: 64371, Ricardo Costa
-
-let x: Int = if true then 1 else 2 else 1 -- syntax error: invalid 'else' expression

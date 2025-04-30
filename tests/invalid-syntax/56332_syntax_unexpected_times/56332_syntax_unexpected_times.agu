@@ -1,2 +1,0 @@
--- Author: 56332, Student Ricardo Sobral
-let x : Int = 10 * * 1  -- Erro sintático: operador inesperado

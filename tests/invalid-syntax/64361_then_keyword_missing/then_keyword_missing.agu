@@ -1,4 +1,0 @@
--- Author: fc64361 , Gustavo Henriques
-
-let add (n, m) : (Int, Int) -> Int =
-if n == 0 m else succ(add (n - 1, m)) -- syntax error: missing "then" keyword

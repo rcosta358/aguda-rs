@@ -1,2 +1,0 @@
--- Author: 56332, Student Ricardo Sobral
-let x : Int = true + 2  -- Erro semântico: soma de Bool com Int

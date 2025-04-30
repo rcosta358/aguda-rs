@@ -1,7 +1,0 @@
--- Author: 56269, Frederico Prazeres
-
--- Semantic Error: sum() receives two arguments and both must be Integers
-
-let sum (x,n) : Int -> Int = n + x
-
-let _ : Int = sum("a","b")

@@ -1,8 +1,0 @@
--- Author: Eduardo Santos, 58185
--- Semantic error: wrong function parameter type, should be Int
-
-let isPositive (n) : Int -> Bool =
-    n > 0
-    
-let main : Unit =
-    print(isPositive(true))  

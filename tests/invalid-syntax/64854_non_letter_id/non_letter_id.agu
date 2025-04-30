@@ -1,4 +1,0 @@
--- Author: 64854, Diogo Almeida
-
--- an id starting with a non letter
-let 1a : Int = 10

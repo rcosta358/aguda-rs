@@ -1,5 +1,0 @@
--- Author: 56307, Denis Ungureanu
-let powerTest : Unit =
-  print(2 ^ 3 ^ 2)
-  
-let _ : Unit = powerTest

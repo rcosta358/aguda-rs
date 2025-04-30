@@ -1,3 +1,0 @@
--- Author: 56307, Denis Ungureanu
-let zeroArray : Int[] = new Int[0 | 0]
-let _ : Int = length(zeroArray)

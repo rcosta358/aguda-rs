@@ -1,6 +1,0 @@
--- Author: 56269, Frederico Prazeres
-
--- Syntax Error: missing an "="
-
-let a : Int = 0;
-set a 3;

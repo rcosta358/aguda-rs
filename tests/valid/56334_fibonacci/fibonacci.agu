@@ -1,8 +1,0 @@
--- Author: fc56334, Goncalo Lopes
-
-let Fibonacci (n) : Int -> Int =
-    if n == 0 then 0 else if n == 1 then 1 else (Fibonacci(n-1) + Fibonacci(n-2)) 
-
-
-let _ : Int =
-  Fibonacci(20)

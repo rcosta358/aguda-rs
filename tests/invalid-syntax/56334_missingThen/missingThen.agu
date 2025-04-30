@@ -1,7 +1,0 @@
--- Author: fc56334, Goncalo Lopes
-
-let isEven(x) : Int -> Bool =
-    if x % 2 == 0 true else false
-
-let _ : Bool =
-    isEven(2)

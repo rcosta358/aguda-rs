@@ -1,6 +1,0 @@
--- Author: 58168, Henrique Costa Vale
-
-let _ : Unit = 
-  let a : Int = 3
-  while a < 5 do (
-  set a = a+1

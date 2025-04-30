@@ -1,4 +1,0 @@
--- Author: 58182, Gabriel Henriques
-
-let f (_) : Unit -> Int = let x : Int = let y : Int = 3
-let result : Int = f()

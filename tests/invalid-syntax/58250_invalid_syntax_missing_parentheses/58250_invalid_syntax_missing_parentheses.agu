@@ -1,2 +1,0 @@
--- Author: 58250, Leonardo Monteiro
-let sum a, b : Int = a + b

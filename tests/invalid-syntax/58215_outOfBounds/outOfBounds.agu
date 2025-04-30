@@ -1,5 +1,0 @@
--- Author: 58215, Manuel Lourenço
-
-let main : Unit =
-    let a : Int[]] = new Int[2 | 0];
-    print(a[7])

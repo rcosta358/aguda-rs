@@ -1,7 +1,0 @@
--- Author: 64854, Diogo Almeida
-
-let coinFlip (n) : Int -> String =
-    if n % 2 == 1 then "tails" else "heads"
-
-let _ : Unit =
-    print(coinFlip(4))

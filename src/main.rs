@@ -8,8 +8,8 @@ use aguda_rs::utils::read_source_file;
 fn main() {
     let args = Cli::parse();
     let result = read_source_file(&args.file).and_then(|src| {
-        let (ast, warnings) = compile_aguda_program(&src).
-            map_err(|errors| {
+        let (ast, warnings) = compile_aguda_program(&src)
+            .map_err(|errors| {
                 if args.suppress_all || args.suppress_errors {
                     String::new()
                 } else {

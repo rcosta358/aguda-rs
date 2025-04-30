@@ -1,7 +1,0 @@
--- Author: 58166, Manuel Campos
-
-let safeIndexCheck (a, n) : (Int[], Int) -> Bool =
-    n >= 0 && n < length(a)
-
-let _ : Unit =
-    print(safeIndexCheck(new Int [4 | 1],7))

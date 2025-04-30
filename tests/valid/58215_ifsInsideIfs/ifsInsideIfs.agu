@@ -1,7 +1,0 @@
--- Author: 58215, Manuel Lourenço
-
-let main : Unit =
-    if true then 
-        if false then print("ta' mal") else 
-            if true then print("ta' bem") 
-    else print("ta' mal")

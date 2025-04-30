@@ -1,4 +1,0 @@
--- Author: 56269, Frederico Prazeres
-
-let _ : Unit =
-  print(false && true || true)

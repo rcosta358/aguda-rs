@@ -23,10 +23,10 @@ In this phase, the semantic analysis was implemented, including the symbol table
 To build the Docker image, run:
 
 ```sh
-docker-compose build
+docker-compose build --no-cache
 ```
 
-#### Spawn a Shell in the Container
+#### Create and Access the Container
 
 To create a container and spawn a shell inside it, run:
 
@@ -49,7 +49,7 @@ cargo run
 To run the tests, run:
 
 ```sh
-cargo test
+cargo test -- --nocapture
 ```
 
 #### Run a Specific File

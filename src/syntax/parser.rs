@@ -28,13 +28,10 @@ impl Parser {
                     SyntaxError::unexpected_token(start..end, expected, found),
                 ParseError::UnrecognizedEof { location, expected } =>
                     SyntaxError::unexpected_eof(location..location, expected),
-
                 ParseError::InvalidToken { location } =>
                     SyntaxError::invalid_token(location..location),
-
                 ParseError::ExtraToken { token: (start, _, end) } =>
                     SyntaxError::extra_token(start..end),
-
                 _ => panic!("unexpected error: {:?}", e),
             })
     }

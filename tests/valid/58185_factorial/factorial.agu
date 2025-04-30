@@ -1,8 +1,0 @@
--- Author: Eduardo Santos
--- Computing factorial recursively
-
-let factorial (n) : Int -> Int = 
-    if n <= 1 then 1 else n * factorial(n - 1)
-
-let main : Unit = 
-    print(factorial(5)) 

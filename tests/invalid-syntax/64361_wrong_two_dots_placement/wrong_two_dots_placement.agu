@@ -1,4 +1,0 @@
--- Author: fc64361 , Gustavo Henriques
-
-let even (x) Int : -> Bool = -- syntax error: the two dots are placed in the wrong place
-x == 0 || odd(x - 1)

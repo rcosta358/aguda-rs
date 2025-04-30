@@ -1,3 +1,0 @@
--- Author: 56306, Denis Ungureanu, Semantic Test 3
-let addMismatch (a, b) : (Int, Int) -> Int =
-    a + b + "extra"

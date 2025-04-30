@@ -1,5 +1,0 @@
--- Author: 58168, Henrique Costa Vale
-
-let f(a,b) : ( Int , Int -> Int
-    let s : Int = a + b
-    s

@@ -1,9 +1,0 @@
--- Author: 54394, Afonso Esteves
-
-let _ : Int =
-    let y : Int = 4;
-    while y < 10 do (
-        set y = y + 4
-    );
-    y
-

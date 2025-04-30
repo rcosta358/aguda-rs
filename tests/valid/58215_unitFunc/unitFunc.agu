@@ -1,7 +1,0 @@
--- Author: 58215, Manuel Lourenço
-
-let faz3(a, b) : Unit -> Int -> Int =
-    if true then 3 else 3
-
-let main : Unit = 
-    print(faz3(unit,7))

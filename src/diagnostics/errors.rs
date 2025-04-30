@@ -38,6 +38,12 @@ pub enum SyntaxErrorKind {
 }
 
 #[derive(Debug, Clone)]
+pub enum SemanticError {
+    Declaration(DeclarationError),
+    Type(TypeError),
+}
+
+#[derive(Debug, Clone)]
 pub struct DeclarationError {
     pub kind: DeclarationErrorKind,
     pub span: Span,
@@ -157,11 +163,6 @@ impl From<SyntaxError> for CompileError {
     fn from(e: SyntaxError) -> Self {
         CompileError::Syntax(e)
     }
-}
-
-pub enum SemanticError {
-    Declaration(DeclarationError),
-    Type(TypeError),
 }
 
 impl SemanticError {

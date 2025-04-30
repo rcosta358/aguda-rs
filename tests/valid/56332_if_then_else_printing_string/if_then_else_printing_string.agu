@@ -1,4 +1,0 @@
--- Author: 56332, Student Ricardo Sobral
-let sinal (n) : Int -> String =
-    if n >= 0 then "positivo" else "negativo"
-let _ : Unit = print(sinal(0))

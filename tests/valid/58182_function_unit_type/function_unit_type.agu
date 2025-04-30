@@ -1,7 +1,0 @@
--- Author: 58182, Gabriel Henriques
-
-let unitFunction (_) : Unit -> Int = 1
-
-let _ : Unit =
-    let result : Int = unitFunction(unit) ;
-    print(result)

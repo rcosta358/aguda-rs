@@ -4,8 +4,8 @@ use aguda_rs::compile_aguda_program;
 use aguda_rs::diagnostics::formatting::format_errors;
 
 #[test]
-fn test_parser() {
-    let base_dir = Path::new("./tests/");
+fn test_compiler() {
+    let base_dir = Path::new("./aguda-testing/test");
     let valid_dir = base_dir.join("valid");
     let invalid_syntax_dir = base_dir.join("invalid-syntax");
     let invalid_semantic_dir = base_dir.join("invalid-semantic");
@@ -16,11 +16,10 @@ fn test_parser() {
     let invalid_syntax_tests = invalid_syntax_passed + invalid_syntax_failed;
     let (invalid_semantic_passed, invalid_semantic_failed) = test_agu_files_in_dir(&invalid_semantic_dir, false);
     let invalid_semantic_tests = invalid_semantic_passed + invalid_semantic_failed;
-    let successful_tests = valid_passed + invalid_syntax_failed + invalid_semantic_failed;
     let total_tests = valid_tests + invalid_syntax_tests + invalid_semantic_tests;
-    let success_rate = (successful_tests as f64 / total_tests as f64) * 100.0;
+    let failed_tests = valid_failed + invalid_syntax_passed + invalid_semantic_passed;
 
-    println!("\n📊 Test Summary ({})", total_tests);
+    println!("\n📊 Test Summary");
     println!("========================");
     println!("Valid tests ({})", valid_tests);
     println!("✅  Passed: {}", valid_passed);
@@ -34,7 +33,9 @@ fn test_parser() {
     println!("✅  Passed: {}", invalid_semantic_passed);
     println!("❌  Failed: {}", invalid_semantic_failed);
     println!("========================");
-    println!("Success rate: {:.2}%", success_rate);
+    println!("📝  Total tests: {}", total_tests);
+    println!("⚠️   Failures: {}", failed_tests);
+    println!("========================");
 
     assert_eq!(valid_failed, 0, "Some valid tests failed");
     assert_ne!(invalid_syntax_failed, 0, "Some invalid syntax tests passed");

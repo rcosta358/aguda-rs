@@ -1,2 +1,0 @@
--- Author: 56307, Denis Ungureanu, Syntax Test 2
-let extraParen (x) : Int -> Int = (x + 1))

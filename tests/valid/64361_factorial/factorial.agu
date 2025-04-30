@@ -1,9 +1,0 @@
--- Author: fc64361, Gustavo Henriques
-
-let fact (n) : Int -> Int =
-    if n == 0 then 1 else n * fact(n - 1)
-
-let _ : Unit =
-    print(fact(5));  -- Should print 120
-    print(fact(0));  -- Should print 1
-    print(fact(7))   -- Should print 5040

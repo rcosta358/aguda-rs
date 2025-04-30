@@ -3,7 +3,7 @@ use crate::diagnostics::warnings::Warning;
 use crate::semantic::RESERVED_IDENTIFIERS;
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type, Id, Spanned};
 use crate::semantic::symbol_table::SymbolTable;
-use crate::utils::suggest_similar;
+use crate::utils::get_similar;
 
 pub struct DeclarationChecker {
     symbols: SymbolTable,
@@ -171,7 +171,7 @@ impl DeclarationChecker {
     fn check_id(&mut self, id: &Spanned<Id>) {
         if self.symbols.lookup(&id.value).is_none() {
             let all_symbols = self.symbols.get_visible_symbols();
-            let similar = suggest_similar(all_symbols, &id.value);
+            let similar = get_similar(all_symbols, &id.value);
             self.errors.push(DeclarationError::undeclared_identifier(id.clone(), similar));
         }
     }

@@ -1,7 +1,0 @@
--- Author: 58168, Henrique Costa Vale
-
-let f(a): Int -> = 
-  set a[1] = 0
-
-let _ : Unit = 
-  print(f(2))

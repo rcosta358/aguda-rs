@@ -1,5 +1,0 @@
--- Author: Eduardo Santos, 58185
--- Lexical error: string that does not close its quotes
-
-let main : Unit = 
-    print("This string doesn't close)

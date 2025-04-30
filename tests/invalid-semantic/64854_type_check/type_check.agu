@@ -1,4 +1,0 @@
--- Author: 64854, Diogo Almeida
-
--- type checking
-let a : Int = "Hello World!"

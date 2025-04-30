@@ -1,7 +1,0 @@
--- Author: 58166, Manuel Campos
-
--- Syntatic Error (then is missing in the if statement)
-let _ : Unit =
-    let s : String = "";
-    let x : Int = 50;
-    if x >= 0 else set s = "Negative"

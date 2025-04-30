@@ -1,6 +1,0 @@
--- Author: 64854, Diogo Almeida
-
-let _ : Unit =
-    let i : Int = 0 ;
-    set i = i + 1 ;
-    print(i)
