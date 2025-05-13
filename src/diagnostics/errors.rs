@@ -58,6 +58,8 @@ pub enum DeclarationErrorKind {
         params_found: usize,
         types_found: usize,
     },
+    DuplicateMain,
+    MissingMain,
 }
 
 #[derive(Debug, Clone)]
@@ -83,6 +85,7 @@ pub enum TypeErrorKind {
     NotIndexable {
         found: Type
     },
+    MainSignatureMismatch,
 }
 
 impl LexicalError {
@@ -215,6 +218,20 @@ impl DeclarationError {
             span,
         }
     }
+
+    pub fn duplicate_main(span: Span) -> Self {
+        Self {
+            kind: DeclarationErrorKind::DuplicateMain,
+            span,
+        }
+    }
+
+    pub fn missing_main() -> Self {
+        Self {
+            kind: DeclarationErrorKind::MissingMain,
+            span: Span::default(),
+        }
+    }
 }
 
 impl From<DeclarationError> for CompileError {
@@ -255,6 +272,13 @@ impl TypeError {
     pub fn not_indexable(span: Span, found: Type) -> Self {
         Self {
             kind: TypeErrorKind::NotIndexable { found },
+            span,
+        }
+    }
+
+    pub fn main_signature_mismatch(span: Span) -> Self {
+        Self {
+            kind: TypeErrorKind::MainSignatureMismatch,
             span,
         }
     }

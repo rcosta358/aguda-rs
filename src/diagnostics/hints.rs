@@ -44,7 +44,7 @@ pub fn get_syntax_hints(expected: Vec<String>, found: Option<Token>) -> Vec<Stri
 
     for token in expected.clone() {
         let hint = match token {
-            "->" => "Did you forget the return type in the function definition?",
+            "->" => "Did you forget the return type?",
             ")" => "Did you forget a closing parenthesis?",
             "]" => "Did you forget a closing bracket?",
             "then" => "Did you forget a 'then' after your if condition?",

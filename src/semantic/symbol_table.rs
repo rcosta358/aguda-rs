@@ -17,7 +17,7 @@ pub struct Symbol {
 
 #[derive(Debug, Clone)]
 struct Scope {
-    symbols: HashMap<String, Symbol>,
+    symbols: HashMap<Id, Symbol>,
     parent: Option<ScopeRef>,
 }
 
@@ -65,7 +65,6 @@ impl SymbolTable {
             let curr = self.curr_scope.borrow();
             (curr.parent.clone(), curr.clone())
         };
-
         self.check_unused_symbols(scope);
 
         // go back to parent scope
@@ -77,7 +76,7 @@ impl SymbolTable {
     }
 
     // returns true if the identifier was declared
-    pub fn declare(&mut self, id: Spanned<String>, ty: Type) -> bool {
+    pub fn declare(&mut self, id: Spanned<Id>, ty: Type) -> bool {
         if id.value == "_" {
             // wildcards are not declared (ignored)
             return true

@@ -1,7 +1,6 @@
 use std::fs;
 use std::path::Path;
 use strsim::levenshtein;
-use crate::syntax::ast::Id;
 
 pub fn read_source_file(file: &str) -> Result<String, String> {
     if file.is_empty() || !file.ends_with(".agu") {

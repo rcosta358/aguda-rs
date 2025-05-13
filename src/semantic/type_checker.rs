@@ -26,14 +26,23 @@ impl TypeChecker {
                     self.check_against(expr, &ty.value);
                     self.symbols.exit_scope();
                 }
-                Decl::Fun { params, ty, expr, .. } => {
+                Decl::Fun { params, ty, expr, id, .. } => {
                     // function scope
                     self.symbols.enter_scope();
-                    for (param_id, param_ty) in params.iter().zip(ty.params.iter()) {
+                    for (param_id, param_ty) in params.iter().zip(ty.value.params.iter()) {
                         let _ = self.symbols.declare(param_id.clone(), param_ty.clone());
                     }
-                    self.check_against(expr, &ty.ret);
+                    self.check_against(expr, &ty.value.ret);
                     self.symbols.exit_scope();
+
+                    // check main function signature
+                    if id.value == "main" && (
+                        ty.value.params.len() != 1
+                        || *ty.value.params.first().unwrap() != Type::Unit
+                        || *ty.value.ret != Type::Unit
+                    ) {
+                        self.errors.push(TypeError::main_signature_mismatch(ty.span.clone()));
+                    }
                 }
             }
         }

@@ -8,6 +8,7 @@ use crate::utils::get_similar;
 pub struct DeclarationChecker {
     symbols: SymbolTable,
     errors: Vec<DeclarationError>,
+    main_declared: bool,
 }
 
 impl DeclarationChecker {
@@ -15,47 +16,51 @@ impl DeclarationChecker {
         Self {
             symbols: SymbolTable::new(),
             errors: Vec::new(),
+            main_declared: false,
         }
     }
 
     pub fn check(&mut self, prog: &Program) -> (SymbolTable, Vec<DeclarationError>, Vec<Warning>) {
         // declare functions first to allow mutually recursive function calls
         for decl in &prog.decls {
-            self.declare_fun_decl(&decl.value.clone());
+            self.declare_fun(&decl.value.clone());
         }
-
         // check each declaration
         for decl in &prog.decls {
             self.check_decl(&decl.value.clone());
         }
-
-        // mark the last declaration as used (entry point)
-        if let Some(last_decl) = prog.decls.last() {
-            let id = match &last_decl.value {
-                Decl::Fun { id, .. } | Decl::Var { id, .. } => &id.value,
-            };
-            self.symbols.lookup(id); // lookup to mark as used
+        if self.main_declared {
+            // mark main function as used
+            self.symbols.lookup("main");
+        } else {
+            self.errors.push(DeclarationError::missing_main());
         }
         (self.symbols.clone(), self.errors.clone(), self.symbols.get_warnings())
     }
 
-    fn declare_fun_decl(&mut self, decl: &Decl) {
+    fn declare_fun(&mut self, decl: &Decl) {
         if let Decl::Fun { id, params, ty, .. } = decl {
             if RESERVED_IDENTIFIERS.contains(&id.value) {
                 self.errors.push(DeclarationError::reserved_identifier(id.clone()));
             }
-            if params.len() != ty.params.len() {
-                self.errors.push(
-                    DeclarationError::function_signature_mismatch(id.span.clone(), params.len(), ty.params.len())
-                );
+            if params.len() != ty.value.params.len() {
+                self.errors.push(DeclarationError::function_signature_mismatch(id.span.clone(), params.len(), ty.value.params.len()));
             }
             for param_id in params {
                 if RESERVED_IDENTIFIERS.contains(&param_id.value) {
                     self.errors.push(DeclarationError::reserved_identifier(param_id.clone()));
                 }
             }
-            if !self.symbols.declare(id.clone(), Type::Fun(ty.clone())) {
+            if !self.symbols.declare(id.clone(), Type::Fun(ty.value.clone())) {
                 self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
+            }
+            // check main declaration
+            if id.value == "main" {
+                if self.main_declared {
+                    self.errors.push(DeclarationError::duplicate_main(id.span.clone()));
+                } else {
+                    self.main_declared = true;
+                }
             }
         }
     }
@@ -79,7 +84,7 @@ impl DeclarationChecker {
             Decl::Fun { params, ty, expr, .. } => {
                 // function scope
                 self.symbols.enter_scope();
-                for (param_id, param_ty) in params.iter().zip(ty.params.iter()) {
+                for (param_id, param_ty) in params.iter().zip(ty.value.params.iter()) {
                     self.symbols.declare(param_id.clone(), param_ty.clone());
                 }
                 self.check_expr(&expr.value);

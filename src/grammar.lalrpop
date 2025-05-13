@@ -20,7 +20,7 @@ DeclVar: Decl = {
 DeclFun: Decl = {
     "let" <id:Spanned<Id>>
         "(" <params:IdList> ")"
-        ":" <ty:FunType>
+        ":" <ty:Spanned<FunType>>
         "=" <expr:Spanned<Expr>>
     => Decl::Fun { id, params, ty, expr },
 }

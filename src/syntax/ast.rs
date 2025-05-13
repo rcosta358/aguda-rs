@@ -26,7 +26,7 @@ pub enum Decl {
     Fun {
         id: Spanned<Id>,
         params: Vec<Spanned<Id>>,
-        ty: FunType,
+        ty: Spanned<FunType>,
         expr: Spanned<Expr>
     }
 }
@@ -195,7 +195,7 @@ impl Decl {
                         .map(|id| id.value.to_string())
                         .collect::<Vec<_>>()
                         .join(", "),
-                    ty.to_text(),
+                    ty.value.to_text(),
                     indent(level + 1),
                     expr.value.to_text(level + 1)
                 )

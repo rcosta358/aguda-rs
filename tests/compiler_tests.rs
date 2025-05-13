@@ -34,12 +34,12 @@ fn test_compiler() {
     println!("❌  Failed: {}", invalid_semantic_failed);
     println!("========================");
     println!("📝  Total tests: {}", total_tests);
-    println!("⚠️   Failures: {}", failed_tests);
+    println!("⚠️  Failures: {}", failed_tests);
     println!("========================");
 
     assert_eq!(valid_failed, 0, "Some valid tests failed");
-    assert_ne!(invalid_syntax_failed, 0, "Some invalid syntax tests passed");
-    assert_ne!(invalid_semantic_passed, 0, "Some invalid semantic tests passed");
+    assert_eq!(invalid_syntax_passed, 0, "Some invalid syntax tests passed");
+    assert_eq!(invalid_semantic_passed, 0, "Some invalid semantic tests passed");
 }
 
 fn test_agu_files_in_dir(dir: &Path, should_pass: bool) -> (i32, i32) {
