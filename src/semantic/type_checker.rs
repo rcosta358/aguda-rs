@@ -53,7 +53,7 @@ impl TypeChecker {
         }
     }
 
-    pub fn type_of(&mut self, expr: &Spanned<Expr>) -> Type {
+    fn type_of(&mut self, expr: &Spanned<Expr>) -> Type {
         let span = expr.span.clone();
         match &expr.value {
             Expr::Chain { lhs, rhs } => {
@@ -186,7 +186,7 @@ impl TypeChecker {
         }
     }
 
-    pub fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
+    fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
         let found = self.type_of(expr);
         if found == Type::Any {
             return; // avoid error propagation
@@ -216,7 +216,7 @@ impl TypeChecker {
         }
     }
 
-    pub fn check_equal(&mut self, lhs: &Type, rhs: &Type, span: &Span) {
+    fn check_equal(&mut self, lhs: &Type, rhs: &Type, span: &Span) {
         if lhs == rhs {
             return; // types match
         }

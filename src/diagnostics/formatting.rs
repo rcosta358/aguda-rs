@@ -186,10 +186,6 @@ fn format_warning(warning: &Warning, suppress_hints: bool, path: &str, src: &str
                 .hints(vec![hint])
                 .render(label, &msg, sym.span.clone())
         }
-        Warning::RedefinedVariable(id) => {
-            let msg = format!("the variable {} is redefined in the same scope", id.value.bold());
-            diagnostic.render(label, &msg, id.span.clone())
-        }
     }
 }
 

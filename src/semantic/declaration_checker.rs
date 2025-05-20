@@ -35,7 +35,7 @@ impl DeclarationChecker {
         } else {
             self.errors.push(DeclarationError::missing_main());
         }
-        (self.symbols.clone(), self.errors.clone(), self.symbols.get_warnings())
+        (self.symbols.clone(), self.errors.clone(), self.get_warnings())
     }
 
     fn declare_fun(&mut self, decl: &Decl) {
@@ -133,22 +133,17 @@ impl DeclarationChecker {
                 self.check_expr(&cond.value);
 
                 // then scope
-                self.symbols.enter_scope();
+
                 self.check_expr(&then.value);
-                self.symbols.exit_scope();
 
                 // else scope
-                self.symbols.enter_scope();
                 self.check_expr(&els.value);
-                self.symbols.exit_scope();
             }
             Expr::While { cond, expr } => {
                 self.check_expr(&cond.value);
 
                 // while body scope
-                self.symbols.enter_scope();
                 self.check_expr(&expr.value);
-                self.symbols.exit_scope();
             }
             Expr::NewArray { size, init, .. } => {
                 self.check_expr(&size.value);
@@ -175,9 +170,33 @@ impl DeclarationChecker {
 
     fn check_id(&mut self, id: &Spanned<Id>) {
         if self.symbols.lookup(&id.value).is_none() {
-            let all_symbols = self.symbols.get_visible_symbols();
+            let all_symbols = self.symbols.get_symbols_in_scope().iter().map(|(id, _)| id.to_owned()).collect::<Vec<_>>();
             let similar = get_similar(all_symbols, &id.value);
             self.errors.push(DeclarationError::undeclared_identifier(id.clone(), similar));
         }
+    }
+
+    fn get_warnings(&mut self) -> Vec<Warning> {
+        let mut warnings = Vec::new();
+
+        // nested scopes
+        for (id, sym) in self.symbols.get_unused_symbols().iter() {
+            let warning = Warning::UnusedIdentifier(Spanned {
+                value: id.clone(),
+                span: sym.span.clone(),
+            });
+            warnings.push(warning);
+        }
+        // global scope
+        for (id, sym) in self.symbols.get_symbols_in_scope().iter() {
+            if !sym.used && !id.starts_with("_") {
+                warnings.push(Warning::UnusedIdentifier(Spanned {
+                    value: id.clone(),
+                    span:  sym.span.clone(),
+                }));
+            }
+        }
+        warnings.reverse(); // return warnings from top to bottom
+        warnings
     }
 }

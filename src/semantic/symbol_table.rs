@@ -1,7 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::diagnostics::warnings::Warning;
 use crate::semantic::INIT_SYMBOLS;
 use crate::syntax::ast::{Id, Span, Spanned, Type};
 
@@ -16,7 +15,7 @@ pub struct Symbol {
 }
 
 #[derive(Debug, Clone)]
-struct Scope {
+pub struct Scope {
     symbols: HashMap<Id, Symbol>,
     parent: Option<ScopeRef>,
 }
@@ -24,7 +23,7 @@ struct Scope {
 #[derive(Debug, Clone)]
 pub struct SymbolTable {
     curr_scope: ScopeRef,
-    warnings: Vec<Warning>,
+    unused_symbols: Vec<(Id, Symbol)>,
 }
 
 impl SymbolTable {
@@ -48,7 +47,7 @@ impl SymbolTable {
         }));
         SymbolTable {
             curr_scope: root,
-            warnings: Vec::new()
+            unused_symbols: Vec::new(),
         }
     }
 
@@ -65,7 +64,7 @@ impl SymbolTable {
             let curr = self.curr_scope.borrow();
             (curr.parent.clone(), curr.clone())
         };
-        self.check_unused_symbols(scope);
+        self.update_unused_symbols(scope);
 
         // go back to parent scope
         if let Some(parent) = parent_opt {
@@ -86,8 +85,6 @@ impl SymbolTable {
             if scope.parent.is_none() { // global scope
                 return false // cannot redeclare global declarations
             }
-            // if we are in a nested scope, we can redeclare
-            self.warnings.push(Warning::RedefinedVariable(id.clone()));
         }
         let symbol = Symbol {
             ty,
@@ -116,52 +113,34 @@ impl SymbolTable {
         None
     }
 
-    pub fn get_visible_symbols(&self) -> Vec<Id> {
-        let mut set = HashSet::new();
+    pub fn get_symbols_in_scope(&self) -> Vec<(Id, Symbol)> {
+        let mut map = HashMap::new();
         let mut scope_opt = Some(self.curr_scope.clone());
         while let Some(scope_ref) = scope_opt {
             let scope = scope_ref.borrow();
             for name in scope.symbols.keys() {
-                set.insert(name.clone());
+                map.insert(name.clone(), scope.symbols[name].clone());
             }
             scope_opt = scope.parent.clone();
         }
-        set.into_iter().collect()
+        map.into_iter().collect()
     }
 
-    pub fn get_warnings(&self) -> Vec<Warning> {
-        // declaration scopes
-        let mut all = self.warnings.clone();
-
-        // global scope
-        let curr = self.curr_scope.borrow();
-        for (id, sym) in curr.symbols.iter() {
-            if !sym.used {
-                all.push(Warning::UnusedIdentifier(Spanned {
-                    value: id.clone(),
-                    span:  sym.span.clone(),
-                }));
-            }
-        }
-        all.reverse(); // return warnings from top to bottom
-        all
+    pub fn get_scope(&self) -> ScopeRef {
+        self.curr_scope.clone()
     }
 
-    fn check_unused_symbols(&mut self, scope: Scope) {
-        // collect all unused symbols in the current scope
-        let unused_symbols: Vec<(Id, Symbol)> = scope.symbols
-            .iter()
-            .filter(|(id, symbol)| !symbol.used && !id.starts_with("_"))
-            .map(|(id, symbol)| (id.clone(), symbol.clone()))
-            .collect();
+    pub fn get_unused_symbols(&self) -> Vec<(Id, Symbol)> {
+        self.unused_symbols.clone()
+    }
 
-        // add warnings
-        for (id, sym) in unused_symbols.iter() {
-            let warning = Warning::UnusedIdentifier(Spanned {
-                value: id.clone(),
-                span: sym.span.clone(),
-            });
-            self.warnings.push(warning);
-        }
+    fn update_unused_symbols(&mut self, scope: Scope) {
+        self.unused_symbols.extend(
+            scope.symbols
+                .iter()
+                .filter(|(id, symbol)| !symbol.used && !id.starts_with("_"))
+                .map(|(id, symbol)| (id.clone(), symbol.clone()))
+                .collect::<Vec<_>>()
+        );
     }
 }
