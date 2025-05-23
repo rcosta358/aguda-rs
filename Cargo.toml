@@ -11,7 +11,18 @@ lazy_static = "1.5.0"
 colored = "3.0.0"
 clap = { version = "4", features = ["derive"] }
 strsim = "0.11.1"
-inkwell = { version = "0.4.0", features=["llvm17-0-force-static"] }
+inkwell = { version = "0.4.0", features = ["llvm17-0"] }
 
 [build-dependencies]
 lalrpop = "0.22.1"
+
+[profile.dev]
+opt-level = 0
+debug = true
+incremental = true
+codegen-units = 256
+rpath = false
+lto = false
+debug-assertions = true
+panic = 'unwind'
+overflow-checks = true

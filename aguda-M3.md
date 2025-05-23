@@ -64,23 +64,22 @@ cargo run -- --file path/to/file.agu
 
 The compiler also accepts various command line arguments to customize its behavior:
 
-| Option                          | Description                                               | Default    |
-|---------------------------------|-----------------------------------------------------------|------------|
-| `-f, --file <FILE>`             | Path to the source .agu file                              | `main.agu` |
-| `--max-errors <MAX_ERRORS>`     | Maximum number of errors to display                       | `5`        |
-| `--max-warnings <MAX_WARNINGS>` | Maximum number of warnings to display                     | `5`        |
-| `--suppress-errors`             | Suppress errors in the output                             |            |
-| `--suppress-warnings`           | Suppress warnings in the output                           |            |
-| `--suppress-hints`              | Suppress hints in the output                              |            |
-| `--suppress-ast`                | Suppress the textual representation of the AST in output  |            |
-| `--suppress-all`                | Suppress all output                                       |            |
-| `-h, --help`                    | Print help                                                |            |
-| `-V, --version`                 | Print version                                             |            |
+| Option                          | Description                                | Default    |
+|---------------------------------|--------------------------------------------|------------|
+| `-f, --file <FILE>`             | Path to the source .agu file               | `main.agu` |
+| `--max-errors <MAX_ERRORS>`     | Maximum number of errors to display        | `5`        |
+| `--max-warnings <MAX_WARNINGS>` | Maximum number of warnings to display      | `5`        |
+| `--suppress-errors`             | Suppress errors in the output              |            |
+| `--suppress-warnings`           | Suppress warnings in the output            |            |
+| `--suppress-hints`              | Suppress hints in the output               |            |
+| `--ast`                         | Show the AST without running the program   |            |
+| `-h, --help`                    | Print help                                 |            |
+| `-V, --version`                 | Print version                              |            |
 
 Example usage:
 
 ```sh
-cargo run -- --file hello.agu --max-errors 10 --suppress-ast
+cargo run -- --file hello.agu --max-errors 10 --ast
 ```
 
 ### Implementation

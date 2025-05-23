@@ -1,6 +1,18 @@
 use crate::syntax::ast::{Id, Span, Spanned, Type};
 use crate::syntax::lexer::Token;
 
+#[derive(Debug, Clone)]
+pub enum AgudaError {
+    Compile(CompileError),
+    Runtime(RuntimeError),
+}
+
+#[derive(Debug, Clone)]
+pub struct RuntimeError {
+    pub message: String,
+}
+
+#[derive(Debug, Clone)]
 pub enum CompileError {
     Lexical(LexicalError),
     Syntax(SyntaxError),
@@ -287,5 +299,17 @@ impl TypeError {
 impl From<TypeError> for CompileError {
     fn from(e: TypeError) -> Self {
         CompileError::Semantic(SemanticError::Type(e))
+    }
+}
+
+impl From<CompileError> for AgudaError {
+    fn from(e: CompileError) -> Self {
+        AgudaError::Compile(e)
+    }
+}
+
+impl From<RuntimeError> for AgudaError {
+    fn from(e: RuntimeError) -> Self {
+        AgudaError::Runtime(e)
     }
 }

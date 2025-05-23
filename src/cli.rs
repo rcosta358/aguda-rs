@@ -29,11 +29,11 @@ pub struct Cli {
     #[arg(long, default_value_t = false)]
     pub suppress_hints: bool,
 
-    /// Suppress the textual representation of the AST in the output
+    /// Show the AST without running the program
     #[arg(long, default_value_t = false)]
-    pub suppress_ast: bool,
+    pub ast: bool,
 
-    /// Suppress all output
-    #[arg(long, default_value_t = false)]
-    pub suppress_all: bool,
+    /// LLVM optimization level (0-3)
+    #[arg(short, long, default_value_t = 0, value_parser = clap::value_parser!(u32).range(0..=3))]
+    pub opt: u32,
 }

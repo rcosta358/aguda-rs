@@ -1,9 +1,24 @@
+use std::collections::HashMap;
 use lazy_static::lazy_static;
-use crate::syntax::ast::{FunType, Type};
+use crate::syntax::ast::{FunType, Span, Type};
 
 pub mod symbol_table;
 pub mod declaration_checker;
 pub mod type_checker;
+
+#[derive(Debug, Clone)]
+pub struct Symbol {
+    pub ty: Type,
+    pub span: Span,
+}
+
+pub fn get_init_symbols() -> HashMap<String, Symbol> {
+    INIT_SYMBOLS
+        .iter()
+        .cloned()
+        .map(|(id, ty)| { (id.to_string(), Symbol { ty, span: Span::default() }) })
+        .collect::<HashMap<_, _>>()
+}
 
 lazy_static! {
     pub static ref INIT_SYMBOLS: [(&'static str, Type); 2] = [

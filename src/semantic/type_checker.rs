@@ -1,18 +1,19 @@
 use crate::diagnostics::errors::TypeError;
+use crate::semantic::{get_init_symbols, Symbol};
 use crate::semantic::symbol_table::SymbolTable;
 use crate::syntax::ast::*;
 
 #[derive(Debug)]
 pub struct TypeChecker {
-    symbols: SymbolTable,
+    symbols: SymbolTable<Symbol>,
     errors: Vec<TypeError>,
 }
 
 impl TypeChecker {
 
-    pub fn new(symbols: SymbolTable) -> Self {
+    pub fn new() -> Self {
         TypeChecker {
-            symbols, // already with global declarations
+            symbols: SymbolTable::new(get_init_symbols()),
             errors: Vec::new()
         }
     }
@@ -20,20 +21,22 @@ impl TypeChecker {
     pub fn check(&mut self, prog: &Program) -> Result<(), Vec<TypeError>> {
         for decl in &prog.decls {
             match &decl.value {
-                Decl::Var { ty, expr, .. } => {
+                Decl::Var { id, ty, expr } => {
                     // variable scope
                     self.symbols.enter_scope();
                     self.check_against(expr, &ty.value);
                     self.symbols.exit_scope();
+                    self.declare(&id, &ty.value);
                 }
-                Decl::Fun { params, ty, expr, id, .. } => {
+                Decl::Fun { id, params, ty, expr } => {
                     // function scope
                     self.symbols.enter_scope();
                     for (param_id, param_ty) in params.iter().zip(ty.value.params.iter()) {
-                        let _ = self.symbols.declare(param_id.clone(), param_ty.clone());
+                        self.declare(&param_id, &param_ty);
                     }
                     self.check_against(expr, &ty.value.ret);
                     self.symbols.exit_scope();
+                    self.declare(&id, &Type::Fun(ty.value.clone()));
 
                     // check main function signature
                     if id.value == "main" && (
@@ -60,7 +63,7 @@ impl TypeChecker {
                 self.type_of(lhs);
                 if let Expr::Let { id, ty, .. } = &lhs.value {
                     // declare the let binding in the scope
-                    self.symbols.declare(id.clone(), ty.value.clone());
+                    self.declare(&id, &ty.value);
                 }
                 self.type_of(rhs)
             }
@@ -77,21 +80,20 @@ impl TypeChecker {
                 Type::Unit
             }
             Expr::BinOp { lhs, op, rhs } => {
-                match op.get_type() {
-                    OpType::Numerical => {
+                match op {
+                    Op::Add | Op::Sub | Op::Mul | Op::Div | Op::Mod | Op::Pow => {
                         self.check_against(lhs, &Type::Int);
                         self.check_against(rhs, &Type::Int);
                         Type::Int
                     }
-                    OpType::Logical => {
+                    Op::And | Op::Or => {
                         self.check_against(lhs, &Type::Bool);
                         self.check_against(rhs, &Type::Bool);
                         Type::Bool
                     }
-                    OpType::Comparison => {
+                    Op::Eq | Op::Neq | Op::Lt | Op::Leq | Op::Gt | Op::Geq => {
                         let left_type = self.type_of(lhs);
-                        let right_type = self.type_of(rhs);
-                        self.check_equal(&left_type, &right_type, &span);
+                        self.check_against(rhs, &left_type);
                         Type::Bool
                     }
                 }
@@ -101,10 +103,10 @@ impl TypeChecker {
                 Type::Bool
             }
             Expr::FunCall { id, args } => {
-                let Some(fun_type) = self.symbols.lookup(&id.value) else {
+                let Some(fun) = self.symbols.lookup(&id.value) else {
                     return Type::Any; // undeclared symbol, error already reported
                 };
-                if let Type::Fun(ty) = fun_type {
+                if let Type::Fun(ty) = fun.ty {
                     if ty.params.len() != args.len() {
                         self.errors.push(
                             TypeError::arg_count_mismatch(span.clone(), args.len(), ty.params.len())
@@ -115,36 +117,19 @@ impl TypeChecker {
                     }
                     *ty.ret.clone()
                 } else {
-                    self.errors.push(
-                        TypeError::not_callable(span.clone(), fun_type)
-                    );
+                    self.errors.push(TypeError::not_callable(span.clone(), fun.ty));
                     Type::Any // avoid error propagation
                 }
             }
             Expr::IfElse { cond, then, els } => {
                 self.check_against(cond, &Type::Bool);
-
-                // then scope
-                self.symbols.enter_scope();
                 let then_type = self.type_of(then);
-                self.symbols.exit_scope();
-
-                // else scope
-                self.symbols.enter_scope();
-                let else_type = self.type_of(els);
-                self.symbols.exit_scope();
-
-                self.check_equal(&then_type, &else_type, &span);
+                self.check_against(els, &then_type);
                 then_type
             }
             Expr::While { cond, expr } => {
                 self.check_against(cond, &Type::Bool);
-
-                // while body scope
-                self.symbols.enter_scope();
                 self.type_of(expr);
-                self.symbols.exit_scope();
-
                 Type::Unit
             }
             Expr::NewArray { ty, size, init } => {
@@ -162,7 +147,7 @@ impl TypeChecker {
                     Type::Any // avoid error propagation
                 }
             }
-            Expr::Id(id) => self.symbols.lookup(&id.value).unwrap_or(Type::Any),
+            Expr::Id(id) => self.lookup(&id).unwrap_or(Type::Any),
             Expr::Int(_) => Type::Int,
             Expr::String(_) => Type::String,
             Expr::Bool(_) => Type::Bool,
@@ -172,7 +157,7 @@ impl TypeChecker {
 
     fn type_of_lhs(&mut self, lhs: &Spanned<Lhs>) -> Type {
         match &lhs.value {
-            Lhs::Var { id } => self.symbols.lookup(&id.value).unwrap_or(Type::Any),
+            Lhs::Var { id } => self.lookup(&id).unwrap_or(Type::Any),
             Lhs::Index { lhs, index } => {
                 let arr_type = self.type_of_lhs(lhs);
                 self.check_against(index, &Type::Int);
@@ -187,17 +172,13 @@ impl TypeChecker {
     }
 
     fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
-        let found = self.type_of(expr);
-        if found == Type::Any {
-            return; // avoid error propagation
-        }
         match expected {
             // any type matches any type
             Type::Any => return,
-
-            // array of any matches any array of any type
             Type::Array(expected_inner) if **expected_inner == Type::Any => {
+                let found = self.type_of(expr);
                 match found {
+                    // array of any matches any array of any type
                     Type::Array(_) => return,
                     _ => {
                         // not an array
@@ -207,26 +188,40 @@ impl TypeChecker {
                     }
                 }
             }
-            // all other cases must match exactly
-            _ => {
-                if &found != expected {
-                    self.errors.push(TypeError::type_mismatch(expr.span.clone(), found, expected.clone()));
+            _ => match &expr.value {
+                Expr::IfElse { cond, then, els } => {
+                    self.check_against(cond, &Type::Bool);
+                    self.check_against(then, &expected);
+                    self.check_against(els, &expected);
+                }
+                Expr::BinOp { lhs, op, rhs } if matches!(op, Op::Eq) || matches!(op, Op::Neq) => {
+                    let lhs_ty = self.type_of(lhs);
+                    self.check_against(rhs, &lhs_ty);
+                }
+                _ => {
+                    let found = self.type_of(expr);
+                    if found == Type::Any {
+                        return; // avoid error propagation
+                    }
+                    if &found != expected {
+                        self.errors.push(
+                            TypeError::type_mismatch(expr.span.clone(), found, expected.clone())
+                        );
+                    }
                 }
             }
         }
     }
 
-    fn check_equal(&mut self, lhs: &Type, rhs: &Type, span: &Span) {
-        if lhs == rhs {
-            return; // types match
-        }
-        match (lhs, rhs) {
-            (Type::Array(l), Type::Array(r)) => self.check_equal(l, r, span),
-            _ => {
-                self.errors.push(
-                    TypeError::expected_equal_types(span.clone(), lhs.clone(), rhs.clone())
-                );
-            },
-        }
+    fn declare(&mut self, id: &Spanned<Id>, ty: &Type) {
+        let symbol = Symbol {
+            ty: ty.clone(),
+            span: id.span.clone(),
+        };
+        self.symbols.declare(&id.value, &symbol);
+    }
+
+    fn lookup(&mut self, id: &Spanned<Id>) -> Option<Type> {
+        self.symbols.lookup(&id.value).map(|s| s.ty.clone())
     }
 }

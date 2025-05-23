@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 use strsim::levenshtein;
 
-pub fn read_source_file(file: &str) -> Result<String, String> {
+pub fn read_aguda_file(file: &str) -> Result<String, String> {
     if file.is_empty() || !file.ends_with(".agu") {
         return Err("Invalid aguda file".to_string());
     }

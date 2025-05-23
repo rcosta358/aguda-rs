@@ -5,7 +5,7 @@ use crate::utils::indent;
 pub type Span = Range<usize>;
 pub type Id = String;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Spanned<T> {
     pub value: T,
     pub span: Span,
@@ -119,21 +119,6 @@ impl Op {
         };
         text.to_string()
     }
-
-    pub fn get_type(&self) -> OpType {
-        match self {
-            Op::Add | Op::Sub | Op::Mul | Op::Div | Op::Mod | Op::Pow => OpType::Numerical,
-            Op::And | Op::Or => OpType::Logical,
-            Op::Eq | Op::Neq | Op::Lt | Op::Leq | Op::Gt | Op::Geq => OpType::Comparison,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum OpType {
-    Numerical,
-    Logical,
-    Comparison,
 }
 
 #[derive(Debug, Clone, PartialEq)]

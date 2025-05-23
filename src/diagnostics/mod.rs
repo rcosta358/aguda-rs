@@ -1,4 +1,4 @@
-use colored::Color;
+use colored::{Color, Colorize};
 use crate::diagnostics::formatting::{format_hints, format_message};
 use crate::syntax::ast::Span;
 
@@ -42,5 +42,10 @@ impl<'a> Diagnostic<'a> {
             out.push_str(&format_hints(self.hints));
         }
         out
+    }
+
+    fn render_simple(self, label: &str, description: &str) -> String {
+        let colored_label = format!("{}:", label).color(self.color).bold();
+        format!("{} {}", colored_label, description)
     }
 }

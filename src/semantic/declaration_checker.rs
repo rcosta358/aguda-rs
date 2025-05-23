@@ -1,12 +1,13 @@
 use crate::diagnostics::errors::DeclarationError;
 use crate::diagnostics::warnings::Warning;
-use crate::semantic::RESERVED_IDENTIFIERS;
+use crate::semantic::{get_init_symbols, Symbol, RESERVED_IDENTIFIERS};
 use crate::syntax::ast::{Program, Decl, Expr, Lhs, Type, Id, Spanned};
 use crate::semantic::symbol_table::SymbolTable;
 use crate::utils::get_similar;
 
 pub struct DeclarationChecker {
-    symbols: SymbolTable,
+    symbols: SymbolTable<Symbol>,
+    unused_symbols: Vec<Spanned<Id>>,
     errors: Vec<DeclarationError>,
     main_declared: bool,
 }
@@ -14,46 +15,37 @@ pub struct DeclarationChecker {
 impl DeclarationChecker {
     pub fn new() -> Self {
         Self {
-            symbols: SymbolTable::new(),
+            symbols: SymbolTable::new(get_init_symbols()),
+            unused_symbols: Vec::new(),
             errors: Vec::new(),
             main_declared: false,
         }
     }
 
-    pub fn check(&mut self, prog: &Program) -> (SymbolTable, Vec<DeclarationError>, Vec<Warning>) {
+    pub fn check(&mut self, prog: &Program) -> (Vec<DeclarationError>, Vec<Warning>) {
         // declare functions first to allow mutually recursive function calls
         for decl in &prog.decls {
-            self.declare_fun(&decl.value.clone());
+            self.declare_fun(&decl.value);
         }
         // check each declaration
         for decl in &prog.decls {
-            self.check_decl(&decl.value.clone());
+            self.check_decl(&decl.value);
         }
         if self.main_declared {
             // mark main function as used
-            self.symbols.lookup("main");
+            self.lookup(&"main".to_string());
         } else {
             self.errors.push(DeclarationError::missing_main());
         }
-        (self.symbols.clone(), self.errors.clone(), self.get_warnings())
+        (self.errors.clone(), self.get_warnings())
     }
 
     fn declare_fun(&mut self, decl: &Decl) {
         if let Decl::Fun { id, params, ty, .. } = decl {
-            if RESERVED_IDENTIFIERS.contains(&id.value) {
-                self.errors.push(DeclarationError::reserved_identifier(id.clone()));
-            }
             if params.len() != ty.value.params.len() {
                 self.errors.push(DeclarationError::function_signature_mismatch(id.span.clone(), params.len(), ty.value.params.len()));
             }
-            for param_id in params {
-                if RESERVED_IDENTIFIERS.contains(&param_id.value) {
-                    self.errors.push(DeclarationError::reserved_identifier(param_id.clone()));
-                }
-            }
-            if !self.symbols.declare(id.clone(), Type::Fun(ty.value.clone())) {
-                self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
-            }
+            self.declare(&id, &Type::Fun(ty.value.clone()));
             // check main declaration
             if id.value == "main" {
                 if self.main_declared {
@@ -68,24 +60,19 @@ impl DeclarationChecker {
     fn check_decl(&mut self, decl: &Decl) {
         match decl {
             Decl::Var { expr, id, ty } => {
-                if RESERVED_IDENTIFIERS.contains(&id.value) {
-                    self.errors.push(DeclarationError::reserved_identifier(id.clone()));
-                }
                 // variable scope
                 self.symbols.enter_scope();
                 self.check_expr(&expr.value);
                 self.symbols.exit_scope();
 
                 // only declare after exiting scope so it's not visible inside
-                if !self.symbols.declare(id.clone(), ty.value.clone()) {
-                    self.errors.push(DeclarationError::duplicate_declaration(id.clone()));
-                }
+                self.declare(&id, &ty.value);
             }
             Decl::Fun { params, ty, expr, .. } => {
                 // function scope
                 self.symbols.enter_scope();
                 for (param_id, param_ty) in params.iter().zip(ty.value.params.iter()) {
-                    self.symbols.declare(param_id.clone(), param_ty.clone());
+                    self.declare(&param_id, &param_ty);
                 }
                 self.check_expr(&expr.value);
                 self.symbols.exit_scope();
@@ -99,7 +86,7 @@ impl DeclarationChecker {
                 self.check_expr(&lhs.value);
                 if let Expr::Let { id, ty, .. } = &lhs.value {
                     // declare the let binding in the scope
-                    self.symbols.declare(id.clone(), ty.value.clone());
+                    self.declare(&id, &ty.value);
                 }
                 self.check_expr(&rhs.value);
             }
@@ -169,34 +156,49 @@ impl DeclarationChecker {
     }
 
     fn check_id(&mut self, id: &Spanned<Id>) {
-        if self.symbols.lookup(&id.value).is_none() {
+        if self.lookup(&id.value).is_none() {
             let all_symbols = self.symbols.get_symbols_in_scope().iter().map(|(id, _)| id.to_owned()).collect::<Vec<_>>();
             let similar = get_similar(all_symbols, &id.value);
             self.errors.push(DeclarationError::undeclared_identifier(id.clone(), similar));
         }
     }
 
-    fn get_warnings(&mut self) -> Vec<Warning> {
-        let mut warnings = Vec::new();
+    fn declare(&mut self, id: &Spanned<Id>, ty: &Type) {
+        if RESERVED_IDENTIFIERS.contains(&id.value) {
+            self.errors.push(DeclarationError::reserved_identifier(id.clone()));
+        }
+        let symbol = Symbol {
+            ty: ty.clone(),
+            span: id.span.clone(),
+        };
+        self.symbols.declare(&id.value, &symbol);
+        if !id.value.starts_with("_") {
+            self.unused_symbols.push(id.clone());
+        }
+    }
 
-        // nested scopes
-        for (id, sym) in self.symbols.get_unused_symbols().iter() {
-            let warning = Warning::UnusedIdentifier(Spanned {
+    fn lookup(&mut self, id: &Id) -> Option<Symbol> {
+        let symbol = self.symbols.lookup(&id);
+        if let Some(symbol) = &symbol {
+            let span = Spanned {
                 value: id.clone(),
-                span: sym.span.clone(),
-            });
-            warnings.push(warning);
+                span: symbol.span.clone(),
+            };
+            // remove from unused symbols
+            self.unused_symbols = self.unused_symbols
+                .clone()
+                .into_iter()
+                .filter(|s| *s != span)
+                .collect::<Vec<_>>()
         }
-        // global scope
-        for (id, sym) in self.symbols.get_symbols_in_scope().iter() {
-            if !sym.used && !id.starts_with("_") {
-                warnings.push(Warning::UnusedIdentifier(Spanned {
-                    value: id.clone(),
-                    span:  sym.span.clone(),
-                }));
-            }
+        symbol
+    }
+
+    fn get_warnings(&self) -> Vec<Warning> {
+        let mut warnings = Vec::new();
+        for id in &self.unused_symbols {
+            warnings.push(Warning::UnusedIdentifier(id.clone()));
         }
-        warnings.reverse(); // return warnings from top to bottom
         warnings
     }
 }

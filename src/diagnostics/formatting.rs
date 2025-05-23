@@ -6,8 +6,8 @@ use crate::diagnostics::warnings::Warning;
 use crate::syntax::ast::Span;
 use crate::utils::get_position_in_src;
 
-pub fn format_errors(
-    errors: Vec<CompileError>,
+pub fn format_aguda_errors(
+    errors: Vec<AgudaError>,
     max_errors: usize,
     suppress_hints: bool,
     file: &str,
@@ -17,7 +17,7 @@ pub fn format_errors(
     let (display_errors, suppressed_errors) = errors.split_at(split_index);
     let mut errors_str = display_errors
         .iter()
-        .map(|e| format_error(e, suppress_hints, &file, &src))
+        .map(|e| format_aguda_error(e, suppress_hints, &file, &src))
         .collect::<Vec<_>>()
         .join("\n");
     if suppressed_errors.len() > 0 {
@@ -28,126 +28,132 @@ pub fn format_errors(
     errors_str
 }
 
-fn format_error(e: &CompileError, suppress_hints: bool, path: &str, src: &str) -> String {
+fn format_aguda_error(e: &AgudaError, suppress_hints: bool, path: &str, src: &str) -> String {
     let diagnostic = Diagnostic::new(path, src, Color::Red, suppress_hints);
     match e {
-        CompileError::Lexical(e) => {
-            let label = "Lexical Error:";
-            let description = match e.kind.clone() {
-                LexicalErrorKind::UnrecognizedToken => "unrecognized token",
-                LexicalErrorKind::UnterminatedString => "unterminated string",
-                LexicalErrorKind::InvalidInteger => "invalid integer literal",
-                LexicalErrorKind::IntegerOverflow => "integer overflow",
-                LexicalErrorKind::FloatingPointNumber => "floating point number",
-            };
-            diagnostic.render(label, description, e.span.clone())
-        }
-        CompileError::Syntax(e) => {
-            let label = "Syntax Error:";
-            let (description, hints) = match e.kind.clone() {
-                SyntaxErrorKind::UnexpectedToken(expected, found) => {
-                    ("unexpected token", get_syntax_hints(expected, Some(found)))
-                }
-                SyntaxErrorKind::UnexpectedEof(mut expected) => {
-                    expected.push("!eof".to_string());
-                    ("unexpected end of input", get_syntax_hints(expected, None))
-                }
-                SyntaxErrorKind::InvalidToken => ("invalid token", vec![]),
-                SyntaxErrorKind::ExtraToken => ("extra token", vec![]),
-            };
-            diagnostic
-                .hints(hints)
-                .render(label, description, e.span.clone())
-        }
-        CompileError::Semantic(e) => {
-            match e {
-                SemanticError::Declaration(e) => {
-                    let label = "Declaration Error:";
-                    let (description, hint) = match e.kind.clone() {
-                        DeclarationErrorKind::UndeclaredIdentifier(id, similar) => {
-                            let msg = if id == "_" {
-                                "wildcard identifier cannot be used".to_string()
-                            } else {
-                                format!("undeclared identifier {}", id.bold())
-                            };
-                            let hint = similar.map(|s| { format!("did you mean {}?", s.bold()) });
-                            (msg, hint)
-                        },
-                        DeclarationErrorKind::DuplicateDeclaration(id) => {
-                            let msg = format!("duplicate declaration of {}", id.bold());
-                            (msg, None)
-                        }
-                        DeclarationErrorKind::ReservedIdentifier(id) => {
-                            let msg = format!("reserved identifier {} cannot be used", id.bold());
-                            (msg, None)
-                        }
-                        DeclarationErrorKind::FunctionSignatureMismatch { params_found, types_found } => {
-                            let msg = format!(
-                                "wrong function signature, found {} parameter{} and {} type{}",
-                                params_found,
-                                if params_found > 1 { "s" } else { "" },
-                                types_found,
-                                if types_found > 1 { "s" } else { "" }
-                            );
-                            (msg, None)
-                        }
-                        DeclarationErrorKind::DuplicateMain => ("duplicate main function".to_string(), None),
-                        DeclarationErrorKind::MissingMain => {
-                            let msg = "missing main function".to_string();
-                            let hint = format!(
-                                "define the entry point with {}",
-                                "let main(_) : Unit -> Unit".bold()
-                            );
-                            (msg, Some(hint))
-                        }
-                    };
-                    diagnostic
-                        .hints(hint.map(|h| vec![h]).unwrap_or_default())
-                        .render(label, &description, e.span.clone())
-                }
-                SemanticError::Type(e) => {
-                    let label = "Type Error:";
-                    let description = match e.kind.clone() {
-                        TypeErrorKind::TypeMismatch { found, expected } => {
-                            format!(
-                                "type mismatch, found {}, expected {}",
-                                found.to_text().bold(),
-                                expected.to_text().bold()
-                            )
-                        }
-                        TypeErrorKind::IncompatibleTypes(lhs, rhs) => {
-                            format!(
-                                "expected equal types, found {} and {}",
-                                lhs.to_text().bold(),
-                                rhs.to_text().bold()
-                            )
-                        }
-                        TypeErrorKind::ArgumentCountMismatch { found, expected } => {
-                            format!(
-                                "wrong number of arguments, found {}, expected {}",
-                                found.to_string().bold(),
-                                expected.to_string().bold()
-                            )
-                        }
-                        TypeErrorKind::NotCallable { found } => {
-                            format!(
-                                "expression not callable, found {}, expected function",
-                                found.to_text().bold()
-                            )
-                        }
-                        TypeErrorKind::NotIndexable { found } => {
-                            format!(
-                                "expression not indexable, found {}, expected array",
-                                found.to_text().bold()
-                            )
-                        },
-                        TypeErrorKind::MainSignatureMismatch => {
-                            format!("main function must have signature {}", "Unit -> Unit".bold())
-                        }
-                    };
-                    diagnostic.render(label, &description, e.span.clone())
+        AgudaError::Compile(e) => match e {
+            CompileError::Lexical(e) => {
+                let label = "Lexical Error:";
+                let description = match &e.kind {
+                    LexicalErrorKind::UnrecognizedToken => "unrecognized token",
+                    LexicalErrorKind::UnterminatedString => "unterminated string",
+                    LexicalErrorKind::InvalidInteger => "invalid integer literal",
+                    LexicalErrorKind::IntegerOverflow => "integer overflow",
+                    LexicalErrorKind::FloatingPointNumber => "floating point number",
+                };
+                diagnostic.render(label, description, e.span.clone())
+            }
+            CompileError::Syntax(e) => {
+                let label = "Syntax Error:";
+                let (description, hints) = match e.kind.clone() {
+                    SyntaxErrorKind::UnexpectedToken(expected, found) => {
+                        ("unexpected token", get_syntax_hints(expected, Some(found)))
+                    }
+                    SyntaxErrorKind::UnexpectedEof(mut expected) => {
+                        expected.push("!eof".to_string());
+                        ("unexpected end of input", get_syntax_hints(expected, None))
+                    }
+                    SyntaxErrorKind::InvalidToken => ("invalid token", vec![]),
+                    SyntaxErrorKind::ExtraToken => ("extra token", vec![]),
+                };
+                diagnostic
+                    .hints(hints)
+                    .render(label, description, e.span.clone())
+            }
+            CompileError::Semantic(e) => {
+                match e {
+                    SemanticError::Declaration(e) => {
+                        let label = "Declaration Error:";
+                        let (description, hint) = match e.kind.clone() {
+                            DeclarationErrorKind::UndeclaredIdentifier(id, similar) => {
+                                let msg = if id == "_" {
+                                    "wildcard identifier cannot be used".to_string()
+                                } else {
+                                    format!("undeclared identifier {}", id.bold())
+                                };
+                                let hint = similar.map(|s| { format!("did you mean {}?", s.bold()) });
+                                (msg, hint)
+                            },
+                            DeclarationErrorKind::DuplicateDeclaration(id) => {
+                                let msg = format!("duplicate declaration of {}", id.bold());
+                                (msg, None)
+                            }
+                            DeclarationErrorKind::ReservedIdentifier(id) => {
+                                let msg = format!("reserved identifier {} cannot be used", id.bold());
+                                (msg, None)
+                            }
+                            DeclarationErrorKind::FunctionSignatureMismatch { params_found, types_found } => {
+                                let msg = format!(
+                                    "wrong function signature, found {} parameter{} and {} type{}",
+                                    params_found,
+                                    if params_found > 1 { "s" } else { "" },
+                                    types_found,
+                                    if types_found > 1 { "s" } else { "" }
+                                );
+                                (msg, None)
+                            }
+                            DeclarationErrorKind::DuplicateMain => ("duplicate main function".to_string(), None),
+                            DeclarationErrorKind::MissingMain => {
+                                let msg = "missing main function".to_string();
+                                let hint = format!(
+                                    "define the entry point with {}",
+                                    "let main(_) : Unit -> Unit".bold()
+                                );
+                                (msg, Some(hint))
+                            }
+                        };
+                        diagnostic
+                            .hints(hint.map(|h| vec![h]).unwrap_or_default())
+                            .render(label, &description, e.span.clone())
+                    }
+                    SemanticError::Type(e) => {
+                        let label = "Type Error:";
+                        let description = match e.kind.clone() {
+                            TypeErrorKind::TypeMismatch { found, expected } => {
+                                format!(
+                                    "type mismatch, found {}, expected {}",
+                                    found.to_text().bold(),
+                                    expected.to_text().bold()
+                                )
+                            }
+                            TypeErrorKind::IncompatibleTypes(lhs, rhs) => {
+                                format!(
+                                    "expected equal types, found {} and {}",
+                                    lhs.to_text().bold(),
+                                    rhs.to_text().bold()
+                                )
+                            }
+                            TypeErrorKind::ArgumentCountMismatch { found, expected } => {
+                                format!(
+                                    "wrong number of arguments, found {}, expected {}",
+                                    found.to_string().bold(),
+                                    expected.to_string().bold()
+                                )
+                            }
+                            TypeErrorKind::NotCallable { found } => {
+                                format!(
+                                    "expression not callable, found {}, expected function",
+                                    found.to_text().bold()
+                                )
+                            }
+                            TypeErrorKind::NotIndexable { found } => {
+                                format!(
+                                    "expression not indexable, found {}, expected array",
+                                    found.to_text().bold()
+                                )
+                            },
+                            TypeErrorKind::MainSignatureMismatch => {
+                                format!("main function must have signature {}", "Unit -> Unit".bold())
+                            }
+                        };
+                        diagnostic.render(label, &description, e.span.clone())
+                    }
                 }
             }
+        },
+        AgudaError::Runtime(e) => {
+            let label = "Runtime Error";
+            diagnostic.render_simple(&label, &e.message)
         }
     }
 }

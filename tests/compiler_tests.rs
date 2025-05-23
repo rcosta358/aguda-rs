@@ -1,7 +1,8 @@
 use std::fs;
 use std::path::Path;
-use aguda_rs::compile_aguda_program;
-use aguda_rs::diagnostics::formatting::format_errors;
+use aguda_rs::{compile_aguda_program, run_aguda_program};
+use aguda_rs::diagnostics::errors::AgudaError;
+use aguda_rs::diagnostics::formatting::format_aguda_errors;
 
 #[test]
 fn test_compiler() {
@@ -42,22 +43,22 @@ fn test_compiler() {
     assert_eq!(invalid_semantic_passed, 0, "Some invalid semantic tests passed");
 }
 
-fn test_agu_files_in_dir(dir: &Path, should_pass: bool) -> (i32, i32) {
+fn test_agu_files_in_dir(dir: &Path, valid: bool) -> (i32, i32) {
     assert!(dir.exists(), "Test directory not found");
     let mut passed = 0;
     let mut failed = 0;
-    for entry in fs::read_dir(dir).expect("Failed to read base test directory") {
-        let path = entry.expect("Invalid entry").path();
+    for entry in fs::read_dir(dir).expect("failed to read base test directory") {
+        let path = entry.expect("invalid entry").path();
         if path.is_dir() {
             match test_agu_file_in_dir(&path) {
                 Ok(_) => {
                     passed += 1;
-                    if !should_pass {
+                    if !valid {
                         println!("❌ Test shouldn't have passed in {:?}", path);
                     }
                 },
                 Err(err) => {
-                    if should_pass {
+                    if valid {
                         println!("{}", err);
                     }
                     failed += 1;
@@ -70,17 +71,40 @@ fn test_agu_files_in_dir(dir: &Path, should_pass: bool) -> (i32, i32) {
 
 fn test_agu_file_in_dir(dir: &Path) -> Result<(), String> {
     let agu_file = fs::read_dir(dir)
-        .map_err(|e| format!("Failed to read dir {:?}: {}", dir, e))?
-        .map(|entry| entry.expect("Invalid entry").path())
+        .map_err(|e| format!("failed to read dir {:?}: {}", dir, e))?
+        .map(|entry| entry.expect("invalid entry").path())
         .find(|p| p.extension().map_or(false, |ext| ext == "agu"));
 
-    let agu_path = agu_file.ok_or_else(|| format!("No .agu file found in {:?}", dir))?;
+    let agu_path = agu_file.ok_or_else(|| format!("no .agu file found in {:?}", dir))?;
     let src = fs::read_to_string(&agu_path)
-        .map_err(|e| format!("Failed to read file {:?}: {}", agu_path, e))?;
+        .map_err(|e| format!("failed to read file {:?}: {}", agu_path, e))?;
 
-    let result = compile_aguda_program(&src);
+    let result = compile_aguda_program(&src, &agu_path.to_string_lossy(), 0);
     match result {
-        Ok(_) => Ok(()),
-        Err(e) => Err(format_errors(e, 1, true, &agu_path.to_string_lossy(), &src))
+        Ok(_) => {
+            let expected_file = agu_path.with_extension("expect");
+            let expected = fs::read_to_string(&expected_file)
+                .map_err(|e| format!("failed to read expected output file {:?}: {}", expected_file, e))?;
+
+            let output = run_aguda_program(&agu_path.to_str().unwrap());
+            match output {
+                Ok(output) => {
+                    let stdout = String::from_utf8_lossy(&output.stdout);
+                    if stdout.trim() == expected.trim() {
+                        Ok(())
+                    } else {
+                        Err(format!("wrong output for: {:?}:\nexpected: {}\ngot: {}", agu_path, expected, stdout))
+                    }
+                },
+                Err(e) => {
+                    let errors = vec![AgudaError::from(e)];
+                    Err(format_aguda_errors(errors, 1, true, &agu_path.to_string_lossy(), &src))
+                }
+            }
+        },
+        Err(e) => {
+            let errors = e.iter().map(|e| AgudaError::from(e.clone())).collect::<Vec<_>>();
+            Err(format_aguda_errors(errors, 1, true, &agu_path.to_string_lossy(), &src))
+        }
     }
 }

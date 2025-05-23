@@ -1,10 +1,16 @@
--- Author: tcomp000, Vasco T. Vasconcelos
+-- Author: 64371, Ricardo Costa
 
-let even (x) : Int -> Bool =
-  if x == 0 then true else odd(x - 1)
+-- Project Euler: Even Fibonacci Numbers
+-- https://projecteuler.net/problem=2
 
-let odd (x) : Int -> Bool =
-  if x != 0 then even(x - 1) else false
-
-let main (u) : Unit -> Unit =
-  print(odd(17))
+let main (_): Unit -> Unit =
+    let res: Int = 0;
+    let i: Int = 1;
+    let j: Int = 2;
+    while j < 4000000 do (
+        if j % 2 == 0 then set res = res + j; -- add even fibonacci number to result
+        let tmp: Int = i;
+        set i = j;
+        set j = tmp + j
+    );
+    print(res) -- 4613732
