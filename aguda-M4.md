@@ -24,18 +24,24 @@ In this phase, the code generation was implemented.
 To build the Docker image, run:
 
 ```sh
-docker-compose build --no-cache
+docker-compose build
 ```
 
-**Warning:** this build takes a long time because it needs to download LLVM.
+**Warning:** this build can take a long time (around 15 minutes) because it needs to download LLVM.
 
-This will automatically clone the tests from the [aguda-testing](https://git.alunos.di.fc.ul.pt/tcomp000/aguda-testing) repository.
-Also, it will build and re-generate the parser with the [grammar file](./src/grammar.lalrpop) as well as the C library into a `.ll` with `clang` to then be linked with the generated LLVM code.
-The C library includes the definitions of the various print functions and the pow and div functions. Each type has its corresponding print function, the pow is needed because LLVM does not have a power operation and the div is needed to check for division by zero.
+This will automatically:
+- Clone the tests from the [aguda-testing](https://git.alunos.di.fc.ul.pt/tcomp000/aguda-testing) repository
+- Re-generate the parser with the [grammar file](./src/grammar.lalrpop)
+- Re-generate the [lib.c](./lib.c) into a `.ll` with `clang` to then be linked with the generated LLVM code
+
+The C library includes:
+- A print function for each type (`__print_int__`, `__print_bool__`, `__print_unit__`)
+- A power function (`__pow__`) to compute the power of a number
+- A division function (`__div__`) to check for division by zero at runtime
 
 #### Create and Access the Container
 
-To create a container and spawn a shell inside it, run:
+To create a container with the image and spawn a shell inside it, run:
 
 ```sh
 docker-compose run --rm aguda-rs bash
@@ -50,6 +56,7 @@ cargo run
 ```
 
 #### Run the Tests
+
 To run the tests, run:
 
 ```sh

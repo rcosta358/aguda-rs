@@ -34,8 +34,8 @@ fn test_compiler() {
     println!("✅  Passed: {}", invalid_semantic_passed);
     println!("❌  Failed: {}", invalid_semantic_failed);
     println!("========================");
-    println!("📝  Total tests: {}", total_tests);
-    println!("⚠️  Failures: {}", failed_tests);
+    println!("📝 Total tests: {}", total_tests);
+    println!("⚠️ Failures: {}", failed_tests);
     println!("========================");
 
     assert_eq!(valid_failed, 0, "Some valid tests failed");
@@ -79,8 +79,11 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<(), String> {
     let src = fs::read_to_string(&agu_path)
         .map_err(|e| format!("failed to read file {:?}: {}", agu_path, e))?;
 
-    let result = compile_aguda_program(&src, &agu_path.to_string_lossy(), 0);
-    match result {
+    let result = std::panic::catch_unwind(|| compile_aguda_program(&src, &agu_path.to_string_lossy(), 0));
+    if result.is_err() {
+        return Err(format!("failed to compile: {:?}", agu_path));
+    }
+    match result.unwrap() {
         Ok(_) => {
             let expected_file = agu_path.with_extension("expect");
             let expected = fs::read_to_string(&expected_file)
@@ -93,7 +96,7 @@ fn test_agu_file_in_dir(dir: &Path) -> Result<(), String> {
                     if stdout.trim() == expected.trim() {
                         Ok(())
                     } else {
-                        Err(format!("wrong output for: {:?}:\nexpected: {}\ngot: {}", agu_path, expected, stdout))
+                        Err(format!("wrong output for: {:?}:\nexpected:\n{}\ngot:\n{}", agu_path, expected, stdout))
                     }
                 },
                 Err(e) => {

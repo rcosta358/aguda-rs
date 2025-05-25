@@ -55,10 +55,8 @@ impl <T: Clone> SymbolTable <T> {
             return true
         }
         let mut scope = self.curr_scope.borrow_mut();
-        if scope.symbols.contains_key(id) { // redefinition
-            if scope.parent.is_none() { // global scope
-                return false // cannot redeclare global declarations
-            }
+        if scope.symbols.contains_key(id) && scope.parent.is_none() {
+            return false // cannot redeclare global declarations
         }
         scope.symbols.insert(id.to_string(), val.clone());
         true

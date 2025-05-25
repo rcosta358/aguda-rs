@@ -1,6 +1,6 @@
 FROM rust:latest
 
-# install llvm
+# install llvm+clang
 ENV LLVM_VERSION=17.0.6
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

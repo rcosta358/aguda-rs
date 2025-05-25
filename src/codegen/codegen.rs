@@ -22,6 +22,7 @@ impl<'ctx> CodeGen<'ctx> {
             panic!("invalid module name"); // avoid collision with lib.ll
         }
         let module = context.create_module(module_name);
+        // link with lib.ll
         let aguda_buf = MemoryBuffer::create_from_file(Path::new("lib.ll")).expect("could not read lib.ll");
         let aguda_mod = context.create_module_from_ir(aguda_buf).expect("failed to parse lib.ll");
         module.link_in_module(aguda_mod).expect("failed to link aguda module");
@@ -101,7 +102,6 @@ impl<'ctx> CodeGen<'ctx> {
         self.module.add_function(&id, fn_type, None)
     }
 
-
     fn gen_fun(
         &mut self,
         id: &Id,
@@ -127,9 +127,11 @@ impl<'ctx> CodeGen<'ctx> {
         // generate function body
         let ret_val = self.gen_expr(body);
         self.symbols.exit_scope();
+
+        // generate return
         if matches!(fun_ty.ret.deref(), Type::Unit) {
             if id == "main" {
-                self.builder.build_return(Some(&self.int_type().const_int(0, false))).unwrap();
+                self.builder.build_return(Some(&self.int_type().const_zero())).unwrap();
             } else {
                 self.builder.build_return(None).unwrap();
             }
