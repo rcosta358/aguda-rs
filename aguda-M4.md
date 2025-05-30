@@ -27,9 +27,8 @@ To build the Docker image, run:
 docker-compose build
 ```
 
-**Warning:** this build can take a long time (around 15 minutes) because it needs to download LLVM.
-
-This will automatically:
+This uses a pre-built Docker image containing Rust, LLVM and Clang for faster builds.
+Also, it will automatically:
 - Clone the tests from the [aguda-testing](https://git.alunos.di.fc.ul.pt/tcomp000/aguda-testing) repository
 - Re-generate the parser with the [grammar file](./src/grammar.lalrpop)
 - Re-generate the [lib.c](./lib.c) into a `.ll` with `clang` to then be linked with the generated LLVM code
@@ -91,7 +90,7 @@ The compiler also accepts various command line arguments to customize its behavi
 Example usage:
 
 ```sh
-cargo run -- -f hello.agu -o 1 --max-errors 10
+cargo run -- -f main.agu -o 1 --max-errors 10
 ```
 
 ### Implementation
@@ -111,14 +110,21 @@ This implementation neither supports top-level let expressions except for consta
 
 #### Short-Circuit Boolean Expressions
 
-The short-circuit boolean expressions (`&&` and `||`) were implemented using a custom function that:
+The short-circuit boolean expressions (`&&`, `||` and `!`) were implemented to optimize boolean expressions.
 
-1. Evaluates the left operand
-2. Depending on the operation, proceeds as follows:
+For the `&&` and `||` operators, it is done as follows:
+
+- The left operand is evaluated 
+- Depending on the operation, proceeds as follows:
   - `&&`:
     - If the result of the left operand is `false`, then the right side is not evaluated and branches to the end of the boolean expression (short-circuit)
     - If the result of the left operand is `true`, then the right operand is evaluated
   - `||`:
     - If the result of the left operand is `true`, then the right side is not evaluated and branches to the end of the boolean expression (short-circuit)
     - If the result of the left operand is `false`, then the right operand is evaluated
-3. In the end, a phi node is used to select the result
+
+For the `!` operator, it is done differently:
+
+It works by counting the number of chained not operations in the expression.
+- **Even Count**: the not operations cancel each other out, so no extra code is generated for the negation of the boolean expression, and just the innermost expression is generated
+- **Odd Count**: a single not operation is generated to negate the innermost expression

@@ -96,8 +96,6 @@ declare void @exit(i32 noundef) #2
 
 define i32 @main({} %0) {
 entry:
-  %_ = alloca {}, align 8
-  store {} %0, ptr %_, align 1
   %res = alloca i32, align 4
   store i32 0, ptr %res, align 4
   %i = alloca i32, align 4

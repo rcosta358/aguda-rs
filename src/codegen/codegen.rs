@@ -65,13 +65,25 @@ impl<'ctx> CodeGen<'ctx> {
 
     fn gen_decl(&mut self, decl: &Decl) {
         if let Decl::Var { id, ty, expr } = decl {
-            match &expr.value {
-                Expr::Unit | Expr::String(_) | Expr::Bool(_) | Expr::Int(_) => {}
+            // constant for top-level declarations
+            let constant = match& expr.value {
+                // literals
+                Expr::Unit | Expr::String(_) | Expr::Bool(_) | Expr::Int(_) => {
+                    expr.value.clone()
+                }
+                // negative integer literal
+                Expr::BinOp { lhs, op, rhs } if matches!(op, Op::Sub) && matches!(lhs.value, Expr::Int(0)) => {
+                    if let Expr::Int(rhs) = &rhs.value {
+                        Expr::Int(-rhs)
+                    } else {
+                        unimplemented!("expression for top-level declaration")
+                    }
+                }
                 _ => unimplemented!("expression for top-level declaration"),
-            }
+            };
             let llvm_ty = self.llvm_type(&ty.value);
             self.symbols.enter_scope();
-            let val = self.gen_expr(&expr.value);
+            let val = self.gen_expr(&constant);
             self.symbols.exit_scope();
             let global = self.module.add_global(llvm_ty, None, &id.value);
             self.symbols.declare(&id.value, &(global.as_pointer_value(), llvm_ty));
@@ -93,7 +105,7 @@ impl<'ctx> CodeGen<'ctx> {
         let fn_type = match fun_ty.ret.deref() {
             Type::Unit =>
                 if id == "main" {
-                    self.context.i32_type().fn_type(&params_ty, false)
+                    self.int_type().fn_type(&params_ty, false)
                 } else {
                     self.context.void_type().fn_type(&params_ty, false)
                 },
@@ -118,6 +130,10 @@ impl<'ctx> CodeGen<'ctx> {
         // allocate space for params
         for (index, param) in fun.get_param_iter().enumerate() {
             let name = &params[index];
+            if name == "_" {
+                // skip wildcard parameters
+                continue;
+            }
             let llvm_ty = self.llvm_type(&fun_ty.params[index]);
             let pointer = self.builder.build_alloca(llvm_ty, name).unwrap();
             self.builder.build_store(pointer, param).unwrap();
@@ -153,7 +169,7 @@ impl<'ctx> CodeGen<'ctx> {
             Expr::Let { id, ty, expr } => {
                 let val = self.gen_expr(&expr.value);
                 self.symbols.enter_scope();
-                // chain expression is responsible for exiting the scope
+                // scope is exited in chain expression
 
                 // only allocate space if not a wildcard
                 if id.value != "_" {
@@ -162,7 +178,6 @@ impl<'ctx> CodeGen<'ctx> {
                     self.builder.build_store(pointer, val).unwrap();
                     self.symbols.declare(&id.value, &(pointer, llvm_ty));
                 };
-
                 self.unit_type().const_zero().into()
             }
             Expr::Set { lhs, expr } => {
@@ -197,11 +212,18 @@ impl<'ctx> CodeGen<'ctx> {
                         res.unwrap().into()
                     }
                 }
-
             }
             Expr::Not { expr } => {
-                let val = self.gen_expr(&expr.value).into_int_value();
-                self.builder.build_not(val, "not").unwrap().into()
+                // short-circuit for chained not operations
+                let (not_count, inner_expr) = self.unwrap_not(&expr.value);
+                let val = self.gen_expr(inner_expr).into_int_value();
+                if not_count % 2 == 0 {
+                    // even number of nots (cancel out)
+                    val.into()
+                } else {
+                    // odd number of nots (negate)
+                    self.builder.build_not(val, "not").unwrap().into()
+                }
             }
             Expr::While { cond, expr } => {
                 let parent = self.builder.get_insert_block().unwrap().get_parent().unwrap();
@@ -215,7 +237,7 @@ impl<'ctx> CodeGen<'ctx> {
                 // cond block
                 self.builder.position_at_end(cond_block);
                 let cond_val = self.gen_expr(&cond.value).into_int_value();
-                let zero = self.context.bool_type().const_zero();
+                let zero = self.bool_type().const_zero();
                 let cmp = self.builder.build_int_compare(IntPredicate::NE, cond_val, zero, "while_cond").unwrap();
                 self.builder.build_conditional_branch(cmp, body_block, after_block).unwrap();
 
@@ -315,27 +337,6 @@ impl<'ctx> CodeGen<'ctx> {
        }
     }
 
-    fn llvm_type(&self, ty: &Type) -> BasicTypeEnum<'ctx> {
-        match ty {
-            Type::Int => self.int_type().into(),
-            Type::Bool => self.bool_type().into(),
-            Type::Unit => self.unit_type().into(),
-            _ => unimplemented!("type {:?}", ty),
-        }
-    }
-
-    fn int_type(&self) -> IntType<'ctx> {
-        self.context.i32_type()
-    }
-
-    fn bool_type(&self) -> IntType<'ctx> {
-        self.context.bool_type()
-    }
-
-    fn unit_type(&self) -> StructType<'ctx> {
-        self.context.struct_type(&[], false)
-    }
-
     fn build_short_circuit_op(&mut self, lhs: &Expr, rhs: &Expr, and_op: bool) -> BasicValueEnum<'ctx> {
         let fun = self.builder.get_insert_block().unwrap().get_parent().unwrap();
 
@@ -372,11 +373,42 @@ impl<'ctx> CodeGen<'ctx> {
         name: &str
     ) -> Result<IntValue<'ctx>, BuilderError> {
         let fun_name = format!("__{}__", name);
-        let fun = self.module.get_function(&fun_name)
-            .expect(format!("undefined function {}", fun_name).as_str());
+        let fun = self.module.get_function(&fun_name).expect(format!("undefined function {}", fun_name).as_str());
         let args = [l.into(), r.into()];
         let call = self.builder.build_call(fun, &args, &name)?;
         let ret = call.try_as_basic_value().left().unwrap().into_int_value();
         Ok(ret)
+    }
+
+    // counts number of not operators and returns the innermost expression
+    fn unwrap_not<'a>(&self, expr: &'a Expr) -> (usize, &'a Expr) {
+        let mut count = 0;
+        let mut current = expr;
+        while let Expr::Not { expr: inner } = current {
+            count += 1;
+            current = &inner.value;
+        }
+        (count+1, current)
+    }
+
+    fn llvm_type(&self, ty: &Type) -> BasicTypeEnum<'ctx> {
+        match ty {
+            Type::Int => self.int_type().into(),
+            Type::Bool => self.bool_type().into(),
+            Type::Unit => self.unit_type().into(),
+            _ => unimplemented!("type {:?}", ty),
+        }
+    }
+
+    fn int_type(&self) -> IntType<'ctx> {
+        self.context.i32_type()
+    }
+
+    fn bool_type(&self) -> IntType<'ctx> {
+        self.context.bool_type()
+    }
+
+    fn unit_type(&self) -> StructType<'ctx> {
+        self.context.struct_type(&[], false)
     }
 }

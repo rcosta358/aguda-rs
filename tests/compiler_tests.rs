@@ -54,7 +54,7 @@ fn test_agu_files_in_dir(dir: &Path, valid: bool) -> (i32, i32) {
                 Ok(_) => {
                     passed += 1;
                     if !valid {
-                        println!("❌ Test shouldn't have passed in {:?}", path);
+                        println!("❌  Test shouldn't have passed in {:?}", path);
                     }
                 },
                 Err(err) => {
