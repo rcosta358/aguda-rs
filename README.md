@@ -34,7 +34,6 @@ Each program is a sequence of declarations, introduced by the `let` keyword.
 - **Arrays**: `type []`
 - **Functions**: `type -> type` or `(type1, ..., type) -> type` (n >= 1)
 
-
 ## Example
 
 Here's a simple AGUDA program that creates a 2x2 identity matrix and prints it:
@@ -52,7 +51,7 @@ let printMatrix (a) : Int[][] -> Unit =
         set i = i + 1
     )
 
-let main : Unit =
+let main(_): Unit -> Unit =
     let a : Int[][] = new Int[][2 | new Int[2 | 0]];
     set a[0][0] = 1;
     set a[1][1] = 1;
