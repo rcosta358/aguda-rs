@@ -1,0 +1,19 @@
+-- Author: 54394, Afonso Esteves
+
+
+let booleans2 (a, s) : (Bool[], Int) -> Bool =
+
+    set a[1] = !a[2]; -- change one value for testing
+
+    let acc : Bool = true;
+    let i : Int = 0;
+    while i < s && acc do (
+        set acc = acc && a[i];
+        set i = i+1
+    );
+    acc
+
+let main (x) : Unit -> Unit =
+  booleans2(new Bool[4 | true], 4) ;
+  x
+

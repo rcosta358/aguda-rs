@@ -1,0 +1,15 @@
+-- Author: 54394, Afonso Esteves
+
+
+
+let printn (s, n) : (Bool, Int) -> Unit =
+    let i : Int = 0;
+    while i < n do (
+        print(s);
+        set i = i + 1
+    )
+
+
+let main(_) : Unit -> Unit = 
+    printn(false, 4)
+

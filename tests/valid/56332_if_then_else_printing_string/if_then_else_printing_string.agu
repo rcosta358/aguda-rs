@@ -1,0 +1,5 @@
+-- Author: 56332, Student Ricardo Sobral
+
+let sinal (n) : Int -> Bool = n >= 0
+
+let main(_) : Unit -> Unit = print(sinal(0))

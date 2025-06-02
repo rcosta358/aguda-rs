@@ -1,0 +1,9 @@
+-- Author: 64854, Diogo Almeida
+
+let produceLetter (letter) : Bool -> Bool = 
+    let l : Bool = letter ;
+    l
+
+let main(_) : Unit -> Unit =
+    let a : Bool = true;
+    print(produceLetter(a))

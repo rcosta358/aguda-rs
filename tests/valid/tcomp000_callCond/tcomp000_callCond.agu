@@ -1,0 +1,4 @@
+let add (x, y) : (Int, Int) -> Int = x + y
+
+let main (_) : Unit -> Unit =
+  print(add(if true then 3 else 4, if true then (if false then 5 else 6) else 7))

@@ -1,0 +1,41 @@
+-- Author: 58170, Guilherme Sousa
+
+let categorizeNumber (n) : Int -> Int =
+  let result : Int = 0;
+  let isEven : Bool = n % 2 == 0;
+  let isPositive : Bool = n > 0;
+  let isBig : Bool = n > 100;
+  
+  if isEven then
+    if isPositive then
+      if isBig then
+        set result = 1  -- even, positive, big
+      else
+        set result = 2  -- even, positive, small
+    else
+      if n == 0 then
+        set result = 5  -- zero
+      else
+        set result = 3  -- even, negative
+  else
+    if isPositive then
+      set result = 4;   -- odd, positive
+      if n % 5 == 0 then
+        set result = 6  -- odd, positive, multiple of 5
+    else
+      set result = 7;   -- odd, negative
+      if n < -50 then
+        set result = 8  -- odd, very negative
+  ;  
+
+  result
+
+let main(_) : Unit -> Unit =
+    print(categorizeNumber(150));
+    print(categorizeNumber(24));
+    print(categorizeNumber(0));
+    print(categorizeNumber(-12));
+    print(categorizeNumber(15));
+    print(categorizeNumber(7));
+    print(categorizeNumber(-3));
+    print(categorizeNumber(-75))

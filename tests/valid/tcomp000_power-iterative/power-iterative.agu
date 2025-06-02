@@ -1,0 +1,12 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let power (base, exponent) : (Int, Int) -> Int =
+  let result : Int = 1 ;
+  while exponent > 0 do (
+    set result = result * base;
+    set exponent = exponent - 1
+  ) ;
+  result
+
+let main (_) : Unit -> Unit =
+  print(power(2, 6))

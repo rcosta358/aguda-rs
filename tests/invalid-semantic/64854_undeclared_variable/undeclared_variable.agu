@@ -1,0 +1,4 @@
+-- Author: 64854, Diogo Almeida
+
+-- y is not declared
+let x : Int = y + 1

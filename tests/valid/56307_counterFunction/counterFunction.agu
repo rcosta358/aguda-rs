@@ -1,0 +1,10 @@
+-- Author: 560307, Denis Ungureanu
+let counterTest (n) : Int -> Int =
+  let counter : Int = 0 ;
+  while n > 0 do (
+    set counter = counter + 1 ;
+    set n = n - 1
+  );
+  counter
+
+let main(_) : Unit -> Unit = print(counterTest(7))

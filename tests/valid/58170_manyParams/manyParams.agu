@@ -1,0 +1,7 @@
+-- Author: 58170, Guilherme Sousa
+
+let manyParams (a, b, c, d, e) : (Int, Int, Int, Int, Int) -> Int =
+  a + b + c + d + e
+
+let main(_) : Unit -> Unit =
+  print(manyParams(1, 2, 3, 4, 5))

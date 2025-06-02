@@ -1,0 +1,23 @@
+-- Author: 58182, Gabriel Henriques
+
+let main(_) : Unit -> Unit =
+    let a : Bool = true ;
+    let b : Bool = false ;
+    let c : Bool = true ;
+
+    let opRes : Bool = false;
+
+    set opRes = a && (b || c) ;
+    print(opRes);
+
+    set opRes = (a && b) || c ;
+    print(opRes);
+
+    set opRes = !(a && b) || (b && c) ;
+    print(opRes);
+
+    set opRes = !a && b ;
+    print(opRes);
+
+    set opRes = !((a || b) && c) ;
+    print(opRes)

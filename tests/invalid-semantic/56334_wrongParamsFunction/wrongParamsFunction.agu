@@ -1,0 +1,9 @@
+-- Author: fc56334, Goncalo Lopes
+
+let max(x,y) : (Int,Int) -> Int =
+    let max : Int = 0;
+    if x <= y then set max = y else set max = x;
+    max
+
+let _ : Int =
+    max(2,3,4)

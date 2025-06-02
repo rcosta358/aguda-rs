@@ -1,0 +1,7 @@
+-- Author: 58182, Gabriel Henriques
+
+let unitFunction (_) : Unit -> Int = 1
+
+let main(_) : Unit -> Unit =
+    let result : Int = unitFunction(unit) ;
+    print(result)

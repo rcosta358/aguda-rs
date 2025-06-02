@@ -1,0 +1,5 @@
+-- Author: 58182, Gabriel Henriques
+
+let missingSemicolon : Int =
+    let anotherVar : Int = 456
+    anotherVar

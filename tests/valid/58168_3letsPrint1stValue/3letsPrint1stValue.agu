@@ -1,0 +1,7 @@
+-- Author: 58168, Henrique Costa Vale
+
+let main(_) : Unit -> Unit =
+  let a : Int = 0 ;
+  let b : Int = 1 ;
+  let c : Int = 2 ;
+  print(a)

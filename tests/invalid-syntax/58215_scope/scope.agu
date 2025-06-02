@@ -1,0 +1,9 @@
+-- Author: 58215, Manuel Lourenço
+
+let aux (y) : Int -> Int
+    let x : Int = 5;
+    y
+
+let main : Unit =
+    aux(4);
+    print(x)

@@ -1,0 +1,7 @@
+-- Author: 64854, Diogo Almeida
+
+let switch (boolean) : Bool -> Bool =
+    !boolean
+
+let main(_) : Unit -> Unit =
+    print(switch(true))

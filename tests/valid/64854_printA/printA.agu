@@ -1,0 +1,7 @@
+-- Author: 64854, Diogo Almeida
+
+let printA (_) : Unit -> Unit =
+    print(unit)
+
+let main (_) : Unit -> Unit =
+    printA(unit)

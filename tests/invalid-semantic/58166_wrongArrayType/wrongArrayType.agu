@@ -1,0 +1,9 @@
+-- Author: 58166, Manuel Campos
+
+-- Semantic Error
+let _ : Unit =
+    let arr : Int[] = new Bool[5 | True];
+    let x : Int = arr[9];
+    print(x)
+
+

@@ -1,0 +1,20 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let even (x) : Int -> Bool =
+  let result : Bool = false ;
+  if x == 0 then
+    set result = true
+  else 
+    set result = odd(x - 1) ;
+  result
+
+let odd (x) : Int -> Bool =
+  let result : Bool = false ;
+  if x == 0 then
+    set result = false
+  else 
+    set result = even(x - 1) ;
+  result
+
+let main (u) : Unit -> Unit =
+  print(odd(19))

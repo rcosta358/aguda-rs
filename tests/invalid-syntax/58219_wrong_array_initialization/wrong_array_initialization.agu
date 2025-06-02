@@ -1,0 +1,5 @@
+-- Author: 58219, Mariana Costa
+-- Syntactic error: wrong array initialization
+
+let _ : Unit =
+    let arr : Int[] = new Int[5, 0]

@@ -1,0 +1,11 @@
+-- Author: fc64361, Gustavo Henriques
+
+let testPositiveAssignment(x) : Int -> Unit =
+    if x > 0 then
+        print(true)
+    else
+        print(false)
+
+let main(_) : Unit -> Unit =
+    testPositiveAssignment(-10); -- Should print "x is negative"
+    testPositiveAssignment(10)   -- Should print "x is positive"

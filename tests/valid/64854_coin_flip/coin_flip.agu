@@ -1,0 +1,7 @@
+-- Author: 64854, Diogo Almeida
+
+let coinFlip (n) : Int -> Int =
+    if n % 2 == 1 then 1 else 2
+
+let main(_) : Unit -> Unit =
+    print(coinFlip(4))

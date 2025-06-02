@@ -1,0 +1,5 @@
+-- Author: 64371, Ricardo Costa
+
+let main: Unit =
+    let arr: Int[] = new Int[5 | 0];
+    set arr["0"] = 1 -- semantic error: invalid array index type

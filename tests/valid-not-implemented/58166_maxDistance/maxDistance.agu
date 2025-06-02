@@ -1,0 +1,33 @@
+-- Author: 58166, Manuel Campos
+
+let createArray (_) : Unit -> Int[] =
+    let a : Int[] = new Int [4 | 1];
+    let i : Int = 0;
+    while i < length(a) do (
+        set a[i] = a[i] + ( (i + 1) * 3 );
+        set i = i + 1
+    ) ;
+    a
+
+let calcDist (x, y) : (Int, Int) -> Int =
+    let retVal : Int = 0;
+    if x - y < 0 then set retVal = -(x - y) else set retVal = x - y;
+    retVal
+
+let maxDistance (a) : Int[] -> Int =
+    let result : Int = 0;
+    if length(a) == 0 then set result = 0 else (
+    let min : Int = a[0];
+    let max : Int = a[0];
+    let i : Int = 0;
+    while i < length(a) do  (
+        if a[i] < min then set min = a[i];
+        if a[i] > max then set max = a[i];
+        set i = i + 1
+    ) ;
+    let result : Int = calcDist(max, min));
+    result
+
+let _ : Unit =
+    let arr : Int[] =  createArray(unit);
+    print(maxDistance(arr))

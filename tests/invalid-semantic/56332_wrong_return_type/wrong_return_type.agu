@@ -1,0 +1,3 @@
+-- Author: 56332, Student Ricardo Sobral
+let retornaUnit (_) : Int -> Unit = print("olá")
+let x : Int = retornaUnit(5)

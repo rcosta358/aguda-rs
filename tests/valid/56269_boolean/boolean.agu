@@ -1,0 +1,6 @@
+-- Author: 56269, Frederico Prazeres
+
+let main(_) : Unit -> Unit = 
+    print(if true 
+        then true 
+            else false)

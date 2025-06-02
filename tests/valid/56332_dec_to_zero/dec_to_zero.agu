@@ -1,0 +1,10 @@
+-- Author: 56332, Student Ricardo Sobral
+
+--imprime todos os numeros até 0 (incluido)
+let decToZero (n) : Int -> Unit =
+    if n == -1 then unit
+    else (
+        print(n);
+        decToZero(n - 1)
+    )
+let main(_) : Unit -> Unit = decToZero(5)

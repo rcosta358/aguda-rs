@@ -1,0 +1,8 @@
+-- Author: tcomp56311, João Vedor
+
+let func(x): Int -> Bool = 
+    if if x == 4 then true else false then true else false
+
+let main(_) : Unit -> Unit =
+    print(func(4));
+    print(func(3))

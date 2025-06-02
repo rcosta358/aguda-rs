@@ -1,0 +1,7 @@
+-- Author: Eduardo Santos, 58185
+-- Syntax error: missing parentheses in function declaration
+
+let add n, m : (Int, Int) -> Int =  
+    n + m
+    
+let main : Unit = print(add(3, 4))

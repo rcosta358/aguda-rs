@@ -1,0 +1,6 @@
+-- Author: 58170, Guilherme Sousa
+
+let main : Unit =
+  let x : Int = 5;
+  if x then 
+    print("x is true")

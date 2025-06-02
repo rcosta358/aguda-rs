@@ -1,0 +1,9 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let add (x, y) : (Int, Int) -> Int = x + y
+
+let mul (x, y) : (Int, Int) -> Int = x * y
+
+let f (x) : Int -> Int = add (x, mul(x, x))
+
+let main (_) : Unit -> Unit = print(f(5))

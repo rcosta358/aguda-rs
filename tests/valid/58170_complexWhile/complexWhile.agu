@@ -1,0 +1,27 @@
+-- Author: 58170, Guilherme Sousa
+
+let main(_) : Unit -> Unit =
+  let a : Int = 1;
+  let b : Int = 10;
+  let c : Int = 0;
+  
+  while a < b && (a % 3 != 0 || b % 5 != 0) do (
+--    print("a = ");
+    print(a);
+--    print(", b = ");
+    print(b);
+--    print("\n");
+    
+    set a = a + 1;
+    set b = b - 1;
+    set c = c + 1
+  );
+  
+--  print("Loop executed ");
+  print(c);
+--  print(" times\n");
+--  print("Final values: a = ");
+  print(a);
+--  print(", b = ");
+  print(b)
+--  print("\n")

@@ -1,0 +1,10 @@
+-- Author: 58182, Gabriel Henriques
+
+let fibonacci (n) : Int -> Int =
+    if n <= 1 then 
+        n 
+    else 
+        fibonacci(n - 1) + fibonacci(n - 2)
+
+let main(_) : Unit -> Unit =
+    print(fibonacci(20))

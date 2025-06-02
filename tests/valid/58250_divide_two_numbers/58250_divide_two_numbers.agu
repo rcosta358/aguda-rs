@@ -1,0 +1,10 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to divide two numbers (integer division)
+let divide (a, b) : (Int, Int) -> Int =
+  a / b
+
+let result (_) : Unit -> Int = divide(10, 2)
+
+let main(_) : Unit -> Unit =
+    print(result(unit)) --Expected result:5

@@ -1,0 +1,9 @@
+-- Author: tcomp56311, João Vedor
+
+-- minimum 32-bit signed integer value
+let minInt : Int = -2147483648
+
+-- Should return minInt
+
+let main(_) : Unit -> Unit =
+    print(minInt + 1 - 1)

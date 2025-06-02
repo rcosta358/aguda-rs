@@ -1,0 +1,3 @@
+-- Author: 56332, Student Ricardo Sobral
+let add (n, m) : (Int, Int) -> Int = n + m
+let result : Int = add(5)  -- Erro semântico: argumentos insuficientes

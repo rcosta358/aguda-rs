@@ -1,0 +1,14 @@
+-- Author: fc64361, Gustavo Henriques
+
+let mdc (a, b) : (Int, Int) -> Int =
+    while b != 0 do (
+        let temp : Int = b;
+        set b = a % b;
+        set a = temp
+    );
+    a
+
+let main(_) : Unit -> Unit =
+    print(mdc(48, 18));    -- Should print 6
+    print(mdc(101, 103));  -- Should print 1
+    print(mdc(56, 98))     -- Should print 14

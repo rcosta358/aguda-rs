@@ -1,0 +1,8 @@
+-- Author: 58168, Henrique Costa Vale
+
+let f(n) : Int-> Int =
+  if n % 2 == 0 then set n = n*n*n;
+  n
+
+let main(_) : Unit -> Unit =
+  print(f(4))

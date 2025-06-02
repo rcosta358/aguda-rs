@@ -1,0 +1,4 @@
+-- tcomp000, Vasco T. Vasconcelos
+
+let main (_) : Unit -> Unit =
+  let x : Int = ( 4 + 3 ; x + 2)

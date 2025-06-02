@@ -1,0 +1,8 @@
+-- Author: 58166, Manuel Campos
+
+let digits (n) : Int -> Int =
+    let m : Int = if n < 0 then -n else n;
+    if m < 10 then 1 else 1 + digits(m / 10)
+
+let main(_) : Unit -> Unit =
+    print(digits(2025))

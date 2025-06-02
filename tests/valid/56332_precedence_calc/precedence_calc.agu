@@ -1,0 +1,4 @@
+-- Author: 56332, Student Ricardo Sobral
+let main(_) : Unit -> Unit = print(12 + 3 * 4 ^ 2)
+
+--(4 ^ 2) = 16 -> 3 * 16 = 48 -> 12 + 48 = 60

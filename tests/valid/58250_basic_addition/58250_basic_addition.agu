@@ -1,0 +1,8 @@
+-- Author: 58250, Leonardo Monteiro
+
+let a : Int = 5
+let b : Int = 10
+-- let result : Int = a + b
+
+let main(_) : Unit -> Unit =
+    print(a + b)  -- Expected result: 15

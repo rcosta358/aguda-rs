@@ -1,0 +1,6 @@
+-- Author: 64854, Diogo Almeida
+
+let a : String = "a";
+let x : Int = 1;
+-- type checking problem
+let res : String = a + x

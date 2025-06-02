@@ -1,0 +1,9 @@
+-- Author: 56269, Frederico Prazeres
+
+let f (_) : Unit -> Int =
+    let x : Int = 1 ;
+    let y : Int = x + 2 ;
+    y * 2 * x * x
+
+let main(_) : Unit -> Unit =
+    print(f(unit))

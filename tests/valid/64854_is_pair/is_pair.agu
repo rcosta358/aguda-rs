@@ -1,0 +1,7 @@
+-- Author: 64854, Diogo Almeida
+
+let isPair (x) : Int -> Bool =
+    if x % 2 == 0 then true else false
+
+let main(_) : Unit -> Unit =
+    print(isPair(4))

@@ -1,0 +1,11 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to check if a number is even
+let is_even (n) : Int -> Bool =
+  n % 2 == 0
+
+let result (_) : Unit -> Bool = is_even(4)  -- Check if 4 is even
+
+let main(_) : Unit -> Unit =
+    print(result(unit))  -- Expected result: true
+

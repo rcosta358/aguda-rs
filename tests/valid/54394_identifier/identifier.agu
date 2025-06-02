@@ -1,0 +1,10 @@
+-- Author: 54394, Afonso Esteves
+
+let weird_34NameLols_ (_) : Unit -> Unit = 
+    let len'gth________ : Unit = 
+        while false do (
+            let this_is_a_long_name_for_some_reason: Int = 987789
+        )
+
+let main(_) : Unit -> Unit =
+  print(weird_34NameLols_ (unit))

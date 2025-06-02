@@ -1,0 +1,11 @@
+-- Author: 54394, Afonso Esteves
+
+let fac (n) : Int -> Int =
+    if n == 0 then 1 else n * fac(n - 1)
+
+
+let comb (n, k) : (Int, Int) -> Int =
+     fac(n) / (fac(k) * fac(n - k))
+
+let main(_) : Unit -> Unit = print(comb(6, 2))
+

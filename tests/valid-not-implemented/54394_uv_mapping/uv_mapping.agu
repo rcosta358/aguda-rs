@@ -1,0 +1,22 @@
+-- Author: 54394, Afonso Esteves
+
+-- In fragment shaders we can modify uv coordinates to sample a rotated texture
+-- Since we dont have floats we use [0, 100]
+
+let vec2 (x, y) : (Int, Int) -> Int[] =
+    let out : Int[] = new Int[2 | 0];
+    set out[0] = x;
+    set out[1] = y;
+    out
+
+
+let rot90 (uv) : Int[] -> Int[] =
+    vec2(100 - uv[1], uv[0])
+    
+
+let rot270 (uv) : Int[] -> Int[] =
+    vec2(uv[1], 100-uv[0])
+
+
+let _ : Int[] = rot90(rot270(vec2(70, 30)))
+

@@ -1,0 +1,21 @@
+-- Author: 58166, Manuel Campos
+
+let pingPong (n) : Int -> Unit =
+    let i : Int = 0;
+    while i < (2 * n) do (
+        let j : Int = 0;
+        while (i < n && j < i) || (i > n && j < (2 * n - i - 1)) do (
+            print(" ");
+            set j = j + 1
+        );
+        print("o");
+        print("\n");
+        set i = i + 1
+    )
+    
+
+let main(_) : Unit -> Unit =
+    print("--- Ping Pong ---");
+    print("\n");
+    pingPong(5)
+    

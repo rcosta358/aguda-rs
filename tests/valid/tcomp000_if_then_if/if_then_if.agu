@@ -1,0 +1,4 @@
+-- tcomp000, Vasco T. Vasconcelos
+
+let main(_) : Unit -> Unit =
+  print(if true then if false then unit)

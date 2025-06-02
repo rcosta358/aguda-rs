@@ -1,0 +1,2 @@
+-- Author: 56307, Denis Ungureanu, Semantic Test 2
+let wrongType : Int = "hello"

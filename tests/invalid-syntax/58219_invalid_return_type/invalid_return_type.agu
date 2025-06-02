@@ -1,0 +1,4 @@
+-- Author: 58219, Mariana Costa
+-- Semantic error: return type is invalid
+
+let _ (n) : Int -> Boool = n + 5

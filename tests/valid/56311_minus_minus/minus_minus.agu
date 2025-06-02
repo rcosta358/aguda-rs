@@ -1,0 +1,4 @@
+-- Author: tcomp56311, João Vedor   
+
+let main(_) : Unit -> Unit =
+    print(-(-4))

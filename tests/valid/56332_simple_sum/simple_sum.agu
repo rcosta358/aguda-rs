@@ -1,0 +1,3 @@
+-- Author: 56332, Student Ricardo Sobral
+let sum (a, b) : (Int, Int) -> Int = a + b
+let main(_) : Unit -> Unit = print(sum(10, 5))

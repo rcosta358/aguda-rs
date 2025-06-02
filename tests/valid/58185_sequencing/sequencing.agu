@@ -1,0 +1,16 @@
+-- Author: Eduardo Santos, 58185
+-- Testing expression sequencing and values
+
+let returnFirst (a, b) : (Int, Int) -> Int =
+    a; b; a
+
+let returnLast (a, b, c) : (Int, Int, Int) -> Int =
+    a; b; c
+
+let main(_) : Unit -> Unit =
+ --   print("Value of returnFirst(1, 2): ");
+    print(returnFirst(1, 2));
+ --   print("\n");
+    
+ --   print("Value of returnLast(10, 20, 30): ");
+    print(returnLast(10, 20, 30))

@@ -1,0 +1,5 @@
+-- Author: 58166, Manuel Campos
+
+-- Syntatic Error (the type of the variable x is missing)
+let _ : Unit =
+    let x = 50

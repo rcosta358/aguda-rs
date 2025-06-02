@@ -1,0 +1,9 @@
+-- Author: fc64361 , Gustavo Henriques
+
+let AddI (n, m) : (Int, Int) -> Int =
+    let sum : Int = m;
+    while n > 0 do (
+        set sum = su + 1; -- semantic error: variable "su" is not defined
+        set n = n - 1
+    );
+    sum

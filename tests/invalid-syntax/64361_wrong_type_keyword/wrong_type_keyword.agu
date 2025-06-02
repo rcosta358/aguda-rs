@@ -1,0 +1,3 @@
+-- Author: fc64361 , Gustavo Henriques
+
+let x : integer = 10 -- lexical error: integer is not the keyword (should be Int)

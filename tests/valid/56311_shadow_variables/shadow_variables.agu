@@ -1,0 +1,6 @@
+-- Author: tcomp56311, João Vedor
+
+let main(_) : Unit -> Unit =
+    let x : Int = 2;  -- Shadow parameter
+    let x : Int = 4;  -- Shadow again
+    print(x)

@@ -1,0 +1,10 @@
+-- Author: tcomp56311, João Vedor
+
+let countDown(n) : Int -> Unit =
+    while n > 0 do (
+        print(n);
+        set n = n - 1
+    )
+
+let main(_) : Unit -> Unit =
+    countDown(10)

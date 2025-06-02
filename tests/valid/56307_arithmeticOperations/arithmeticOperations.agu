@@ -1,0 +1,20 @@
+-- Author: 56307, Denis Ungureanu
+
+let sumUp (n) : Int -> Int =
+  let s : Int = 0;
+  let i : Int = 1;
+  while i <= n do (
+    set s = s + i;
+    set i = i + 1
+  );
+  s
+
+let product (a, b) : (Int, Int) -> Int =
+  a * b
+
+let combine (n, m) : (Int, Int) -> Int =
+  let s : Int = sumUp(n);
+  let p : Int = product(n, m);
+  s + p
+
+let main(_) : Unit -> Unit = print(combine(10, 5))

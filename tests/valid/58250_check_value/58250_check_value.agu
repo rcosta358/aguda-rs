@@ -1,0 +1,10 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to check if a number is positive or negative
+let check_sign(n) : Int -> Bool = 
+  if n > 0 then true else false
+
+let result (_) : Unit -> Bool = check_sign(-5)
+
+let main(_) : Unit -> Unit =
+    print(result(unit))  -- Expected result: Negative

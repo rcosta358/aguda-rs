@@ -1,0 +1,7 @@
+-- Author: 56269, Frederico Prazeres
+
+-- Semantic Error: a is an Integer
+
+let wrongAssignment (n) : Int -> Int =
+  let a : Int = "aaaa";
+  a

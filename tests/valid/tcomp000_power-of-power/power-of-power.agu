@@ -1,0 +1,4 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let main (x) : Unit -> Unit =
+  print(5 ^ 4 ^ 3 ^ 2)

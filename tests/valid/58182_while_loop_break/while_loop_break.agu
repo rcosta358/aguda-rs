@@ -1,0 +1,16 @@
+-- Author: 58182, Gabriel Henriques
+
+let main(_) : Unit -> Unit =
+    let i : Int = 0 ;
+    let limit : Int = 10 ;
+    let breakCondition : Int = 5 ;
+    let flag : Bool = true ;
+
+    while i < limit && flag do (
+        if i == breakCondition then
+            set flag = false
+        else (
+            print(i) ;
+            set i = i + 1
+        )
+    )

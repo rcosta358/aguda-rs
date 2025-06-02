@@ -1,0 +1,16 @@
+-- Author: fc56334, Goncalo Lopes
+
+let helloWorld(_) : Unit -> Unit =
+    let i : Int = 10;
+    while i >= 0 do (
+        if i == 0 then
+            print(55)
+        else
+            if i == 1 then
+                print(77)
+            else print(99) ;
+        set i = i - 1
+    )
+
+let main(_) : Unit -> Unit =
+   helloWorld(unit)

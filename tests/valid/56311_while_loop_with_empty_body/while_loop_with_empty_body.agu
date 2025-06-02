@@ -1,0 +1,9 @@
+-- Author: tcomp56311, João Vedor
+
+let countForever(n) : Int -> Unit =
+    while false do print(n)  -- No side effects
+
+let main(x) : Unit -> Unit = 
+    countForever(10) ; print(x)
+
+-- Goes to infinite must stop manually -- Isto nao é teste (vv)

@@ -1,0 +1,14 @@
+-- Author: 64371, Ricardo Costa
+
+-- Project Euler: Multiples of 3 or 5
+-- https://projecteuler.net/problem=1
+
+let main (_): Unit -> Unit =
+    let res: Int = 0;
+    let i: Int = 0;
+    while i < 1000 do (
+        if i % 3 == 0 || i % 5 == 0 then -- multiples of 3 or 5
+            set res = res + i;
+        set i = i + 1
+    );
+    print(res) -- 233168

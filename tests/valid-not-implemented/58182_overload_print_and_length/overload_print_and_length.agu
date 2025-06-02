@@ -1,0 +1,25 @@
+-- Author: 58182, Gabriel Henriques
+-- Parse error at token TokenId (AlexPn 160 7 23) "String"
+
+let main(_) : Unit -> Unit =
+
+    let intValue : Int = 1 ;
+    let boolValue : Bool = true ;
+    let stringValue : String = "AGUDA" ;
+    let intArray : Int[] = new Int[3 | -1] ;
+    let boolArray : Bool[] = new Bool[2 | false] ;
+
+    print("Integer: ") ; 
+    print(intValue) ;
+
+    print("\nBoolean: ") ; 
+    print(boolValue) ;
+
+    print("\nString: ") ; 
+    print(stringValue) ;
+
+    print("\nLength of intArray: ") ; 
+    print(length(intArray)) ;
+
+    print("\nLength of boolArray: ") ; 
+    print(length(boolArray))

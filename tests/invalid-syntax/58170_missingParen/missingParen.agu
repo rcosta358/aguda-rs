@@ -1,0 +1,4 @@
+-- Author: 58170, Guilherme Sousa
+
+let main : Unit =
+  print("Hello, world!"

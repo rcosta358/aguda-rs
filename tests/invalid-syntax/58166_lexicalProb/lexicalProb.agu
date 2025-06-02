@@ -1,0 +1,4 @@
+-- Author: 58166, Manuel Campos
+
+let _ : Unit =
+    let s : String = |badStringFormat|;

@@ -1,0 +1,6 @@
+-- Author: 64854, Diogo Almeida
+
+let _ : Unit =
+    -- missing the ;
+    let a : Int = 1
+    set a = a + 1

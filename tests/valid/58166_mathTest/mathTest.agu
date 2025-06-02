@@ -1,0 +1,7 @@
+-- Author: 58166, Manuel Campos
+
+let mathTest (_) : Unit -> Bool =
+    1 + 1 == 3
+
+let main(_) : Unit -> Unit =
+    print(mathTest(unit))

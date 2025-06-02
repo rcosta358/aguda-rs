@@ -1,0 +1,2 @@
+-- Author: 56332, Student Ricardo Sobral
+    let num : Int = 123abc  -- Erro léxico: número inválido

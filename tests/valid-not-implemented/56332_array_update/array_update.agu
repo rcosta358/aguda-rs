@@ -1,0 +1,13 @@
+-- Author: 56332, Student Ricardo Sobral
+let a : Int[] = new Int[3 | 0]; --array de tamanho 3 com elementos inicializados a 0
+
+-- Update do array
+set a[0] = 100;
+set a[1] = 2;
+set a[2] = 404;
+
+--Imprime o ultimo elemento
+let _ : Unit = 
+    print(a[0]);
+    print(a[1]);
+    print(a[2])

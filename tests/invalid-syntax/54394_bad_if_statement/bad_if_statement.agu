@@ -1,0 +1,5 @@
+-- Author: 54394, Afonso Esteves
+
+let java_is_overrated (p, v1, v2) : (Bool, Int, Int) -> Int = 
+    if p v1 else v2
+

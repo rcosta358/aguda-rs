@@ -1,0 +1,3 @@
+-- Author: 64371, Ricardo Costa
+
+let str: String = "hello world -- lexical error: unterminated string literal

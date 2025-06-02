@@ -1,0 +1,4 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let main (_) : Unit -> Unit =
+  print((let y : Int = 10; y + 20) + (let y : Int = 30; y + 40))

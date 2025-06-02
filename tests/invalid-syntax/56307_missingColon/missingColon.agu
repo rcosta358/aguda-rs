@@ -1,0 +1,2 @@
+-- Author: 56037, Denis Ungureanu, Syntax Test 1
+let missingColon (x) Int -> Bool = x == 0

@@ -6,7 +6,7 @@ use aguda_rs::diagnostics::formatting::format_aguda_errors;
 
 #[test]
 fn test_compiler() {
-    let base_dir = Path::new("./aguda-testing/test");
+    let base_dir = Path::new("./tests");
     let valid_dir = base_dir.join("valid");
     let invalid_syntax_dir = base_dir.join("invalid-syntax");
     let invalid_semantic_dir = base_dir.join("invalid-semantic");

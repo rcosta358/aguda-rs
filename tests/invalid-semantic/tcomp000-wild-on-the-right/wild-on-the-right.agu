@@ -1,0 +1,3 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+
+let f (_) : Int -> Int = 2 * _

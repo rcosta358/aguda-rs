@@ -1,0 +1,10 @@
+-- Author: tcomp000, Vasco T. Vasconcelos
+-- Requires short-circuit boolean operators
+
+let even (x) : Int -> Bool =
+  x == 0 || odd(x - 1)
+
+let odd (x) : Int -> Bool =
+  x != 0 && even(x - 1)
+
+let main (_) : Unit -> Unit = print(odd(17))

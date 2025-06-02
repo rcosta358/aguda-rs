@@ -1,0 +1,32 @@
+-- Author: Eduardo Santos, 58185
+-- Testing boolean logic operations
+
+let printBool (b) : Bool -> Unit =
+    if b then
+        print(true)
+    else
+        print(false)
+
+let main(_) : Unit -> Unit =
+--    print("true && true = ");
+    printBool(true && true);
+--    print("\n");
+    
+--    print("true && false = ");
+    printBool(true && false);
+--    print("\n");
+    
+--    print("true || false = ");
+    printBool(true || false);
+--    print("\n");
+    
+--    print("false || false = ");
+    printBool(false || false);
+--    print("\n");
+    
+--    print("!true = ");
+    printBool(!true);
+--    print("\n");
+    
+--    print("!false = ");
+    printBool(!false)

@@ -1,0 +1,4 @@
+-- Author: 58215, Manuel Lourenço
+
+let main : Unit =
+    let a : Unit = 648abc

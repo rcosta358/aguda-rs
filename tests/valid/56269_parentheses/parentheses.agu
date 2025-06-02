@@ -1,0 +1,4 @@
+-- Author: 56269, Frederico Prazeres
+
+let main(_) : Unit -> Unit =
+  print((1 + 2) * 3)

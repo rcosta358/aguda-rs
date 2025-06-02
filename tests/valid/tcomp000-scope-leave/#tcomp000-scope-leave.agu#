@@ -1,0 +1,5 @@
+-- tcomp000, Vasco T. Vasconcelos
+let main (_) : Unit -> Unit =
+  let x : Int = 5 ;
+  print((let x : Bool = true ; 6) + x) ;
+  unit

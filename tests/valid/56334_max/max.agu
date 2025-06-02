@@ -1,0 +1,6 @@
+-- Author: fc56334, Goncalo Lopes
+let max(x,y) : (Int,Int) -> Int =
+    if x >= y then x else y
+
+let main(_) : Unit -> Unit =
+   print(max(5,9))

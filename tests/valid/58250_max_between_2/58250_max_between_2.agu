@@ -1,0 +1,8 @@
+-- Author: 58250, Leonardo Monteiro
+
+-- Function to find the maximum of two numbers
+let max (a, b) : (Int, Int) -> Int =
+  if a > b then a else b
+
+let main(_) : Unit -> Unit = 
+    print(max(10, 20))  -- Expected result: 20

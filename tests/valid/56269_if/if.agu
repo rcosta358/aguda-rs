@@ -1,0 +1,24 @@
+-- Author: 56269, Frederico Prazeres
+
+-- if inside print()
+
+
+let a : Bool = true
+let b : Bool = false
+let c : Bool = true
+
+let main(_) : Unit -> Unit =
+  print(
+    if 
+        if a 
+        then b
+        else c
+    then 
+        if b 
+        then c 
+        else a
+    else 
+        if c 
+        then a 
+        else b
+  )

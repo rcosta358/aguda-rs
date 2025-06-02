@@ -1,0 +1,5 @@
+-- Author: fc64361 , Gustavo Henriques
+
+let Sum(n, m) : (Int, Int) -> Int = 
+    let x : String = n + m; -- semantic error: the sum of n + m will return an integer, not a String 
+    x
