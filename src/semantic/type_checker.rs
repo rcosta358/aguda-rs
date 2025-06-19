@@ -91,7 +91,12 @@ impl TypeChecker {
                         self.check_against(rhs, &Type::Bool);
                         Type::Bool
                     }
-                    Op::Eq | Op::Neq | Op::Lt | Op::Leq | Op::Gt | Op::Geq => {
+                    Op::Lt | Op::Leq | Op::Gt | Op::Geq => {
+                        self.check_against(lhs, &Type::Int);
+                        self.check_against(rhs, &Type::Int);
+                        Type::Bool
+                    }
+                    Op::Eq | Op::Neq => {
                         let left_type = self.type_of(lhs);
                         self.check_against(rhs, &left_type);
                         Type::Bool
@@ -172,11 +177,11 @@ impl TypeChecker {
     }
 
     fn check_against(&mut self, expr: &Spanned<Expr>, expected: &Type) {
+        let found = self.type_of(expr);
         match expected {
             // any type matches any type
             Type::Any => return,
             Type::Array(expected_inner) if **expected_inner == Type::Any => {
-                let found = self.type_of(expr);
                 match found {
                     // array of any matches any array of any type
                     Type::Array(_) => return,
@@ -198,8 +203,25 @@ impl TypeChecker {
                     let lhs_ty = self.type_of(lhs);
                     self.check_against(rhs, &lhs_ty);
                 }
+                Expr::ArrayIndex { lhs, index } => {
+                    let lhs_type = self.type_of_lhs(lhs);
+                    match lhs_type {
+                        Type::Array(elem_type) => {
+                            self.check_against(index, &Type::Int);
+                            if *elem_type != *expected {
+                                self.errors.push(TypeError::type_mismatch(
+                                    expr.span.clone(),
+                                    *elem_type.clone(),
+                                    expected.clone()
+                                ));
+                            }
+                        }
+                        _ => {
+                            self.errors.push(TypeError::not_indexable(lhs.span.clone(), lhs_type));
+                        }
+                    }
+                }
                 _ => {
-                    let found = self.type_of(expr);
                     if found == Type::Any {
                         return; // avoid error propagation
                     }
