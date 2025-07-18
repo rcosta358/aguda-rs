@@ -1,14 +1,10 @@
--- Project Euler: Even Fibonacci Numbers
--- https://projecteuler.net/problem=2
+
 
 let main (_): Unit -> Unit =
-    let res: Int = 0;
-    let i: Int = 1;
-    let j: Int = 2;
-    while j < 4000000 do (
-        if j % 2 == 0 then set res = res + j;
-        let tmp: Int = i;
-        set i = j;
-        set j = tmp + j
-    );
-    print(res) -- 4613732
+    let i: Int = 0;
+    while i < 100 do (
+        print("hello ");
+        print(i);
+        print("\n");
+        set i = i + 1
+    )

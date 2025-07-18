@@ -17,6 +17,10 @@ void __print_unit__(void) {
     printf("unit");
 }
 
+void __print_string__(const char *s) {
+    printf("%s", s);
+}
+
 int __pow__(int a, int b) {
     int r = 1;
     while (b-- > 0) r *= a;

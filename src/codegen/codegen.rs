@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use inkwell::AddressSpace;
 use inkwell::{context::Context, builder::Builder, module::Module, values::*, types::BasicTypeEnum, IntPredicate};
 use std::ops::Deref;
 use std::path::Path;
@@ -283,7 +284,6 @@ impl<'ctx> CodeGen<'ctx> {
                 let phi = self.builder.build_phi(then_val.get_type(), "phi").unwrap();
                 phi.add_incoming(&[(&then_val, then_end), (&else_val, else_end)]);
                 phi.as_basic_value()
-
             }
             Expr::FunCall { id, args } => {
                 let fun_name = match id.value.as_str() {
@@ -298,6 +298,7 @@ impl<'ctx> CodeGen<'ctx> {
                                     _ => panic!("unsupported bit width for print: {}", ty.get_bit_width()),
                                 }
                             }
+                            BasicTypeEnum::PointerType(_) => "__print_string__",
                             BasicTypeEnum::StructType(ty) if ty.get_field_types().is_empty() =>
                                 "__print_unit__",
                             _ => panic!("unsupported type for print: {:?}", arg),
@@ -325,7 +326,9 @@ impl<'ctx> CodeGen<'ctx> {
             Expr::Int(n) => self.int_type().const_int(*n as u64, true).into(),
             Expr::Bool(b) => self.bool_type().const_int(*b as u64, false).into(),
             Expr::Unit => self.unit_type().const_zero().into(),
-            _ => unimplemented!("expression {:?}", expr),
+            Expr::String(str) => self.builder.build_global_string_ptr(str, "str").unwrap().as_pointer_value().into(),
+            Expr::NewArray { .. } => todo!(),
+            Expr::ArrayIndex { .. } => todo!(),
         }
     }
 
@@ -396,6 +399,7 @@ impl<'ctx> CodeGen<'ctx> {
             Type::Int => self.int_type().into(),
             Type::Bool => self.bool_type().into(),
             Type::Unit => self.unit_type().into(),
+            Type::String => self.context.i8_type().ptr_type(AddressSpace::default()).into(),
             _ => unimplemented!("type {:?}", ty),
         }
     }

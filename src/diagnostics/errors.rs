@@ -31,6 +31,7 @@ pub enum LexicalErrorKind {
     IntegerOverflow,
     FloatingPointNumber,
     UnterminatedString,
+    InvalidEscape,
     #[default]
     UnrecognizedToken,
 }

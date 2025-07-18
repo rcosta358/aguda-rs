@@ -263,7 +263,7 @@ impl Expr {
             Expr::Int(n) => n.to_string(),
             Expr::Bool(b) => format!("{}", b),
             Expr::Unit => "unit".to_string(),
-            Expr::String(s) => format!("{}", s),
+            Expr::String(s) => format!("\"{}\"", s),
             Expr::Id(id) => id.to_string(),
             Expr::FunCall { id, args } => {
                 format!(

@@ -17,8 +17,8 @@ pub enum Token {
     #[regex("[0-9]+\\.[0-9]+", |_| Err(LexicalErrorKind::FloatingPointNumber), priority = 0)]
     Int(i64),
 
-    #[regex("\"[^\"\n]*\"", |lex| lex.slice().to_string())]
-    #[regex("\"[^\"\n]*", |_| Err(LexicalErrorKind::UnterminatedString), priority = 0)]
+    #[regex(r#""([^"\\]|\\.)*""#, |lex| parse_string(lex.slice()), priority = 2)]
+    #[regex(r#""([^"\\]|\\.)*"#, |_| Err(LexicalErrorKind::UnterminatedString), priority = 1)]
     String(String),
 
     #[token("true")]
@@ -177,4 +177,27 @@ impl From<ParseIntError> for LexicalErrorKind {
             _ => LexicalErrorKind::InvalidInteger,
         }
     }
+}
+
+fn parse_string(src: &str) -> Result<String, LexicalErrorKind> {
+    let mut out = String::with_capacity(src.len() - 2); // without quotes
+    let mut chars = src[1..src.len() - 1].chars(); // remove quotes
+    while let Some(c) = chars.next() {
+        // normal character
+        if c != '\\' {
+            out.push(c);
+            continue;
+        }
+        // special escape sequences
+        match chars.next() {
+            Some('n')  => out.push('\n'),
+            Some('r')  => out.push('\r'),
+            Some('t')  => out.push('\t'),
+            Some('0')  => out.push('\0'),
+            Some('"')  => out.push('"'),
+            Some('\\') => out.push('\\'),
+            _ => return Err(LexicalErrorKind::InvalidEscape),
+        }
+    }
+    Ok(out)
 }

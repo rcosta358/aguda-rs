@@ -40,6 +40,7 @@ fn format_aguda_error(e: &AgudaError, suppress_hints: bool, path: &str, src: &st
                     LexicalErrorKind::InvalidInteger => "invalid integer literal",
                     LexicalErrorKind::IntegerOverflow => "integer overflow",
                     LexicalErrorKind::FloatingPointNumber => "floating point number",
+                    LexicalErrorKind::InvalidEscape => "invalid escape sequence",
                 };
                 diagnostic.render(label, description, e.span.clone())
             }
